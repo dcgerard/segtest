@@ -12,6 +12,12 @@ v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org
 [![R-CMD-check](https://github.com/dcgerard/segtest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dcgerard/segtest/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+This is a light version of the original package,
+[`menbayes`](https://github.com/dcgerard/menbayes), that only contains
+the likelihood ratio approaches. This is for easier maintenance and
+install. See the [`menbayes`](https://github.com/dcgerard/menbayes)
+package for the Bayesian tests.
+
 Provides a suite of tests for segregation distortion in F1 polyploid
 populations (for now, just tetraploids). This is under different
 assumptions of meiosis. The main functions are:
