@@ -41,7 +41,7 @@ We can obtain offspring genotype frequencies via `offspring_gf_2()` and `offspri
 - `p2`: The second parent's genotype.
 
 Let's generate some example genotype frequencies. You can play around with the parameter values yourself.
-```{r}
+```{r, fig.alt="A probability mass function of genotypes of a tetraploid F1 population"}
 gf <- offspring_gf_3(
   tau = 1, 
   beta = 1/6, 
