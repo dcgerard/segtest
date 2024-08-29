@@ -1,0 +1,50 @@
+Package: segtest
+Title: Tests for Segregation Distortion in Polyploids
+Version: 0.1.0
+Authors@R: 
+    c(person(given = "David", 
+             family = "Gerard",
+             email = "gerard.1787@gmail.com", 
+             role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0001-9450-5023")),
+      person(given = "Mira", 
+             family = "Thakkar", 
+             email = "chrtmira@gmail.com", 
+             role = c("aut")),
+      person(given = "NSF DBI 2132247",
+             role = "fnd",
+             comment = "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247")
+     )
+Description: Provides a suite of tests for
+    segregation distortion in F1 polyploid populations (for
+    now, just tetraploids). This is under different assumptions of
+    meiosis. Details of these methods are described in
+    Gerard et al. (2024) <doi:10.1101/2024.02.07.579361>.
+    This material is based upon work supported by the
+    National Science Foundation under Grant No. 2132247.  The
+    opinions, findings, and conclusions or recommendations expressed
+    are those of the author and do not necessarily reflect the views
+    of the National Science Foundation.
+License: GPL (>= 3)
+BugReports: https://github.com/dcgerard/segtest/issues
+URL: https://github.com/dcgerard/segtest
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Biarch: true
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    hwep,
+    Rcpp,
+    updog
+Suggests: 
+    knitr,
+    polymapR,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo

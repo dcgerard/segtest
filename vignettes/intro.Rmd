@@ -1,0 +1,125 @@
+---
+title: "Introduction to segtest"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to segtest}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(segtest)
+```
+
+The `segtest` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). Details of these methods may be found in Gerard et al. (2024). The main functions are:
+
+- `lrt_men_g4()`: Likelihood ratio test for segregation distortion using known genotypes.
+- `lrt_men_gl4()`: Likelihood ratio test for segregation distortion using genotype likelihoods.
+- `offspring_gf_2()`: Offspring genotype frequencies under the two parameter model of meiosis.
+- `offspring_gf_3()`: Offspring genotype frequencies under the three parameter model of meiosis.
+- `simf1g()`: Simulate genotype counts from an F1 population of tetraploids.
+- `simf1gl()`: Simulate genotype likelihoods from an F1 population of tetraploids.
+
+Here, we will demonstrate some of our functions.
+
+# Offspring genotype frequencies
+
+We can obtain offspring genotype frequencies via `offspring_gf_2()` and `offspring_gf_3()`. These are two different parameterizations of the same model for meiosis. For `offspring_gf_3()`, you insert the following parameters:
+
+- `tau`: Probability of quadrivalent formation.
+- `beta`: Probability of double reduction given quadrivalent formation
+- `gamma1`: Probability of `AA_aa` pairing in parent 1 given bivalent formation. Only applicable when `p1 = 2`.
+- `gamma2`: Probability of `AA_aa` pairing in parent 2 given bivalent formation. Only applicable when `p2 = 2`.
+- `p1`: The first parent's genotype.
+- `p2`: The second parent's genotype.
+
+Let's generate some example genotype frequencies. You can play around with the parameter values yourself.
+```{r}
+gf <- offspring_gf_3(
+  tau = 1, 
+  beta = 1/6, 
+  gamma1 = 1/3,
+  gamma2 = 1/3, 
+  p1 = 1,
+  p2 = 2)
+plot(
+  x = 0:4,
+  y = gf,
+  type = "h",
+  xlab = "Genotype", 
+  ylab = "Frequency",
+  ylim = c(0, 1))
+```
+
+The `offspring_gf_3()` function is safer to use because there is a dependence between the preferential pairing parameter and the double reduction rate that bounds these values in `offspring_gf_2()`, and so in the two-parameter model you might accidentally choose values that are impossible. I did not set up checks for these values because the bounds depend on the maximum rate of double reduction, which can vary significantly. Please see Gerard et al. (2024) for details.
+
+
+# When the null is true
+
+We'll first simulate some data where the null of no segregation distortion is true.
+```{r}
+set.seed(1)
+g1 <- 1
+g2 <- 2
+alpha <- 1/6
+xi1 <- 1/3
+xi2 <- 1/3
+n <- 20
+rd <- 10
+x <- simf1g(
+  n = n, 
+  g1 = g1, 
+  g2 = g2, 
+  alpha = alpha, 
+  xi1 = xi1, 
+  xi2 = xi2)
+gl <- simf1gl(
+  n = n, 
+  rd = rd, 
+  g1 = g1,
+  g2 = g2, 
+  alpha = alpha, 
+  xi1 = xi1,
+  xi2 = xi2)
+```
+
+The LRT has a large $p$-value, which is appropriate since there is no segregation distortion. 
+
+```{r}
+lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)
+```
+
+```{r}
+lout$p_value
+```
+
+```{r}
+lout_gl <- lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
+```
+
+```{r}
+lout_gl$p_value
+```
+
+# When the alternative is true
+
+When we simulate data where the alternative is true, we get a very small $p$-value.
+```{r}
+x <- c(stats::rmultinom(n = 1, size = 20, prob = rep(1/5, 5)))
+lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)
+```
+
+```{r}
+lout$p_value
+```
+
+# References
+
+Gerard D, Thakkar M, & Ferrão LFV (2024). "Tests for segregation distortion in tetraploid F1 populations." _bioRxiv_. [doi:10.1101/2024.02.07.579361](https://doi.org/10.1101/2024.02.07.579361).
