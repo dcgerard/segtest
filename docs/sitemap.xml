@@ -1,11 +1,11 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://dcgerard.github.io/segtest/404.html</loc></url>
+<url><loc>https://dcgerard.github.io/segtest/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://dcgerard.github.io/segtest/LICENSE.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/articles/index.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/articles/intro.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/authors.html</loc></url>
-<url><loc>https://dcgerard.github.io/segtest/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/index.html</loc></url>
-<url><loc>https://dcgerard.github.io/segtest/LICENSE.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/chisq_g4.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/chisq_gl4.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/em_li.html</loc></url>
@@ -21,13 +21,14 @@
 <url><loc>https://dcgerard.github.io/segtest/reference/offspring_geno.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/offspring_gf_2.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/offspring_gf_3.html</loc></url>
-<url><loc>https://dcgerard.github.io/segtest/reference/polymapr_test.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/po_gl.html</loc></url>
+<url><loc>https://dcgerard.github.io/segtest/reference/polymapr_test.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/pvec_tet_2.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/pvec_tet_3.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/segtest-package.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/simf1g.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/simf1gl.html</loc></url>
+<url><loc>https://dcgerard.github.io/segtest/reference/simgl.html</loc></url>
 <url><loc>https://dcgerard.github.io/segtest/reference/three_to_two.html</loc></url>
 </urlset>
 

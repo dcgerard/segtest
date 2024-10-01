@@ -336,7 +336,7 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #' @export
 simgl <- function(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01) {
   ploidy <- length(nvec) - 1
-  genovec <- unlist(mapply(FUN = rep, x = 0:ploidy, times = nvec))
+  genovec <- gcount_to_gvec(gcount = nvec)
   ret <- po_gl(genovec = genovec, ploidy = ploidy, p1_geno = NULL, p2_geno = NULL, seq = seq, rd = rd, bias = bias, od = od)
   return(ret$genologlike)
 }
