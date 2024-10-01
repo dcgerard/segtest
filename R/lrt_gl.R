@@ -5,7 +5,7 @@
 #' @param p1_gl genotype log-likelihoods of parent 1.
 #' @param p2_gl genotype log-likelihoods of parent 2.
 #' @param drbound maximum double reduction rate
-#' @param ntry number of restarts of optimizatioin
+#' @param ntry number of restarts of optimization
 #' @param dr Should we allow for double reduction (\code{TRUE})
 #'     or not (\code{FALSE})?
 #' @param pp Should we allow for partial preferential pairing
