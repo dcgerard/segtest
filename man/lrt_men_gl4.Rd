@@ -85,7 +85,7 @@ lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 lrt_men_gl4(gl = gl)
 
 ## Alternative simulation
-gl <- hwep::simgl(nvec = rep(5, 5))
+gl <- simgl(nvec = rep(5, 5))
 lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 
 }

@@ -6,31 +6,31 @@
 \usage{
 po_gl(
   genovec,
-  p1_geno,
-  p2_geno,
   ploidy,
-  seq = 0.01,
+  p1_geno = NULL,
+  p2_geno = NULL,
   rd = 10,
+  seq = 0.01,
   bias = 1,
   od = 0.01
 )
 }
 \arguments{
-\item{genovec}{Offspring genotypes}
+\item{genovec}{Offspring genotypes. \code{genovec[i]} is the dosage for individual i.}
+
+\item{ploidy}{Ploidy}
 
 \item{p1_geno}{Parent 1 genotype}
 
 \item{p2_geno}{Parent 2 genotype}
 
-\item{ploidy}{Ploidy}
+\item{rd}{Read depth. Lower is more uncertain.}
 
-\item{seq}{Sequencing error rate}
+\item{seq}{Sequencing error rate. Higher means more uncertain.}
 
-\item{rd}{Read depth}
+\item{bias}{Bias. 1 means no bias.}
 
-\item{bias}{Bias}
-
-\item{od}{Overdispersion}
+\item{od}{Overdispersion. Typical value is like 0.01. Higher means more uncertain.}
 }
 \value{
 Genotype likelihoods

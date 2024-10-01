@@ -44,7 +44,7 @@
 #' lrt_men_gl4(gl = gl)
 #'
 #' ## Alternative simulation
-#' gl <- hwep::simgl(nvec = rep(5, 5))
+#' gl <- simgl(nvec = rep(5, 5))
 #' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 #'
 #' @export
@@ -369,7 +369,7 @@ obj_dr_pp_gl <- function(par, gl, g1, g2) {
 #' lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2)
 #'
 #' ## Alt sim
-#' gl <- hwep::simgl(nvec = rep(5, 5))
+#' gl <- simgl(nvec = rep(5, 5))
 #' lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2)
 #'
 #' @noRd

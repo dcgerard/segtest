@@ -217,26 +217,40 @@ gcount_to_gvec <- function(gcount) {
 #' (ii) the offspring genotype freq, (iii) sequencing error rate, (iv) read
 #' depth, (v) bias, (vi) overdispersion and returns genotype likelihoods.
 #'
-#' @param genovec Offspring genotypes
+#' @param genovec Offspring genotypes. \code{genovec[i]} is the dosage for individual i.
 #' @param p1_geno Parent 1 genotype
 #' @param p2_geno Parent 2 genotype
 #' @param ploidy Ploidy
-#' @param seq Sequencing error rate
-#' @param rd Read depth
-#' @param bias Bias
-#' @param od Overdispersion
+#' @param rd Read depth. Lower is more uncertain.
+#' @param seq Sequencing error rate. Higher means more uncertain.
+#' @param bias Bias. 1 means no bias.
+#' @param od Overdispersion. Typical value is like 0.01. Higher means more uncertain.
 #'
 #' @return Genotype likelihoods
 #'
 #' @author Mira Thakkar
 #'
 #' @export
-po_gl <- function(genovec, p1_geno, p2_geno, ploidy, seq = 0.01, rd = 10, bias = 1, od = 0.01) {
+po_gl <- function(genovec, ploidy, p1_geno = NULL, p2_geno = NULL, rd = 10, seq = 0.01, bias = 1, od = 0.01) {
   n <- length(genovec)
+  stopifnot(genovec <= ploidy)
   sizevec <- rep(rd, length.out = n)
   refvec <- updog::rflexdog(sizevec = sizevec, geno = genovec, ploidy = ploidy, seq = seq, bias = bias, od = od)
-  p1ref <- updog::rflexdog(sizevec = rd, geno = p1_geno, ploidy = ploidy, seq = seq, bias = bias, od = od)
-  p2ref <- updog::rflexdog(sizevec = rd, geno = p2_geno, ploidy = ploidy, seq = seq, bias = bias, od = od)
+  if (!is.null(p1_geno)) {
+    p1ref <- updog::rflexdog(sizevec = rd, geno = p1_geno, ploidy = ploidy, seq = seq, bias = bias, od = od)
+    p1rd <- rd
+  } else {
+    p1ref <- NULL
+    p1rd <- NULL
+  }
+
+  if (!is.null(p2_geno)) {
+    p2ref <- updog::rflexdog(sizevec = rd, geno = p2_geno, ploidy = ploidy, seq = seq, bias = bias, od = od)
+    p2rd <- rd
+  } else {
+    p2ref <- NULL
+    p2rd <- NULL
+  }
 
   fout <- updog::flexdog_full(refvec = refvec,
                               sizevec = sizevec,
@@ -249,9 +263,9 @@ po_gl <- function(genovec, p1_geno, p2_geno, ploidy, seq = 0.01, rd = 10, bias =
                               update_seq = FALSE,
                               update_od = FALSE,
                               p1ref = p1ref,
-                              p1size = rd,
+                              p1size = p1rd,
                               p2ref = p2ref,
-                              p2size = rd)
+                              p2size = p2rd)
 
   return(fout)
 }
@@ -303,4 +317,26 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   gcount <- offspring_geno(gf = gf, n = n)
   names(gcount) <- 0:4
   return(gcount)
+}
+
+#' Simulate genotype likelihoods from genotype counts
+#'
+#' Provide a vector of genotype counts and this will return a matrix of
+#' genotype log-likelihoods.
+#'
+#' @param nvec A vector of counts. \code{nvec[k]} is the number of folks with a genotype of k-1.
+#' @inheritParams po_gl
+#'
+#' @return A matrix of genotype log-likelihoods. The rows index the
+#'      individuals and the columns index the gentoypes. This is natural
+#'      log (base e).
+#'
+#' @author David Gerard
+#'
+#' @export
+simgl <- function(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01) {
+  ploidy <- length(nvec) - 1
+  genovec <- unlist(mapply(FUN = rep, x = 0:ploidy, times = nvec))
+  ret <- po_gl(genovec = genovec, ploidy = ploidy, p1_geno = NULL, p2_geno = NULL, seq = seq, rd = rd, bias = bias, od = od)
+  return(ret$genologlike)
 }

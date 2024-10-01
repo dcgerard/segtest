@@ -12,7 +12,7 @@
 #'
 #' @noRd
 log_sum_exp <- function(x) {
-    .Call('_segtest_log_sum_exp', PACKAGE = 'segtest', x)
+    .Call(`_segtest_log_sum_exp`, x)
 }
 
 #' Log-sum-exponential trick using just two doubles.
@@ -26,7 +26,7 @@ log_sum_exp <- function(x) {
 #'
 #' @noRd
 log_sum_exp_2 <- function(x, y) {
-    .Call('_segtest_log_sum_exp_2', PACKAGE = 'segtest', x, y)
+    .Call(`_segtest_log_sum_exp_2`, x, y)
 }
 
 #' Objective function for \code{\link{em_li}()}
@@ -39,7 +39,7 @@ log_sum_exp_2 <- function(x, y) {
 #'
 #' @export
 llike_li <- function(B, lpivec) {
-    .Call('_segtest_llike_li', PACKAGE = 'segtest', B, lpivec)
+    .Call(`_segtest_llike_li`, B, lpivec)
 }
 
 #' EM algorithm from Li (2011)
@@ -63,6 +63,6 @@ llike_li <- function(B, lpivec) {
 #'
 #' @export
 em_li <- function(B, itermax = 100L, eps = 1e-5) {
-    .Call('_segtest_em_li', PACKAGE = 'segtest', B, itermax, eps)
+    .Call(`_segtest_em_li`, B, itermax, eps)
 }
 
