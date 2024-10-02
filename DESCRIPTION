@@ -35,6 +35,8 @@ Biarch: true
 Depends: 
     R (>= 3.4.0)
 Imports: 
+    doFuture,
+    foreach,
     Rcpp,
     updog
 Suggests: 
@@ -47,3 +49,4 @@ VignetteBuilder: knitr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
+LazyData: true

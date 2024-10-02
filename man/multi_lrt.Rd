@@ -53,7 +53,24 @@ parameter of parent 1.}
 parameter of parent 2.}
 }
 \description{
-Parallelized likelihood ratio test for segregation distortion.
+Uses the \code{future} package to implement parallelization support for
+the likelihood ratio tests for segregation distortion. Right now, this is
+only supported for tetraploids (allo, auto, or segemental).
+}
+\examples{
+## Assuming genotypes are known (typically bad idea)
+g <- updog::format_multidog(ufit, varname = "geno")
+p1 <- g[, "indigocrisp"]
+p2 <- g[, "sweetcrisp"]
+g <- g[, !(colnames(g) \%in\% c("indigocrisp", "sweetcrisp"))]
+
+## Using genotype likelihoods (typically good idea)
+g <- updog::format_multidog(ufit, varname = paste0("logL_", 0:4))
+p1 <- g[, "indigocrisp", ]
+p2 <- g[, "sweetcrisp", ]
+g <- g[, !(dimnames(g)[[2]] \%in\% c("indigocrisp", "sweetcrisp")), ]
+
+
 }
 \author{
 David Gerard
