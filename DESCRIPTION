@@ -38,6 +38,7 @@ Imports:
     doFuture,
     doRNG,
     foreach,
+    future,
     iterators,
     Rcpp,
     updog

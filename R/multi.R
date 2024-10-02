@@ -11,10 +11,10 @@
 #'
 #' @examples
 #' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' g <- iter(glist$g, by = 3)
-#' head(nextElem(g))
-#' head(nextElem(g))
-#' head(nextElem(g))
+#' g <- iterators::iter(glist$g, by = 3)
+#' head(iterators::nextElem(g))
+#' head(iterators::nextElem(g))
+#' head(iterators::nextElem(g))
 #'
 #' @exportS3Method iterators::iter
 iter.array <- function(obj, by = 1, recycle = FALSE, ...) {
@@ -81,7 +81,7 @@ nextElem.arrayiter <- function(obj, ...) {
 #'   \item{\code{"all_g"}}{Genotypes, assuming that they are known. You did \emph{not} use the "f1" or "f1pp" option when genotyping. If this is the case, then you need to specify which individuals are the parents}.
 #' }
 #' @param p1 The first parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
-#' @param p1 The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
+#' @param p2 The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
 #' @param ploidy The ploidy. Note that most methods in this package
 #'     (including those in \code{\link{multi_lrt}()}) assume that the ploidy
 #'     is 4. But we allow for arbitrary ploidy in this function since it
@@ -127,10 +127,10 @@ multidog_to_g <- function(
     stopifnot(!is.null(mout$snpdf$p1geno), !is.null(mout$snpdf$p2geno))
     p1_geno <- mout$snpdf$p1geno
     p2_geno <- mout$snpdf$p2geno
-    g <- updog::format_multidog(ufit, varname = paste0("logL_", 0:ploidy))
+    g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
   } else if (type == "all_gl") {
     stopifnot(!is.null(p1), !is.null(p2))
-    g <- updog::format_multidog(ufit, varname = paste0("logL_", 0:ploidy))
+    g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
     p1_geno <- g[, p1, ]
     p2_geno <- g[, p2, ]
     g <- g[, !(dimnames(g)[[2]] %in% c(p1, p2)), ]
@@ -138,12 +138,12 @@ multidog_to_g <- function(
     stopifnot(!is.null(mout$snpdf$p1geno), !is.null(mout$snpdf$p2geno))
     p1_geno <- mout$snpdf$p1geno
     p2_geno <- mout$snpdf$p2geno
-    gmat <- updog::format_multidog(ufit, varname = "geno")
+    gmat <- updog::format_multidog(mout, varname = "geno")
     g <- t(apply(X = gmat, MARGIN = 1, FUN = gvec_to_gcount, ploidy = ploidy))
     colnames(g) <- 0:ploidy
   } else if (type == "all_g") {
     stopifnot(!is.null(p1), !is.null(p2))
-    gmat <- updog::format_multidog(ufit, varname = "geno")
+    gmat <- updog::format_multidog(mout, varname = "geno")
     p1_geno <- gmat[, p1, drop = TRUE]
     p2_geno <- gmat[, p2, drop = TRUE]
     gmat <- gmat[, !(colnames(gmat) %in% c(p1, p2)), drop = FALSE]
@@ -160,20 +160,36 @@ multidog_to_g <- function(
 #' the likelihood ratio tests for segregation distortion. Right now, this is
 #' only supported for tetraploids (allo, auto, or segemental).
 #'
+#' @section Parallel Computation:
+#'
+#' The \code{multi_lrt()} function supports parallel computing. It does
+#' so through the \href{https://cran.r-project.org/package=future}{future}
+#' package.
+#'
+#' You first specify the evaluation plan with \code{\link[future]{plan}()}
+#' from the \code{future} package. On a local machine, this is typically
+#' just \code{future::plan(future::multisession, workers = nc)} where
+#' \code{nc} is the number of workers you want. You can find the maximum
+#' number of possible workers with \code{\link[future]{availableCores}()}.
+#' You then run \code{multi_lrt()}, then shut down the workers with
+#' \code{future::plan(future::sequential)}.
+#'
 #' @param g One of two inputs
 #'   \itemize{
 #'     \item{A matrix of genotype counts. The rows index the locis and the columns index the genotypes.}
 #'     \item{An array of genotype log-likelihoods. The rows index the loci, the columns index the individuals, and the slices index the genotypes. Log-likelihoods are base e (natural log).}
 #'   }
-#' @param p1 One of two inputs
+#' @param p1 One of three inputs
 #'   \itemize{
 #'     \item{A vector of parent 1's genotypes.}
 #'     \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
+#'     \item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
 #'   }
-#' @param p2 One of two inputs
+#' @param p2 One of three inputs
 #'   \itemize{
 #'     \item{A vector of parent 1's genotypes.}
 #'     \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
+#'     \item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
 #'   }
 #' @inheritParams lrt_men_gl4
 #'
@@ -182,15 +198,30 @@ multidog_to_g <- function(
 #' @examples
 #' ## Assuming genotypes are known (typically bad idea)
 #' glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' p1 <- glist$p1
-#' p2 <- glist$p2
-#' g <- glist$g
+#' p1_1 <- glist$p1
+#' p2_1 <- glist$p2
+#' g_1 <- glist$g
+#' multi_lrt(g = g_1, p1 = p1_1, p2 = p2_1)
 #'
 #' ## Using genotype likelihoods (typically good idea)
 #' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' p1 <- glist$p1
-#' p2 <- glist$p2
-#' g <- glist$g
+#' p1_2 <- glist$p1
+#' p2_2 <- glist$p2
+#' g_2 <- glist$g
+#' multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
+#'
+#' ## Offspring genotype likelihoods and parent genotypes known
+#' multi_lrt(g = g_2, p1 = p1_1, p2 = p2_1)
+#'
+#' ## Offspring genotype likelihoods and no information on parent genotypes
+#' multi_lrt(g = g_2, p1 = NULL, p2 = NULL)
+#'
+#' \dontrun{
+#' ## Parallel computing is supported through the future package
+#' future::plan(future::multisession, workers = 2)
+#' multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
+#' future::plan(future::sequential)
+#' }
 #'
 #'
 #' @export
@@ -203,9 +234,27 @@ multi_lrt <- function(g,
                       alpha = 0,
                       xi1 = 1/3,
                       xi2 = 1/3) {
+
+  if (is.null(p1)) {
+    p1 <- rep(NA_real_, length.out = dim(g)[[1]])
+    names(p1) <- dimnames(g)[[1]]
+  }
+  if (is.null(p2)) {
+    p2 <- rep(NA_real_, length.out = dim(g)[[1]])
+    names(p2) <- dimnames(g)[[1]]
+  }
+
   ## Check input --------------------------------------------------------------
   if (length(dim(g)) == 3) {
-    type <- "gl"
+    if (inherits(p1, "matrix") && inherits(p2, "matrix")) {
+      type <- "glp"
+      stopifnot(dimnames(g)[[1]] == rownames(p1))
+      stopifnot(dimnames(g)[[1]] == rownames(p2))
+    } else {
+      type <- "glo"
+      stopifnot(dimnames(g)[[1]] == names(p1))
+      stopifnot(dimnames(g)[[1]] == names(p2))
+    }
     nloc <- dim(g)[[1]]
     nind <- dim(g)[[2]]
     stopifnot(dim(g)[[3]] == 5)
@@ -219,6 +268,9 @@ multi_lrt <- function(g,
   oldDoPar <- doFuture::registerDoFuture()
   on.exit(with(oldDoPar, foreach::setDoPar(fun=fun, data=data, info=info)), add = TRUE)
 
+  g_now <- NULL
+  p1_now <- NULL
+  p2_now <- NULL
   if (type == "g") {
     ret <- foreach::foreach(
       g_now = iter(g, by = "row"),
@@ -236,9 +288,15 @@ multi_lrt <- function(g,
           alpha = alpha,
           xi1 = xi1,
           xi2 = xi2)
-        unlist(lout)
+        as.data.frame(lout)
     }
-  } else if (type == "gl") {
+    if (is.null(ret$p1)) {
+      ret <- cbind(ret, p1 = p1)
+    }
+    if (is.null(ret$p2)) {
+      ret <- cbind(ret, p2 = p2)
+    }
+  } else if (type == "glp") {
     ret <- foreach::foreach(
       g_now = iter(g, by = 1),
       p1_now = iter(p1, by = "row"),
@@ -255,9 +313,36 @@ multi_lrt <- function(g,
           alpha = alpha,
           xi1 = xi1,
           xi2 = xi2)
-        unlist(lout)
+        as.data.frame(lout)
+    }
+  } else if (type == "glo") {
+    ret <- foreach::foreach(
+      g_now = iter(g, by = 1),
+      p1_now = iter(p1),
+      p2_now = iter(p2),
+      .combine = rbind
+    ) %dorng% {
+        lout <- lrt_men_gl4(
+          gl = g_now,
+          g1 = if(is.na(p1_now)) NULL else p1_now,
+          g2 = if(is.na(p2_now)) NULL else p2_now,
+          drbound = drbound,
+          pp = pp,
+          dr = dr,
+          alpha = alpha,
+          xi1 = xi1,
+          xi2 = xi2)
+        as.data.frame(lout)
+    }
+    if (is.null(ret$p1)) {
+      ret <- cbind(ret, p1 = p1)
+    }
+    if (is.null(ret$p2)) {
+      ret <- cbind(ret, p2 = p2)
     }
   }
+
+  rownames(ret) <- dimnames(g)[[1]]
 
   attr(ret, "rng") <- NULL
   attr(ret, "doRNG_version") <- NULL

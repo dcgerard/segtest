@@ -20,10 +20,10 @@ Iterator over array
 }
 \examples{
 glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-g <- iter(glist$g, by = 3)
-head(nextElem(g))
-head(nextElem(g))
-head(nextElem(g))
+g <- iterators::iter(glist$g, by = 3)
+head(iterators::nextElem(g))
+head(iterators::nextElem(g))
+head(iterators::nextElem(g))
 
 }
 \seealso{

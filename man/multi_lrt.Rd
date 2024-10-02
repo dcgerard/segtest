@@ -23,16 +23,18 @@ multi_lrt(
 \item{An array of genotype log-likelihoods. The rows index the loci, the columns index the individuals, and the slices index the genotypes. Log-likelihoods are base e (natural log).}
 }}
 
-\item{p1}{One of two inputs
+\item{p1}{One of three inputs
 \itemize{
 \item{A vector of parent 1's genotypes.}
 \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
+\item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
 }}
 
-\item{p2}{One of two inputs
+\item{p2}{One of three inputs
 \itemize{
 \item{A vector of parent 1's genotypes.}
 \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
+\item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
 }}
 
 \item{drbound}{The upper bound on the double reduction rate.}
@@ -57,18 +59,49 @@ Uses the \code{future} package to implement parallelization support for
 the likelihood ratio tests for segregation distortion. Right now, this is
 only supported for tetraploids (allo, auto, or segemental).
 }
+\section{Parallel Computation}{
+
+
+The \code{multi_lrt()} function supports parallel computing. It does
+so through the \href{https://cran.r-project.org/package=future}{future}
+package.
+
+You first specify the evaluation plan with \code{\link[future]{plan}()}
+from the \code{future} package. On a local machine, this is typically
+just \code{future::plan(future::multisession, workers = nc)} where
+\code{nc} is the number of workers you want. You can find the maximum
+number of possible workers with \code{\link[future]{availableCores}()}.
+You then run \code{multi_lrt()}, then shut down the workers with
+\code{future::plan(future::sequential)}.
+}
+
 \examples{
 ## Assuming genotypes are known (typically bad idea)
 glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-p1 <- glist$p1
-p2 <- glist$p2
-g <- glist$g
+p1_1 <- glist$p1
+p2_1 <- glist$p2
+g_1 <- glist$g
+multi_lrt(g = g_1, p1 = p1_1, p2 = p2_1)
 
 ## Using genotype likelihoods (typically good idea)
 glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-p1 <- glist$p1
-p2 <- glist$p2
-g <- glist$g
+p1_2 <- glist$p1
+p2_2 <- glist$p2
+g_2 <- glist$g
+multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
+
+## Offspring genotype likelihoods and parent genotypes known
+multi_lrt(g = g_2, p1 = p1_1, p2 = p2_1)
+
+## Offspring genotype likelihoods and no information on parent genotypes
+multi_lrt(g = g_2, p1 = NULL, p2 = NULL)
+
+\dontrun{
+## Parallel computing is supported through the future package
+future::plan(future::multisession, workers = 2)
+multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
+future::plan(future::sequential)
+}
 
 
 }

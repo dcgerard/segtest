@@ -22,7 +22,9 @@ multidog_to_g(
 \item{\code{"all_g"}}{Genotypes, assuming that they are known. You did \emph{not} use the "f1" or "f1pp" option when genotyping. If this is the case, then you need to specify which individuals are the parents}.
 }}
 
-\item{p1}{The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.}
+\item{p1}{The first parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.}
+
+\item{p2}{The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.}
 
 \item{ploidy}{The ploidy. Note that most methods in this package
 (including those in \code{\link{multi_lrt}()}) assume that the ploidy
