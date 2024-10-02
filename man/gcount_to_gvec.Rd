@@ -16,6 +16,9 @@ Converts genotype counts to genotype vectors.
 gcount <- c(1, 2, 3, 0, 5)
 gcount_to_gvec(gcount = gcount)
 }
+\seealso{
+\code{\link[=gvec_to_gcount]{gvec_to_gcount()}}
+}
 \author{
 David Gerard
 }

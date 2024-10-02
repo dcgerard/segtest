@@ -36,7 +36,9 @@ Depends:
     R (>= 3.4.0)
 Imports: 
     doFuture,
+    doRNG,
     foreach,
+    iterators,
     Rcpp,
     updog
 Suggests: 

@@ -59,16 +59,16 @@ only supported for tetraploids (allo, auto, or segemental).
 }
 \examples{
 ## Assuming genotypes are known (typically bad idea)
-g <- updog::format_multidog(ufit, varname = "geno")
-p1 <- g[, "indigocrisp"]
-p2 <- g[, "sweetcrisp"]
-g <- g[, !(colnames(g) \%in\% c("indigocrisp", "sweetcrisp"))]
+glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+p1 <- glist$p1
+p2 <- glist$p2
+g <- glist$g
 
 ## Using genotype likelihoods (typically good idea)
-g <- updog::format_multidog(ufit, varname = paste0("logL_", 0:4))
-p1 <- g[, "indigocrisp", ]
-p2 <- g[, "sweetcrisp", ]
-g <- g[, !(dimnames(g)[[2]] \%in\% c("indigocrisp", "sweetcrisp")), ]
+glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+p1 <- glist$p1
+p2 <- glist$p2
+g <- glist$g
 
 
 }

@@ -204,11 +204,35 @@ offspring_geno <- function(gf, n){
 #'
 #' @export
 #'
+#' @seealso [gvec_to_gcount()]
+#'
 #' @examples
 #' gcount <- c(1, 2, 3, 0, 5)
 #' gcount_to_gvec(gcount = gcount)
 gcount_to_gvec <- function(gcount) {
   unlist(mapply(FUN = rep, x = seq_along(gcount) - 1, each = gcount))
+}
+
+#' Inverse function of \code{\link{gcount_to_gvec}()}.
+#'
+#' @param gvec The vector of genotypes. \code{gvec[i]} is the genotype
+#'     for individual i.
+#' @param ploidy The ploidy of the species.
+#'
+#' @author David Gerard
+#'
+#' @export
+#'
+#' @seealso [gcount_to_gvec()]
+#'
+#' @examples
+#' gvec <- c(1, 2, 3, 2, 3, 1, 4, 0, 1, 0, 0, 1, 0, 0)
+#' gvec_to_gcount(gvec = gvec)
+#'
+gvec_to_gcount <- function(gvec, ploidy = 4) {
+  x <- table(factor(gvec, levels = 0:ploidy))
+  attributes(x) <- NULL
+  return(x)
 }
 
 #' Generate genotype likelihoods from offspring genotypes.
