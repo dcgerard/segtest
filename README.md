@@ -21,6 +21,10 @@ Provides a suite of tests for segregation distortion in F1 polyploid
 populations (for now, just tetraploids). This is under different
 assumptions of meiosis. The main functions are:
 
+- `multi_lrt()`: Run any of the likelihood ratio tests for segregation
+  distortion in parallel across many SNPs.
+- `multidog_to_g`: Format the genotyping output from `updog::multidog()`
+  to be compatible withe input of `multi_lrt()`.
 - `lrt_men_g4()`: Likelihood ratio test for segregation distortion using
   known genotypes.
 - `lrt_men_gl4()`: Likelihood ratio test for segregation distortion
