@@ -3,18 +3,30 @@
 \docType{data}
 \name{ufit}
 \alias{ufit}
+\alias{ufit2}
+\alias{ufit3}
 \title{Genotype data from Cappai et al. (2020)}
 \format{
-\subsection{\code{ufit}}{
-
 An object of type \code{multidog} output from \code{\link[updog]{multidog}()}.
+\describe{
+\item{\code{ufit}}{Uses the \code{model = "norm"} option.}
+\item{\code{ufit2}}{Uses the \code{model = "f1pp"} option.}
+\item{\code{ufit3}}{Uses the \code{model = "f1"} option.}
 }
+
+An object of class \code{multidog} of length 2.
+
+An object of class \code{multidog} of length 2.
 }
 \source{
 \doi{10.5281/zenodo.13715703}
 }
 \usage{
 ufit
+
+ufit2
+
+ufit3
 }
 \description{
 A subset of data from Cappai et al. (2020), fit using

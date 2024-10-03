@@ -30,7 +30,7 @@ iter.array <- function(obj, by = 1, recycle = FALSE, ...) {
   return(it)
 }
 
-#' nextelement in an array over array
+#' Next element in an array
 #'
 #' @param obj An arrayiter object
 #' @param ... not used
@@ -112,6 +112,10 @@ nextElem.arrayiter <- function(obj, ...) {
 #' @examples
 #' multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
 #' multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' multidog_to_g(mout = ufit2, type = "off_g")
+#' multidog_to_g(mout = ufit2, type = "off_gl")
+#' multidog_to_g(mout = ufit3, type = "off_g")
+#' multidog_to_g(mout = ufit3, type = "off_gl")
 #'
 #'
 #' @export
@@ -124,9 +128,15 @@ multidog_to_g <- function(
   type <- match.arg(type)
 
   if (type == "off_gl") {
-    stopifnot(!is.null(mout$snpdf$p1geno), !is.null(mout$snpdf$p2geno))
-    p1_geno <- mout$snpdf$p1geno
-    p2_geno <- mout$snpdf$p2geno
+    if (!is.null(mout$snpdf$p1geno) && !is.null(mout$snpdf$p2geno)) {
+      p1_geno <- mout$snpdf$p1geno
+      p2_geno <- mout$snpdf$p2geno
+    } else if (!is.null(mout$snpdf$ell1) && !is.null(mout$snpdf$ell2)) {
+      p1_geno <- mout$snpdf$ell1
+      p2_geno <- mout$snpdf$ell2
+    } else {
+      stop("mout was not fit using either the 'f1' or the 'f1pp' models")
+    }
     g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
   } else if (type == "all_gl") {
     stopifnot(!is.null(p1), !is.null(p2))
@@ -135,9 +145,15 @@ multidog_to_g <- function(
     p2_geno <- g[, p2, ]
     g <- g[, !(dimnames(g)[[2]] %in% c(p1, p2)), ]
   } else if (type == "off_g") {
-    stopifnot(!is.null(mout$snpdf$p1geno), !is.null(mout$snpdf$p2geno))
-    p1_geno <- mout$snpdf$p1geno
-    p2_geno <- mout$snpdf$p2geno
+    if (!is.null(mout$snpdf$p1geno) && !is.null(mout$snpdf$p2geno)) {
+      p1_geno <- mout$snpdf$p1geno
+      p2_geno <- mout$snpdf$p2geno
+    } else if (!is.null(mout$snpdf$ell1) && !is.null(mout$snpdf$ell2)) {
+      p1_geno <- mout$snpdf$ell1
+      p2_geno <- mout$snpdf$ell2
+    } else {
+      stop("mout was not fit using either the 'f1' or the 'f1pp' models")
+    }
     gmat <- updog::format_multidog(mout, varname = "geno")
     g <- t(apply(X = gmat, MARGIN = 1, FUN = gvec_to_gcount, ploidy = ploidy))
     colnames(g) <- 0:ploidy

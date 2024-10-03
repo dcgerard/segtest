@@ -58,6 +58,10 @@ Converts multidog output to a format usable for multi_lrt()
 \examples{
 multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
 multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+multidog_to_g(mout = ufit2, type = "off_g")
+multidog_to_g(mout = ufit2, type = "off_gl")
+multidog_to_g(mout = ufit3, type = "off_g")
+multidog_to_g(mout = ufit3, type = "off_gl")
 
 
 }

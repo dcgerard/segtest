@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi.R
 \name{nextElem.arrayiter}
 \alias{nextElem.arrayiter}
-\title{nextelement in an array over array}
+\title{Next element in an array}
 \usage{
 \method{nextElem}{arrayiter}(obj, ...)
 }
@@ -12,7 +12,7 @@
 \item{...}{not used}
 }
 \description{
-nextelement in an array over array
+Next element in an array
 }
 \seealso{
 \code{\link[=iter.array]{iter.array()}}
