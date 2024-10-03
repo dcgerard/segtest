@@ -13,7 +13,8 @@ multi_lrt(
   dr = TRUE,
   alpha = 0,
   xi1 = 1/3,
-  xi2 = 1/3
+  xi2 = 1/3,
+  nullprop = FALSE
 )
 }
 \arguments{
@@ -53,6 +54,8 @@ parameter of parent 1.}
 
 \item{xi2}{If \code{pp = FALSE}, this is the known preferential pairing
 parameter of parent 2.}
+
+\item{nullprop}{Should we return the null proportions (\code{TRUE}) or not (\code{FALSE})?}
 }
 \description{
 Uses the \code{future} package to implement parallelization support for

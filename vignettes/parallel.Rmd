@@ -1,0 +1,83 @@
+---
+title: "Parallel Testing"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parallel Testing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(segtest)
+```
+
+We provide a walk-through of how to run tests for segregation distortion at many loci in parallel.
+
+Data sets `ufit`, `ufit2`, and `ufit3` contain the genotyping output of `updog::multidog()` using three different models.
+
+- `ufit`: Uses the `norm` model without specifying who the parents are.
+- `ufit2`: Uses the `f1pp` model, specifying the parents.
+- `ufit3`: Uses the `f1` model, specifying the parents.
+
+You can convert this genotyping output to what `multi_lrt()` expects using `multidog_to_g()`.
+
+If you did *not* use the `f1pp` or `f1` models, use ether the `all_gl` (to run tests using genotype log-likelihoods) or `all_g` (to run tests assuming genotypes are known) options, and you must specify the ID's of the parents.
+
+```{r}
+o1 <- multidog_to_g(ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+o2 <- multidog_to_g(ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+```
+
+If you *did* use the `f1pp` or `f1` models, use either the `off_gl` (to run tests using genotype log-likelihoods) or `off_g` (to run tests assuming genotypes are known) options.
+
+```{r}
+o3 <- multidog_to_g(ufit2, type = "off_g")
+o4 <- multidog_to_g(ufit2, type = "off_gl")
+o5 <- multidog_to_g(ufit3, type = "off_g")
+o6 <- multidog_to_g(ufit3, type = "off_gl")
+```
+
+We would recommend *always* using genotype log-likelihoods. But the option is there for known genotypes.
+
+Parallelization support is provided through the future package. You specify how to implement parallelization using `future::plan()`. Then you run `multi_lrt()`. Then you shut down the parallelization `future::plan()`. The most common plan is `future::multisession()`, where you specify the number of parallel processes with the `workers` argument. You can get the maximum number of workers via `future::availableCores()`
+
+```{r}
+future::availableCores()
+```
+
+So a typically workload looks something like this:
+```{r}
+future::plan(future::multisession(workers = 2))
+mout <- multi_lrt(g = o2$g, p1 = o2$p1, p2 = o2$p2)
+future::plan(future::sequential())
+```
+
+The output is a data frame. The most important parts of this are the `snp` and `p_value` columns. As a reminder, please ignore the `alpha`, `xi1`, and `xi2` estimates. Those are noisy. Please don't use them for real work.
+```{r}
+mout[c("snp", "p_value")]
+```
+
+It looks like SNPs *12_31029646* and *2_20070837* are in possible segregation distortion. Let's look at the posterior mode genotypes of SNP 2_20070837:
+```{r}
+o1$g["2_20070837", ]
+o1$p1["2_20070837"]
+o1$p2["2_20070837"]
+```
+So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2.
+
+For SNP 12_31029646, let's compare the expected frequencies against the observed modes.
+```{r}
+offspring_gf_2(alpha = 0.1249, xi1 = 1/3, p1 = 2, p2 = 0)
+o1$g["12_31029646", ] / sum(o1$g["12_31029646", ])
+o1$p1["12_31029646"]
+o1$p2["12_31029646"]
+```
+So SNP 12_31029646 likely got flagged because there are too many individuals with a genotype of 2, and not enough with a genotype of 0.
+

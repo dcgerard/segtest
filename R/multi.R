@@ -207,6 +207,7 @@ multidog_to_g <- function(
 #'     \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
 #'     \item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
 #'   }
+#' @param nullprop Should we return the null proportions (\code{TRUE}) or not (\code{FALSE})?
 #' @inheritParams lrt_men_gl4
 #'
 #' @author David Gerard
@@ -249,7 +250,8 @@ multi_lrt <- function(g,
                       dr = TRUE,
                       alpha = 0,
                       xi1 = 1/3,
-                      xi2 = 1/3) {
+                      xi2 = 1/3,
+                      nullprop = FALSE) {
 
   if (is.null(p1)) {
     p1 <- rep(NA_real_, length.out = dim(g)[[1]])
@@ -358,7 +360,27 @@ multi_lrt <- function(g,
     }
   }
 
-  rownames(ret) <- dimnames(g)[[1]]
+  ret$snp <- dimnames(g)[[1]]
+  rownames(ret) <- NULL
+
+  if (nullprop) {
+    ## Add null proportions
+    ret$e_pr0 <- NA_real_
+    ret$e_pr1 <- NA_real_
+    ret$e_pr2 <- NA_real_
+    ret$e_pr3 <- NA_real_
+    ret$e_pr4 <- NA_real_
+    for (i in seq_len(nrow(ret))) {
+      tryCatch({
+        eval <- offspring_gf_2(alpha = ret$alpha[[i]], xi1 = ret$xi1[[i]], xi2 = ret$xi2[[i]], p1 = ret$p1[[i]], p2 = ret$p2[[i]])
+        ret$e_pr0[[i]] <- eval[[1]]
+        ret$e_pr1[[i]] <- eval[[2]]
+        ret$e_pr2[[i]] <- eval[[3]]
+        ret$e_pr3[[i]] <- eval[[4]]
+        ret$e_pr4[[i]] <- eval[[5]]
+      }, error = function(e){})
+    }
+  }
 
   attr(ret, "rng") <- NULL
   attr(ret, "doRNG_version") <- NULL
