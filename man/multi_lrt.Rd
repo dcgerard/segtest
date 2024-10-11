@@ -60,7 +60,10 @@ parameter of parent 2.}
 \description{
 Uses the \code{future} package to implement parallelization support for
 the likelihood ratio tests for segregation distortion. Right now, this is
-only supported for tetraploids (allo, auto, or segemental).
+only supported for tetraploids (allo, auto, or segemental). This function
+is only somewhat tested (the single-locus LRT functions in the "See Also"
+section are very well tested). So please send any bugs you notice to
+\url{https://github.com/dcgerard/segtest/issues}.
 }
 \section{Parallel Computation}{
 
@@ -79,14 +82,14 @@ You then run \code{multi_lrt()}, then shut down the workers with
 }
 
 \examples{
-## Assuming genotypes are known (typically bad idea)
+## Assuming genotypes are known (typically a bad idea)
 glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
 p1_1 <- glist$p1
 p2_1 <- glist$p2
 g_1 <- glist$g
 multi_lrt(g = g_1, p1 = p1_1, p2 = p2_1)
 
-## Using genotype likelihoods (typically good idea)
+## Using genotype likelihoods (typically a good idea)
 glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
 p1_2 <- glist$p1
 p2_2 <- glist$p2
@@ -106,7 +109,12 @@ multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
 future::plan(future::sequential)
 }
 
-
+}
+\seealso{
+\itemize{
+\item \code{\link[=lrt_men_g4]{lrt_men_g4()}} Single locus LRT for segregation distortion when genotypes are known.
+\item \code{\link[=lrt_men_gl4]{lrt_men_gl4()}} Single locus LRT for segregation distortion when using genotype likelihoods.
+}
 }
 \author{
 David Gerard
