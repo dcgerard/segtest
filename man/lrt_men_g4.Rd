@@ -63,7 +63,7 @@ segregation distortion. This is when the genotypes are assumed known.
 \section{Impossible genotypes}{
 
 Some offspring genotype combinations are impossible given the parental
-gentoypes. If these impossible genotypes combinations show up, we return a
+genotypes. If these impossible genotypes combinations show up, we return a
 p-value of 0, a log-likelihood ratio statistic of Infinity, and missing
 values for all other return items. The impossible genotypes are:
 \describe{

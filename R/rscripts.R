@@ -352,7 +352,7 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #' @inheritParams po_gl
 #'
 #' @return A matrix of genotype log-likelihoods. The rows index the
-#'      individuals and the columns index the gentoypes. This is natural
+#'      individuals and the columns index the genotypes. This is natural
 #'      log (base e).
 #'
 #' @author David Gerard

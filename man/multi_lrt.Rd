@@ -20,7 +20,7 @@ multi_lrt(
 \arguments{
 \item{g}{One of two inputs
 \itemize{
-\item{A matrix of genotype counts. The rows index the locis and the columns index the genotypes.}
+\item{A matrix of genotype counts. The rows index the loci and the columns index the genotypes.}
 \item{An array of genotype log-likelihoods. The rows index the loci, the columns index the individuals, and the slices index the genotypes. Log-likelihoods are base e (natural log).}
 }}
 
@@ -60,7 +60,7 @@ parameter of parent 2.}
 \description{
 Uses the \code{future} package to implement parallelization support for
 the likelihood ratio tests for segregation distortion. Right now, this is
-only supported for tetraploids (allo, auto, or segemental). This function
+only supported for tetraploids (allo, auto, or segmental). This function
 is only somewhat tested (the single-locus LRT functions in the "See Also"
 section are very well tested). So please send any bugs you notice to
 \url{https://github.com/dcgerard/segtest/issues}.

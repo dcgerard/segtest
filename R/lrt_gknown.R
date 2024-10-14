@@ -11,7 +11,7 @@
 #'
 #' @section Impossible genotypes:
 #' Some offspring genotype combinations are impossible given the parental
-#' gentoypes. If these impossible genotypes combinations show up, we return a
+#' genotypes. If these impossible genotypes combinations show up, we return a
 #' p-value of 0, a log-likelihood ratio statistic of Infinity, and missing
 #' values for all other return items. The impossible genotypes are:
 #' \describe{
@@ -141,7 +141,7 @@ lrt_men_g4 <- function(
   return(ret)
 }
 
-#' Checks to see if x is impossible given parental gentoypes
+#' Checks to see if x is impossible given parental genotypes
 #'
 #' @param x The offspring genotype counts
 #' @param g1 Parent 1's genotype

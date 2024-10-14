@@ -19,7 +19,7 @@ simgl(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01)
 }
 \value{
 A matrix of genotype log-likelihoods. The rows index the
-individuals and the columns index the gentoypes. This is natural
+individuals and the columns index the genotypes. This is natural
 log (base e).
 }
 \description{
