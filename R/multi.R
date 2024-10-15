@@ -216,6 +216,7 @@ multidog_to_g <- function(
 #' @author David Gerard
 #'
 #' @examples
+#' \dontrun{
 #' ## Assuming genotypes are known (typically a bad idea)
 #' glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
 #' p1_1 <- glist$p1
@@ -236,7 +237,6 @@ multidog_to_g <- function(
 #' ## Offspring genotype likelihoods and no information on parent genotypes
 #' multi_lrt(g = g_2, p1 = NULL, p2 = NULL)
 #'
-#' \dontrun{
 #' ## Parallel computing is supported through the future package
 #' future::plan(future::multisession, workers = 2)
 #' multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
