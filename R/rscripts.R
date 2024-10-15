@@ -187,6 +187,7 @@ three_to_two <- function(tau, beta, gamma) {
 #' @author Mira Thakkar
 #'
 #' @examples
+#' set.seed(1)
 #' gf <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
 #' offspring_geno(gf = gf, n = 10)
 #'
