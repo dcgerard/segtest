@@ -41,11 +41,11 @@ test_that("Get uniform distribution under null with multi_lrt()", {
   rd <- Inf
   n <- 100
   alpha <- 1/12
-  xi1 <- 0
+  xi1 <- 1/4
   xi2 <- 1/4
   nloc <- 1000
 
-  snpname <- paste0("Ind", seq_len(nloc))
+  snpname <- paste0("Loc", seq_len(nloc))
 
   if (is.infinite(rd)) {
     g <- replicate(n = nloc, expr = {
@@ -63,8 +63,20 @@ test_that("Get uniform distribution under null with multi_lrt()", {
         simf1gl(n = n, g1 = g1, g2 = g2, rd = rd, alpha = alpha, xi1 = xi1, xi2 = xi2)
       )
     })
-
-
+    g <- aperm(a = g, perm = c(3, 1, 2))
+    indname <- paste0("Ind", seq_len(n))
+    dimnames(g) <- list(snpname, indname, 0:4)
+    p1 <- rep(g1, nloc)
+    names(p1) <- snpname
+    p2 <- rep(g1, nloc)
+    names(p2) <- snpname
   }
+
+  future::plan(future::multisession(workers = 6))
+  mout <- multi_lrt(g = g, p1 = p1, p2 = p2, pp = pp, dr = dr)
+  future::plan(future::sequential())
+
+  qqplot(x = mout$p_value, y = ppoints(nloc))
+  abline(a = 0, b = 1)
 
 })
