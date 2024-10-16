@@ -1,3 +1,30 @@
+#' Tests if the two parameter model is valid
+#'
+#' There is a dependence on the bounds of two-parameter model. This function
+#' returns TRUE if those bounds are satisfied and FALSE otherwise.
+#'
+#' @param dr The double reduction rate.
+#' @param pp The preferential pairing parameter.
+#' @param drbound The maximum double reduction rate possible.
+#'
+#' @return \code{TRUE} if the model is valid, \code{FALSE} otherwise.
+#'
+#' @author David Gerard
+#'
+#' @export
+is_valid_2 <- function(dr, pp, drbound = 1/6) {
+  stopifnot(drbound > 0, drbound < 1)
+  if (dr < 0 || dr > drbound || pp < 0 || pp > 1) {
+    return(FALSE)
+  }
+  lower <- (1 / 3) * (dr / (1 - dr)) * ((1 - drbound) / drbound)
+  upper <- 1 - (2 / 3) * (dr / (1 - dr)) * ((1 - drbound) / drbound)
+  if (pp < lower || pp > upper) {
+    return(FALSE)
+  }
+  return(TRUE)
+}
+
 #' Tetraploid gamete frequencies of gametes when one parent's genotype is known
 #'
 #' This is under the two parameter model.

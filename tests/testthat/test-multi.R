@@ -34,16 +34,18 @@ test_that("Get uniform distribution under null with multi_lrt()", {
   skip("too long")
 
   ## Change these
-  g1 <- 2
+  g1 <- 1
   g2 <- 2
   dr <- TRUE
   pp <- TRUE
   rd <- Inf
-  n <- 100
+  n <- 30
   alpha <- 1/12
-  xi1 <- 1/4
-  xi2 <- 1/4
+  xi1 <- 1/3
+  xi2 <- 1/3
   nloc <- 1000
+
+  is_valid_2(dr = alpha, pp = xi1)
 
   snpname <- paste0("Loc", seq_len(nloc))
 
@@ -55,7 +57,7 @@ test_that("Get uniform distribution under null with multi_lrt()", {
     rownames(g) <- snpname
     p1 <- rep(g1, nloc)
     names(p1) <- snpname
-    p2 <- rep(g1, nloc)
+    p2 <- rep(g2, nloc)
     names(p2) <- snpname
   } else {
     g <- replicate(n = nloc, expr = {
@@ -73,10 +75,16 @@ test_that("Get uniform distribution under null with multi_lrt()", {
   }
 
   future::plan(future::multisession(workers = 6))
-  mout <- multi_lrt(g = g, p1 = p1, p2 = p2, pp = pp, dr = dr)
+  mout <- multi_lrt(g = g, p1 = p1, p2 = p2, pp = pp, dr = dr, alpha = alpha, xi1 = xi1, xi2 = xi2)
   future::plan(future::sequential())
 
-  qqplot(x = mout$p_value, y = ppoints(nloc))
-  abline(a = 0, b = 1)
+  stats::qqplot(
+    x = ppoints(nloc),
+    y = mout$p_value,
+    main = "QQ Plot of P-values",
+    xlab = "Theoretical Quantiles",
+    ylab = "P-values")
+  graphics::text(x = 0.6, y = 0.1, label = "Valid if at or above y=x line", col = "red")
+  graphics::abline(a = 0, b = 1)
 
 })
