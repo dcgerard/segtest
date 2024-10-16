@@ -79,7 +79,7 @@ test_that("Get uniform distribution under null with multi_lrt()", {
   future::plan(future::sequential())
 
   stats::qqplot(
-    x = ppoints(nloc),
+    x = stats::ppoints(nloc),
     y = mout$p_value,
     main = "QQ Plot of P-values",
     xlab = "Theoretical Quantiles",
