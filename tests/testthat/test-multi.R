@@ -34,12 +34,12 @@ test_that("Get uniform distribution under null with multi_lrt()", {
   skip("too long")
 
   ## Change these
-  g1 <- 1
-  g2 <- 2
+  g1 <- 2
+  g2 <- 1
   dr <- TRUE
-  pp <- TRUE
+  pp <- FALSE
   rd <- Inf
-  n <- 30
+  n <- 1000
   alpha <- 1/12
   xi1 <- 1/3
   xi2 <- 1/3
