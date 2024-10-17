@@ -9,6 +9,8 @@
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/dcgerard/segtest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dcgerard/segtest/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/dcgerard/segtest/graph/badge.svg)](https://app.codecov.io/gh/dcgerard/segtest)
 <!-- badges: end -->
 
 This is a light version of the original package,

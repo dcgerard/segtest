@@ -138,6 +138,7 @@ multidog_to_g <- function(
       stop("mout was not fit using either the 'f1' or the 'f1pp' models")
     }
     g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
+    stopifnot(mout$snpdf$snp == dimnames(g)[[1]])
   } else if (type == "all_gl") {
     stopifnot(!is.null(p1), !is.null(p2))
     g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
@@ -157,6 +158,7 @@ multidog_to_g <- function(
     gmat <- updog::format_multidog(mout, varname = "geno")
     g <- t(apply(X = gmat, MARGIN = 1, FUN = gvec_to_gcount, ploidy = ploidy))
     colnames(g) <- 0:ploidy
+    stopifnot(mout$snpdf$snp == rownames(g))
   } else if (type == "all_g") {
     stopifnot(!is.null(p1), !is.null(p2))
     gmat <- updog::format_multidog(mout, varname = "geno")
