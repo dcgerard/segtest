@@ -66,10 +66,16 @@ chisq_g4 <- function(x, g1, g2){
     gf <- gf[!which_zero]
   }
 
-  chout <- stats::chisq.test(x = x, p = gf)
-  ret <- list(statistic = chout$statistic[[1]],
-              p_value = chout$p.value[[1]],
-              df = chout$parameter[[1]])
+  if (length(x) == 1) {
+    ret <- list(statistic = 0, p_value = 1, df = 0)
+  } else {
+    suppressWarnings(
+      chout <- stats::chisq.test(x = x, p = gf)
+    )
+    ret <- list(statistic = chout$statistic[[1]],
+                p_value = chout$p.value[[1]],
+                df = chout$parameter[[1]])
+  }
   return(ret)
 
 }

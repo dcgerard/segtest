@@ -14,7 +14,7 @@ test_that("multi_lrt gives same stuff as lrt funs", {
   p1_2 <- glist$p1
   p2_2 <- glist$p2
   g_2 <- glist$g
-  mout <- multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
+  mout <- multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2, nullprop = TRUE)
   uout <- unlist(lrt_men_gl4(gl = g_2[i,,], g1 = p1_2[i,], g2 = p2_2[i,]))
   expect_equal(mout$p_value[[i]], uout[["p_value"]])
 

@@ -58,3 +58,29 @@ test_that("impossible genotypes calculated correctly", {
     }
   }
 })
+
+
+test_that("is_valid_2() works", {
+  expect_true(is_valid_2(dr = 1/6, pp = 1/3, drbound = 1/6))
+  expect_false(is_valid_2(dr = 1/6, pp = 1/3 - 1e-6, drbound = 1/6))
+  expect_false(is_valid_2(dr = 1/6, pp = 1/3 + 1e-6, drbound = 1/6))
+  expect_true(is_valid_2(dr = 0, pp = 0, drbound = 1/6))
+  expect_true(is_valid_2(dr = 0, pp = 1, drbound = 1/6))
+})
+
+test_that("three and two equal", {
+  tau <- 1/2
+  beta <- 1/6
+  gamma <- 1/3
+  ell <- 2
+  p3 <- pvec_tet_3(tau = tau, beta = beta, gamma = gamma, ell = ell)
+  par <- three_to_two(tau = tau, beta = beta, gamma = gamma)
+  alpha <- par[[1]]
+  xi <- par[[2]]
+  p2 <- pvec_tet_2(alpha = alpha, xi = xi, ell = ell)
+  expect_equal(p2, p3)
+})
+
+
+
+
