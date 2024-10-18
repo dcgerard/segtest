@@ -42,7 +42,7 @@ assumptions of meiosis. The main functions are:
 We also provide some functions from competing methods, which we do not
 recommend using:
 
-- `polymapr_test()`: Test from `polymapR`
+- `polymapr_test()`: Test from `polymapR`.
 - `chisq_g4()`: Chi-squared test (not accounting for double reduction
   and preferential pairing) when genotypes are known.
 - `chisq_gl4()`: Chi-squared test (not accounting for double reduction

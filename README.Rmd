@@ -37,7 +37,7 @@ Provides a suite of tests for segregation distortion in F1 polyploid populations
 
 We also provide some functions from competing methods, which we do not recommend using:
 
-- `polymapr_test()`: Test from `polymapR`
+- `polymapr_test()`: Test from `polymapR`.
 - `chisq_g4()`: Chi-squared test (not accounting for double reduction and preferential pairing) when genotypes are known.
 - `chisq_gl4()`: Chi-squared test (not accounting for double reduction and preferential pairing) using genotype likelihoods.
 

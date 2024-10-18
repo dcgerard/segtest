@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">segtest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,10 +106,10 @@ But the option is there for known genotypes.</p>
 <p>Parallelization support is provided through the future package. You
 specify how to implement parallelization using
 <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>. Then you run <code><a href="../reference/multi_lrt.html">multi_lrt()</a></code>. Then
-you shut down the parallelization <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>. The most
-common plan is <code><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">future::multisession()</a></code>, where you specify
-the number of parallel processes with the <code>workers</code> argument.
-You can get the maximum number of workers via
+you shut down the parallelization with <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>. The
+most common plan is <code><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">future::multisession()</a></code>, where you
+specify the number of parallel processes with the <code>workers</code>
+argument. You can get the maximum number of workers via
 <code><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">future::availableCores()</a></code></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">availableCores</a></span><span class="op">(</span><span class="op">)</span></span>
