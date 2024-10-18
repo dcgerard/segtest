@@ -11,6 +11,13 @@
 #'
 #' @author David Gerard
 #'
+#' @examples
+#' TOL <- 1e-6
+#' is_valid_2(dr = 1/6, pp = 1/3, drbound = 1/6) # Valid
+#' is_valid_2(dr = 1/6, pp = 1/3 - TOL, drbound = 1/6) # Not valid
+#' is_valid_2(dr = 1/6, pp = 1/3 + TOL, drbound = 1/6) # Not valid
+#'
+#'
 #' @export
 is_valid_2 <- function(dr, pp, drbound = 1/6) {
   stopifnot(drbound > 0, drbound < 1)
@@ -234,6 +241,10 @@ offspring_geno <- function(gf, n){
 #'
 #' @seealso [gvec_to_gcount()]
 #'
+#' @return A vector of length \code{sum(gcount)}, containing \code{gcount[1]}
+#'    copies of \code{0}, \code{gcount[2]} copies of \code{1}, \code{gcount[3]}
+#'    copies of \code{2}, etc.
+#'
 #' @examples
 #' gcount <- c(1, 2, 3, 0, 5)
 #' gcount_to_gvec(gcount = gcount)
@@ -251,6 +262,9 @@ gcount_to_gvec <- function(gcount) {
 #'
 #' @export
 #'
+#' @return A vector of counts. Element \code{k} is the number of individuals
+#'     with genotype \code{k-1}.
+#'
 #' @seealso [gcount_to_gvec()]
 #'
 #' @examples
@@ -266,8 +280,8 @@ gvec_to_gcount <- function(gvec, ploidy = 4) {
 #' Generate genotype likelihoods from offspring genotypes.
 #'
 #' Takes as input (i) the parent genotypes,
-#' (ii) the offspring genotype freq, (iii) sequencing error rate, (iv) read
-#' depth, (v) bias, (vi) overdispersion and returns genotype likelihoods.
+#' (ii) the offspring genotype frequency, (iii) sequencing error rate, (iv) read
+#' depth, (v) bias, and (vi) overdispersion. It returns genotype likelihoods.
 #'
 #' @param genovec Offspring genotypes. \code{genovec[i]} is the dosage for individual i.
 #' @param p1_geno Parent 1 genotype
@@ -279,6 +293,10 @@ gvec_to_gcount <- function(gvec, ploidy = 4) {
 #' @param od Overdispersion. Typical value is like 0.01. Higher means more uncertain.
 #'
 #' @return Genotype likelihoods
+#'
+#' @examples
+#' set.seed(1)
+#' po_gl(genovec = c(1, 2, 1, 1, 3), p1_geno = 2, p2_geno = 2, ploidy = 4)
 #'
 #' @author Mira Thakkar
 #'
@@ -384,6 +402,11 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #'      log (base e).
 #'
 #' @author David Gerard
+#'
+#' @examples
+#' set.seed(1)
+#' simgl(nvec = c(1, 2, 1, 1, 3))
+#'
 #'
 #' @export
 simgl <- function(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01) {

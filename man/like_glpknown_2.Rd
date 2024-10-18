@@ -23,6 +23,10 @@ The individuals, columns index the genotypes.}
 
 \item{log_p}{A logical. Should we return the log likelihood or not?}
 }
+\value{
+The (log) likelihood of the two parameter model when using
+genotype likelihoods.
+}
 \description{
 This is under the two parameter model.
 }

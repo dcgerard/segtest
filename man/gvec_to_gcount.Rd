@@ -12,6 +12,10 @@ for individual i.}
 
 \item{ploidy}{The ploidy of the species.}
 }
+\value{
+A vector of counts. Element \code{k} is the number of individuals
+with genotype \code{k-1}.
+}
 \description{
 Inverse function of \code{\link{gcount_to_gvec}()}.
 }

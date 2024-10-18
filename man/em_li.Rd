@@ -21,6 +21,17 @@ A vector of log prior probabilities for each genotype.
 EM algorithm to estimate prior genotype probabilities from genotype
 likelihoods.
 }
+\examples{
+# Simulate some data
+set.seed(1)
+gl <- simgl(nvec = c(3, 2, 4, 1, 2))
+# Run em
+lprob <- em_li(B = gl)
+# Exponentiate to get probabilities
+prob <- exp(c(lprob))
+prob
+
+}
 \references{
 \itemize{
 \item{Li, H. (2011). A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data. \emph{Bioinformatics}, 27(21), 2987-2993. \doi{10.1093/bioinformatics/btr509}}

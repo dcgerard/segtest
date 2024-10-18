@@ -38,7 +38,7 @@
 #' g2 <- 1
 #' x <- c(4, 16, 0, 0, 0)
 #' polymapr_test(x = x, g1 = g1, g2 = g2, type = "segtest")
-#' # polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
+#'
 #'
 #'
 #' @author David Gerard

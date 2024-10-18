@@ -11,8 +11,20 @@
 
 \item{...}{not used}
 }
+\value{
+The next sub-array.
+}
 \description{
-Next element in an array
+This is applied to an \code{arrayiter} object to obtain the next sub-array
+along one of the dimensions.
+}
+\examples{
+glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+g <- iterators::iter(glist$g, by = 3)
+head(iterators::nextElem(g))
+head(iterators::nextElem(g))
+head(iterators::nextElem(g))
+
 }
 \seealso{
 \code{\link[=iter.array]{iter.array()}}

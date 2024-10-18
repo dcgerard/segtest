@@ -9,6 +9,11 @@ gcount_to_gvec(gcount)
 \arguments{
 \item{gcount}{The vector of genotype counts.}
 }
+\value{
+A vector of length \code{sum(gcount)}, containing \code{gcount[1]}
+copies of \code{0}, \code{gcount[2]} copies of \code{1}, \code{gcount[3]}
+copies of \code{2}, etc.
+}
 \description{
 Converts genotype counts to genotype vectors.
 }

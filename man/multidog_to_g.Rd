@@ -34,18 +34,18 @@ might be useful in the future.}
 \value{
 A list with the following elements
 \describe{
-\item{g}{Either a matrix of counts, where the columns index the genotype
+\item{\code{g}}{Either a matrix of counts, where the columns index the genotype
 and the rows index the loci (\code{type = "all_g"} or
 \code{type = "off_g"}). Or an array of genotype (natural) log-likelihoods
 where the rows index the loci, the columns index the
 individuals, and the slices index the genotypes
 (\code{type = "all_gl"} or \code{type = "off_gl"}).}
-\item{p1}{Either a vector of known parental genotypes
+\item{\code{p1}}{Either a vector of known parental genotypes
 (\code{type = "off_gl"}, \code{type = "all_g"} or \code{type = "off_g"}).
 Or a matrix of genotype (natural) log-likelihoods where the
 rows index the loci and the columns index the genotypes
 (\code{type = "all_gl"}).}
-\item{p2}{Either a vector of known parental genotypes
+\item{\code{p2}}{Either a vector of known parental genotypes
 (\code{type = "off_gl"}, \code{type = "all_g"} or \code{type = "off_g"}).
 Or a matrix of genotype (natural) log-likelihoods where the
 rows index the loci and the columns index the genotypes

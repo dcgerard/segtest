@@ -37,8 +37,13 @@ Genotype likelihoods
 }
 \description{
 Takes as input (i) the parent genotypes,
-(ii) the offspring genotype freq, (iii) sequencing error rate, (iv) read
-depth, (v) bias, (vi) overdispersion and returns genotype likelihoods.
+(ii) the offspring genotype frequency, (iii) sequencing error rate, (iv) read
+depth, (v) bias, and (vi) overdispersion. It returns genotype likelihoods.
+}
+\examples{
+set.seed(1)
+po_gl(genovec = c(1, 2, 1, 1, 3), p1_geno = 2, p2_geno = 2, ploidy = 4)
+
 }
 \author{
 Mira Thakkar

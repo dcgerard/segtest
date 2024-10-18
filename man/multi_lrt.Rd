@@ -57,6 +57,20 @@ parameter of parent 2.}
 
 \item{nullprop}{Should we return the null proportions (\code{TRUE}) or not (\code{FALSE})?}
 }
+\value{
+A data frame with the following elements:
+\describe{
+\item{\code{statistic}}{The likelihood ratio test statistic}
+\item{\code{p_value}}{The p-value of the likelihood ratio test.}
+\item{\code{df}}{The degrees of freedom of the test.}
+\item{\code{alpha}}{The MLE of the double reduction rate. Do not use for real work.}
+\item{\code{xi1}}{The MLE of the first parent's partial preferential pairing parameter. Do not use for real work.}
+\item{\code{xi2}}{The MLE of the second parent's partial preferential pairing parameter. Do not use for real work.}
+\item{\code{p1}}{(Estimate of) the first parent's genotype.}
+\item{\code{p2}}{(Estimate of) the second parent's genotype.}
+\item{\code{snp}}{The name of the SNP.}
+}
+}
 \description{
 Uses the \code{future} package to implement parallelization support for
 the likelihood ratio tests for segregation distortion. Right now, this is
@@ -82,7 +96,7 @@ You then run \code{multi_lrt()}, then shut down the workers with
 }
 
 \examples{
-\dontrun{
+\donttest{
 ## Assuming genotypes are known (typically a bad idea)
 glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
 p1_1 <- glist$p1

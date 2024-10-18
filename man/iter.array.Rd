@@ -7,13 +7,17 @@
 \method{iter}{array}(obj, by = 1, recycle = FALSE, ...)
 }
 \arguments{
-\item{obj}{An array}
+\item{obj}{An array.}
 
 \item{by}{The dimension to iterate over.}
 
 \item{recycle}{Should the iterator reset?}
 
 \item{...}{not used}
+}
+\value{
+An iterator. This is an S3 arrayiter object, used in conjunction
+with nextElem to iterate over one index of an array.
 }
 \description{
 Iterator over array

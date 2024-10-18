@@ -14,7 +14,8 @@ chisq_g4(x, g1, g2)
 \item{g2}{Parent 2's genotype}
 }
 \value{
-The Chi Square statistic and p-value
+A list containing the chi-squared statistic, degrees of
+freedom, and p-value.
 }
 \description{
 This chi-squared test is run under the assumption of no double reduction

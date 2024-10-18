@@ -10,10 +10,20 @@
 #'     individuals and the columns index the possible genotypes. So
 #'     \code{gl[i, k]} is the offspring genotype log-likelihood for individual i and
 #'     genotype k-1.
-#' @param g1 The first parent's genotype
+#' @param g1 The first parent's genotype.
 #' @param g2 The second parent's genotype.
 #'
+#' @inherit chisq_g4 return
+#'
 #' @author Mira Thakkar and David Gerard
+#'
+#' @examples
+#' ## null sim
+#' set.seed(1)
+#' g1 <- 2
+#' g2 <- 2
+#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 0, xi2 = 1/3)
+#' chisq_gl4(gl = gl, g1 = g1, g2 = g2)
 #'
 #' @export
 chisq_gl4 <- function(gl, g1, g2){
@@ -34,7 +44,8 @@ chisq_gl4 <- function(gl, g1, g2){
 #' @param g1 Parent 1's genotype
 #' @param g2 Parent 2's genotype
 #'
-#' @return The Chi Square statistic and p-value
+#' @return A list containing the chi-squared statistic, degrees of
+#'     freedom, and p-value.
 #'
 #' @author Mira Thakkar and David Gerard
 #'

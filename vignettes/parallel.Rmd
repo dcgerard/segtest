@@ -46,7 +46,7 @@ o6 <- multidog_to_g(ufit3, type = "off_gl")
 
 We would recommend *always* using genotype log-likelihoods. But the option is there for known genotypes.
 
-Parallelization support is provided through the future package. You specify how to implement parallelization using `future::plan()`. Then you run `multi_lrt()`. Then you shut down the parallelization `future::plan()`. The most common plan is `future::multisession()`, where you specify the number of parallel processes with the `workers` argument. You can get the maximum number of workers via `future::availableCores()`
+Parallelization support is provided through the future package. You specify how to implement parallelization using `future::plan()`. Then you run `multi_lrt()`. Then you shut down the parallelization with `future::plan()`. The most common plan is `future::multisession()`, where you specify the number of parallel processes with the `workers` argument. You can get the maximum number of workers via `future::availableCores()`
 
 ```{r}
 future::availableCores()

@@ -147,6 +147,9 @@ lrt_men_gl4 <- function(
 #'
 #' @author David Gerard
 #'
+#' @return The (log) likelihood of the three parameter model when using
+#'     genotype likelihoods.
+#'
 #' @examples
 #' g1 <- 1
 #' g2 <- 0
@@ -198,6 +201,9 @@ like_glpknown_3 <- function(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE)
 #'     The individuals, columns index the genotypes.
 #'
 #' @author David Gerard
+#'
+#' @return The (log) likelihood of the two parameter model when using
+#'     genotype likelihoods.
 #'
 #' @examples
 #' g1 <- 1

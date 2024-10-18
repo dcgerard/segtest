@@ -26,6 +26,12 @@ log (base e).
 Provide a vector of genotype counts and this will return a matrix of
 genotype log-likelihoods.
 }
+\examples{
+set.seed(1)
+simgl(nvec = c(1, 2, 1, 1, 3))
+
+
+}
 \author{
 David Gerard
 }

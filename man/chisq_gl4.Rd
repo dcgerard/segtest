@@ -12,13 +12,26 @@ individuals and the columns index the possible genotypes. So
 \code{gl[i, k]} is the offspring genotype log-likelihood for individual i and
 genotype k-1.}
 
-\item{g1}{The first parent's genotype}
+\item{g1}{The first parent's genotype.}
 
 \item{g2}{The second parent's genotype.}
+}
+\value{
+A list containing the chi-squared statistic, degrees of
+freedom, and p-value.
 }
 \description{
 Calculates the MLE genotype and runs a chi-squared test assuming
 no double reduction and no preferential pairing.
+}
+\examples{
+## null sim
+set.seed(1)
+g1 <- 2
+g2 <- 2
+gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 0, xi2 = 1/3)
+chisq_gl4(gl = gl, g1 = g1, g2 = g2)
+
 }
 \author{
 Mira Thakkar and David Gerard

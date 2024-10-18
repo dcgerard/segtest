@@ -20,6 +20,14 @@ is_valid_2(dr, pp, drbound = 1/6)
 There is a dependence on the bounds of two-parameter model. This function
 returns TRUE if those bounds are satisfied and FALSE otherwise.
 }
+\examples{
+TOL <- 1e-6
+is_valid_2(dr = 1/6, pp = 1/3, drbound = 1/6) # Valid
+is_valid_2(dr = 1/6, pp = 1/3 - TOL, drbound = 1/6) # Not valid
+is_valid_2(dr = 1/6, pp = 1/3 + TOL, drbound = 1/6) # Not valid
+
+
+}
 \author{
 David Gerard
 }

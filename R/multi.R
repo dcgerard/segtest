@@ -1,6 +1,6 @@
 #' Iterator over array
 #'
-#' @param obj An array
+#' @param obj An array.
 #' @param by The dimension to iterate over.
 #' @param recycle Should the iterator reset?
 #' @param ... not used
@@ -8,6 +8,9 @@
 #' @author David Gerard
 #'
 #' @seealso [nextElem.arrayiter()]
+#'
+#' @return An iterator. This is an S3 arrayiter object, used in conjunction
+#' with nextElem to iterate over one index of an array.
 #'
 #' @examples
 #' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
@@ -32,12 +35,24 @@ iter.array <- function(obj, by = 1, recycle = FALSE, ...) {
 
 #' Next element in an array
 #'
+#' This is applied to an \code{arrayiter} object to obtain the next sub-array
+#' along one of the dimensions.
+#'
 #' @param obj An arrayiter object
 #' @param ... not used
 #'
 #' @author David Gerard
 #'
+#' @return The next sub-array.
+#'
 #' @seealso [iter.array()]
+#'
+#' @examples
+#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' g <- iterators::iter(glist$g, by = 3)
+#' head(iterators::nextElem(g))
+#' head(iterators::nextElem(g))
+#' head(iterators::nextElem(g))
 #'
 #' @exportS3Method iterators::nextElem
 nextElem.arrayiter <- function(obj, ...) {
@@ -89,18 +104,18 @@ nextElem.arrayiter <- function(obj, ...) {
 #'
 #' @return A list with the following elements
 #' \describe{
-#'    \item{g}{Either a matrix of counts, where the columns index the genotype
+#'    \item{\code{g}}{Either a matrix of counts, where the columns index the genotype
 #'             and the rows index the loci (\code{type = "all_g"} or
 #'             \code{type = "off_g"}). Or an array of genotype (natural) log-likelihoods
 #'             where the rows index the loci, the columns index the
 #'             individuals, and the slices index the genotypes
 #'             (\code{type = "all_gl"} or \code{type = "off_gl"}).}
-#'    \item{p1}{Either a vector of known parental genotypes
+#'    \item{\code{p1}}{Either a vector of known parental genotypes
 #'              (\code{type = "off_gl"}, \code{type = "all_g"} or \code{type = "off_g"}).
 #'              Or a matrix of genotype (natural) log-likelihoods where the
 #'              rows index the loci and the columns index the genotypes
 #'              (\code{type = "all_gl"}).}
-#'    \item{p2}{Either a vector of known parental genotypes
+#'    \item{\code{p2}}{Either a vector of known parental genotypes
 #'              (\code{type = "off_gl"}, \code{type = "all_g"} or \code{type = "off_g"}).
 #'              Or a matrix of genotype (natural) log-likelihoods where the
 #'              rows index the loci and the columns index the genotypes
@@ -217,8 +232,21 @@ multidog_to_g <- function(
 #'
 #' @author David Gerard
 #'
+#' @return A data frame with the following elements:
+#' \describe{
+#'   \item{\code{statistic}}{The likelihood ratio test statistic}
+#'   \item{\code{p_value}}{The p-value of the likelihood ratio test.}
+#'   \item{\code{df}}{The degrees of freedom of the test.}
+#'   \item{\code{alpha}}{The MLE of the double reduction rate. Do not use for real work.}
+#'   \item{\code{xi1}}{The MLE of the first parent's partial preferential pairing parameter. Do not use for real work.}
+#'   \item{\code{xi2}}{The MLE of the second parent's partial preferential pairing parameter. Do not use for real work.}
+#'   \item{\code{p1}}{(Estimate of) the first parent's genotype.}
+#'   \item{\code{p2}}{(Estimate of) the second parent's genotype.}
+#'   \item{\code{snp}}{The name of the SNP.}
+#' }
+#'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ## Assuming genotypes are known (typically a bad idea)
 #' glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
 #' p1_1 <- glist$p1
