@@ -54,6 +54,13 @@ Details of these methods may be found in Gerard et al. (2024).
 
 ## Installation
 
+You can install the stable version of segtest from
+[CRAN](https://cran.r-project.org/package=segtest) with:
+
+``` r
+install.packages("segtest")
+```
+
 You can install the development version of segtest from
 [GitHub](https://github.com/dcgerard/segtest) with:
 
