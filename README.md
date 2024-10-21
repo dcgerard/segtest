@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/segtest)](https://CRAN.R-project.org/package=segtest)
 [![NSF-2132247](https://img.shields.io/badge/NSF-2132247-blue.svg)](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
