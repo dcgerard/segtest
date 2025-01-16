@@ -1,6 +1,6 @@
 Package: segtest
 Title: Tests for Segregation Distortion in Polyploids
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: 
     c(person(given = "David", 
              family = "Gerard",
