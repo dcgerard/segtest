@@ -1,10 +1,23 @@
 bibentry(
-  bibtype  = "Article",
-  title    = "Tests for segregation distortion in tetraploid F1 populations",
-  author   = "David Gerard and Mira Thakkar and Luis Felipe V. Ferrão",
-  journal  = "bioRxiv",
-  year     = "2024",
-  doi      = "10.1101/2024.02.07.579361",
-  publisher = "Cold Spring Harbor Laboratory",
-  note     = "preprint"
+  bibtype   = "Article",
+  title     = "Tests for segregation distortion in tetraploid F1 populations",
+  author    = c(person(given = "David", 
+                       family = "Gerard",
+                       email = "dgerard@american.edu",
+                       comment = c(ORCID = "0000-0001-9450-5023")),
+                person(given = "Mira", 
+                       family = "Thakkar", 
+                       email = "chrtmira@gmail.com"),
+                person(given = "Luis Felipe V.",
+                       family = "Ferrão",
+                       email = "lferrao@ufl.edu",
+                       comment = c(ORCID = "0000-0002-9655-4838"))
+                ),
+  journal   = "Theoretical and Applied Genetics",
+  volume    = "138",
+  number    = "30",
+  pages     = "1--13",
+  year      = "2025",
+  doi       = "10.1007/s00122-025-04816-z",
+  publisher = "Springer"
 )

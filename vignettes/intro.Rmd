@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 library(segtest)
 ```
 
-The `segtest` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). Details of these methods may be found in Gerard et al. (2024). The main functions are:
+The `segtest` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). Details of these methods may be found in Gerard et al. (2025). The main functions are:
 
 - `multi_lrt()`: Run any of the likelihood ratio tests for segregation distortion in parallel across many SNPs.
 - `multidog_to_g`: Format the genotyping output from `updog::multidog()` to be compatible withe input of `multi_lrt()`.
@@ -60,7 +60,7 @@ plot(
   ylim = c(0, 1))
 ```
 
-The `offspring_gf_3()` function is safer to use because there is a dependence between the preferential pairing parameter and the double reduction rate that bounds these values in `offspring_gf_2()`, and so in the two-parameter model you might accidentally choose values that are impossible. I did not set up checks for these values because the bounds depend on the maximum rate of double reduction, which can vary significantly. Please see Gerard et al. (2024) for details.
+The `offspring_gf_3()` function is safer to use because there is a dependence between the preferential pairing parameter and the double reduction rate that bounds these values in `offspring_gf_2()`, and so in the two-parameter model you might accidentally choose values that are impossible. I did not set up checks for these values because the bounds depend on the maximum rate of double reduction, which can vary significantly. Please see Gerard et al. (2025) for details.
 
 
 # When the null is true
@@ -124,4 +124,4 @@ lout$p_value
 
 # References
 
-Gerard D, Thakkar M, & Ferrão LFV (2024). "Tests for segregation distortion in tetraploid F1 populations." _bioRxiv_. [doi:10.1101/2024.02.07.579361](https://doi.org/10.1101/2024.02.07.579361).
+Gerard D, Thakkar M, & Ferrão LFV (2025). "Tests for segregation distortion in tetraploid F1 populations." _Theoretical and Applied Genetics_, *138*(30), p. 1--13. [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
