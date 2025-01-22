@@ -6,6 +6,23 @@ expit <- function (x) {
     1/(1 + exp(-x))
 }
 
+all_multinom <- function (n, k) {
+  if (k == 0) {
+    return(NULL)
+  }
+  else if (k == 1) {
+    return(n)
+  }
+  mat_list <- list()
+  for (i in 0:n) {
+    mat_list[[i + 1]] <- cbind(i, all_multinom(n - i, k -
+                                                 1))
+  }
+  mat <- do.call(what = rbind, args = mat_list)
+  colnames(mat) <- NULL
+  mat
+}
+
 #' Simplex to real function
 #'
 #' @param q A point on the simplex
@@ -198,6 +215,38 @@ f1_gf_dr <- function (alpha, alpha2 = alpha, g1, g2, ploidy) {
 }
 
 
-f1_gf_pp <- function(gamma1, gamma2, g1, g2) {
-
+#' Returns all gamete segregation patterns under preferential pairing
+#'
+#' @param ploidy The ploidy
+#'
+#' @return A data frame with all of the gamete frequencies possible. Columsn include
+#'   \describe{
+#'     \item{g}{parent genotype.}
+#'     \item{m}{pairing configuration.}
+#'     \item{p}{gamete frequencies.}
+#'     \item{ploidy}{The ploidy}
+#'   }
+#'
+#' @author David Gerard
+#'
+#' @noRd
+pp_seg_pats <- function(ploidy) {
+  stopifnot(ploidy%%2 == 0, ploidy >= 2)
+  mmat <- all_multinom(n = ploidy / 2, k = 3)
+  df <- data.frame(
+    ploidy = ploidy,
+    g = mmat[, 2] + 2 * mmat[, 3],
+    m = I(lapply(seq_len(nrow(mmat)), function(i) mmat[i,])))
+  df <- df[order(df$g), ]
+  df$p <- vector(mode = "list", length = nrow(df))
+  rownames(df) <- NULL
+  for (i in seq_len(nrow(df))) {
+    df$p[[i]] <- stats::dbinom(x = 0:(ploidy/2) - df$m[[i]][[3]], size = df$m[[i]][[2]], prob = 0.5)
+  }
+  return(df)
 }
+
+
+
+
+
