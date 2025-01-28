@@ -339,7 +339,9 @@ gamfreq_pp <- function(gam, g, ploidy) {
 #'    The proportions are in the same order the configurations in
 #'    \code{\link{seg}}. See Gerard et al (2018) for details on
 #'    pairing configurations.
-#' @param alpha The double reduction rate (if using). Defaults to 0.
+#' @param alpha The double reduction rate(s) (if using). Defaults to 0's.
+#' @param beta The double reduction adjustment for simplex markers if
+#'    \code{type = "mix"} and \code{add_dr = TRUE}. Assumed to be 0 by default.
 #' @param type Either \code{"mix"}, meaning a mixture model of
 #'    pairing configurations, or \code{"polysomic"} for polysomic inheritance.
 #' @param add_dr A logical. If \code{type = "polysomic"}, then the double
@@ -362,6 +364,7 @@ gamfreq <- function(
     ploidy,
     gam = NULL,
     alpha = NULL,
+    beta = NULL,
     type = c("mix", "polysomic"),
     add_dr = TRUE) {
   ## Check input
@@ -377,7 +380,15 @@ gamfreq <- function(
   if (!is.null(alpha)) {
     stopifnot(
       alpha >= 0,
+      sum(alpha) <= 1,
       length(alpha) == floor(ploidy / 4)
+    )
+  }
+  if (!is.null(beta)) {
+    stopifnot(
+      beta >= 0,
+      beta <= 0.25,
+      length(beta) == 1
     )
   }
   stopifnot(is.logical(add_dr), length(add_dr) == 1)
@@ -385,7 +396,9 @@ gamfreq <- function(
   if (type == "mix") {
     stopifnot(!is.null(gam))
     if (add_dr) {
-      stopifnot(!is.null(alpha))
+      if (is.null(beta)) {
+        beta <- 0
+      }
     }
   } else if (type == "polysomic") {
     if (is.null(alpha)) {
@@ -396,6 +409,22 @@ gamfreq <- function(
   ## calculate gamete frequencies
   if (type == "polysomic" | (g == 1 & add_dr) | (g == ploidy - 1 & add_dr)) {
     pvec <- gamfreq_dr(alpha = alpha, g = g, ploidy = ploidy, log_p = FALSE)
+  } else if (type == "mix" && add_dr && (g == 1 | g == ploidy - 1)) {
+    if (g == 1) {
+      pvec <- c(
+        0.5 + beta,
+        0.5 - 2 * beta,
+        beta,
+        rep(0, times = ploidy / 2 - 2)
+      )
+    } else if (g == ploidy - 1) {
+      pvec <- c(
+        rep(0, times = ploidy / 2 - 2),
+        beta,
+        0.5 - 2 * beta,
+        0.5 + beta
+      )
+    }
   } else if (type == "mix") {
     pvec <- gamfreq_pp(gam = gam, g = g, ploidy = ploidy)
   }

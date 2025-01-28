@@ -9,6 +9,7 @@ gamfreq(
   ploidy,
   gam = NULL,
   alpha = NULL,
+  beta = NULL,
   type = c("mix", "polysomic"),
   add_dr = TRUE
 )
@@ -25,7 +26,10 @@ The proportions are in the same order the configurations in
 \code{\link{seg}}. See Gerard et al (2018) for details on
 pairing configurations.}
 
-\item{alpha}{The double reduction rate (if using). Defaults to 0.}
+\item{alpha}{The double reduction rate(s) (if using). Defaults to 0's.}
+
+\item{beta}{The double reduction adjustment for simplex markers if
+\code{type = "mix"} and \code{add_dr = TRUE}. Assumed to be 0 by default.}
 
 \item{type}{Either \code{"mix"}, meaning a mixture model of
 pairing configurations, or \code{"polysomic"} for polysomic inheritance.}
