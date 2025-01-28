@@ -23,6 +23,54 @@ all_multinom <- function (n, k) {
   mat
 }
 
+#' Upper bounds on double reduction rates.
+#'
+#' @param ploidy The ploidy
+#' @param model Either complete equational segregation (Mather, 1935)
+#'    or pure random chromatid segregation (Haldane, 1930). See also
+#'    Huang (2019).
+#'
+#' @return A vector of length floor(ploidy / 4) containing the upper bounds
+#'    on the rates of double reduction.
+#'
+#' @references
+#' \itemize{
+#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. Journal of genetics, 22, 359-372.}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. G3: Genes, Genomes, Genetics, 9(5), 1693-1706.}
+#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. Journal of Genetics, 30, 53-78.}
+#' }
+#'
+#' @author David Gerard
+#'
+#' @noRd
+drbounds <- function (ploidy, model = c("ces", "prcs")) {
+  model <- match.arg(model)
+  stopifnot(ploidy > 2)
+  stopifnot(ploidy%%2 == 0)
+  ibdr <- floor(ploidy/4)
+  if (model == "ces") {
+    alpha <- rep(NA_real_, length = ibdr)
+    for (i in seq_along(alpha)) {
+        jvec <- i:ibdr
+        alpha[[i]] <- exp(
+          log_sum_exp(
+            (ploidy/2 - 3 * jvec) * log(2) + lchoose(jvec, i) +
+              lchoose(ploidy/2, jvec) +
+              lchoose(ploidy/2 - jvec, ploidy/2 - 2 * jvec) -
+              lchoose(ploidy, ploidy/2)
+            )
+          )
+    }
+  } else if (model == "prcs") {
+    ivec <- seq_len(ibdr)
+    alpha <- exp(
+      lchoose(ploidy, ploidy / 2 - ivec) + lchoose(ploidy / 2 - ivec,  ivec) +
+        (ploidy / 2 -  2 * ivec) * log(2) - lchoose(2 * ploidy, ploidy / 2)
+    )
+  }
+  return(alpha)
+}
+
 #' Simplex to real function
 #'
 #' @param q A point on the simplex
@@ -246,7 +294,112 @@ pp_seg_pats <- function(ploidy) {
   return(df)
 }
 
+#' number of mixture components
+#'
+#' @param g parent genotype
+#' @param ploidy parent ploidy
+#'
+#' @noRd
+n_pp_mix <- function(g, ploidy) {
+  ifelse(ell >= ploidy / 2, ploidy / 2 - ceiling(g / 2) + 1, floor(g / 2) + 1)
+}
 
+#' Gamete frequencies from mixture of pairing configurations.
+#'
+#' @param gam The mixing probabilities for the pairing configurations.
+#' @param g The parent gentoype.
+#' @param ploidy The ploidy of the parent.
+#'
+#' @author David Gerard
+#'
+#' @return A vector of gamete frequencies.
+#'
+#' @noRd
+gamfreq_pp <- function(gam, g, ploidy) {
+  TOL <- sqrt(.Machine$double.eps)
+  stopifnot(
+    length(gam) == n_pp_mix(g = g, ploidy = ploidy),
+    abs(sum(gam) - 1) < TOL,
+    gam >= 0)
+  plist <- seg[seg$ploidy == ploidy & (seg$mode == "disomic" | seg$mode == "both") & seg$g == g, ]$p
+  pvec <- rep(0, length.out = ploidy / 2 + 1)
+  for (i in seq_along(plist)) {
+    pvec <- pvec + plist[[i]] * gam[[i]]
+  }
+  return(pvec)
+}
 
+#' Gamete frequencies under a generalized model
+#'
+#' @param g Parent genotype.
+#' @param ploidy Parent ploidy. Should be even, and between 2 and 20 (inclusive).
+#'    Let me know if you need the ploidy to be higher. I can update
+#'    the package really easily.
+#' @param gam The mixture proportions for the pairing configurations.
+#'    The proportions are in the same order the configurations in
+#'    \code{\link{seg}}. See Gerard et al (2018) for details on
+#'    pairing configurations.
+#' @param alpha The double reduction rate (if using). Defaults to 0.
+#' @param type Either \code{"mix"}, meaning a mixture model of
+#'    pairing configurations, or \code{"polysomic"} for polysomic inheritance.
+#' @param add_dr A logical. If \code{type = "polysomic"}, then the double
+#'    double reduction rate (\code{"alpha"}) will be used no matter the
+#'    value of \code{add_dr}, so set \code{alpha = 0} if you don't want it.
+#'    But if \code{type = "mix"} then we will incorporate double reduction
+#'    only in simplex markers (where it matters the most, and where
+#'    preferential pairing does not operate).
+#'
+#' @references
+#' \itemize{
+#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. Genetics, 210(3), 789-807.}
+#' }
+#'
+#' @author David Gerard
+#'
+#' @export
+gamfreq <- function(
+    g,
+    ploidy,
+    gam = NULL,
+    alpha = NULL,
+    type = c("mix", "polysomic"),
+    add_dr = TRUE) {
+  ## Check input
+  stopifnot(ploidy >= 2, ploidy %% 2 == 0, ploidy <= 20)
+  stopifnot(g >= 0, g <= ploidy)
+  if (!is.null(gam)) {
+    stopifnot(
+      length(gam) == n_pp_mix(g = g, ploidy = ploidy),
+      abs(sum(gam) - 1) < TOL,
+      gam >= 0
+    )
+  }
+  if (!is.null(alpha)) {
+    stopifnot(
+      alpha >= 0,
+      length(alpha) == floor(ploidy / 4)
+    )
+  }
+  stopifnot(is.logical(add_dr), length(add_dr) == 1)
+  type <- match.arg(type)
+  if (type == "mix") {
+    stopifnot(!is.null(gam))
+    if (add_dr) {
+      stopifnot(!is.null(alpha))
+    }
+  } else if (type == "polysomic") {
+    if (is.null(alpha)) {
+      alpha <- rep(0, times = floor(ploidy / 4))
+    }
+  }
 
+  ## calculate gamete frequencies
+  if (type == "polysomic" | (g == 1 & add_dr) | (g == ploidy - 1 & add_dr)) {
+    pvec <- gamfreq_dr(alpha = alpha, g = g, ploidy = ploidy, log_p = FALSE)
+  } else if (type == "mix") {
+    pvec <- gamfreq_pp(gam = gam, g = g, ploidy = ploidy)
+  }
+
+  return(pvec)
+}
 
