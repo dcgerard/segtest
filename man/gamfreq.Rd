@@ -78,6 +78,20 @@ upper bound on beta for two different models are given by
 \code{\link{beta_bounds}()}.
 }
 
+\examples{
+## Various duplex models
+gamfreq(g = 2, ploidy = 4, gam = c(0, 1), type = "mix")
+gamfreq(g = 2, ploidy = 4, gam = c(1, 0), type = "mix")
+gamfreq(g = 2, ploidy = 4, gam = c(0.5, 0.5), type = "mix")
+gamfreq(g = 2, ploidy = 4, alpha = 0, type = "polysomic")
+gamfreq(g = 2, ploidy = 4, alpha = 1/6, type = "polysomic")
+
+## Various simplex models
+gamfreq(g = 1, ploidy = 4, beta = 1/24, gam = 1, type = "mix", add_dr = TRUE)
+gamfreq(g = 1, ploidy = 4, alpha = 1/6, type = "polysomic")
+gamfreq(g = 1, ploidy = 4, gam = 1, type = "mix", add_dr = FALSE)
+gamfreq(g = 1, ploidy = 4, alpha = 0, type = "polysomic")
+}
 \references{
 \itemize{
 \item{Gerard, D. (2023). Double reduction estimation and equilibrium tests in natural autopolyploid populations. \emph{Biometrics}, 79(3), 2143-2156.}

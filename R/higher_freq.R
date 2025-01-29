@@ -341,7 +341,7 @@ pp_seg_pats <- function(ploidy) {
 #'
 #' @export
 n_pp_mix <- function(g, ploidy) {
-  ifelse(ell >= ploidy / 2, ploidy / 2 - ceiling(g / 2) + 1, floor(g / 2) + 1)
+  ifelse(g >= ploidy / 2, ploidy / 2 - ceiling(g / 2) + 1, floor(g / 2) + 1)
 }
 
 #' Gamete frequencies from mixture of pairing configurations.
@@ -435,6 +435,20 @@ gamfreq_pp <- function(gam, g, ploidy) {
 #' @author David Gerard
 #'
 #' @export
+#'
+#' @examples
+#' ## Various duplex models
+#' gamfreq(g = 2, ploidy = 4, gam = c(0, 1), type = "mix")
+#' gamfreq(g = 2, ploidy = 4, gam = c(1, 0), type = "mix")
+#' gamfreq(g = 2, ploidy = 4, gam = c(0.5, 0.5), type = "mix")
+#' gamfreq(g = 2, ploidy = 4, alpha = 0, type = "polysomic")
+#' gamfreq(g = 2, ploidy = 4, alpha = 1/6, type = "polysomic")
+#'
+#' ## Various simplex models
+#' gamfreq(g = 1, ploidy = 4, beta = 1/24, gam = 1, type = "mix", add_dr = TRUE)
+#' gamfreq(g = 1, ploidy = 4, alpha = 1/6, type = "polysomic")
+#' gamfreq(g = 1, ploidy = 4, gam = 1, type = "mix", add_dr = FALSE)
+#' gamfreq(g = 1, ploidy = 4, alpha = 0, type = "polysomic")
 gamfreq <- function(
     g,
     ploidy,
@@ -444,6 +458,7 @@ gamfreq <- function(
     type = c("mix", "polysomic"),
     add_dr = TRUE) {
   ## Check input
+  TOL <- sqrt(.Machine$double.eps)
   stopifnot(ploidy >= 2, ploidy %% 2 == 0, ploidy <= 20)
   stopifnot(g >= 0, g <= ploidy)
   if (!is.null(gam)) {
@@ -483,7 +498,7 @@ gamfreq <- function(
   }
 
   ## calculate gamete frequencies
-  if (type == "polysomic" | (g == 1 & add_dr) | (g == ploidy - 1 & add_dr)) {
+  if (type == "polysomic") {
     pvec <- gamfreq_dr(alpha = alpha, g = g, ploidy = ploidy, log_p = FALSE)
   } else if (type == "mix" && add_dr && (g == 1 | g == ploidy - 1)) {
     if (g == 1) {
@@ -507,4 +522,168 @@ gamfreq <- function(
 
   return(pvec)
 }
+
+#' Convert parameterization from something optim() can use to something
+#' gamfreq() can use.
+#'
+#' @param rule A list of length three. The first element gives the model
+#'     of parent 1. The second element gives the model of parent 2.
+#'     The third element is a logiical on whether we add an outlier or now.
+#'     \describe {
+#'       \item{ploidy}{The parent's ploidy.}
+#'       \item{g}{The parent dosage.}
+#'       \item{type}{Either "mix", "mix_dr", or "polysomic".}
+#'       \item{outlier}{(only in third element) A logical on whether outliers are modeled.}
+#'     }
+#' @param par A vector of parameters to be converted based on rule.
+#'    \itemize{
+#'    \item{
+#'      If \code{type = "mix"}, then
+#'      gam is assumed to be the real-line parameterization (see
+#'      \code{\link{real_to_simplex}()} and \code{\link{simplex_to_real}()})
+#'      }
+#'    \item{
+#'      If \code{type = "mix_dr"}, then this is the same as "mix" but for simplex
+#'      markers we allow for beta.
+#'      Beta (if g = 1) is not real-line transformed since there are bounds on it. See
+#'      \code{\link{beta_bounds}()}.
+#'      }
+#'    \item{
+#'       If \code{type = "polysomic"}, then only alpha is specified. This is
+#'       not real-line specified, since there are natural bounds on alpha.
+#'       See \code{\link{drbounds}()}.
+#'      }
+#'    \item{
+#'       All of parent 1's parameters are in the vector, then all of parent 2's
+#'       parameters.
+#'       }
+#'    \item{
+#'       If \code{outlier = TRUE}, then the outlier proportion is the last
+#'       element of \code{par}
+#'       }
+#'    }
+#'
+#' @return A list of length 3. The first contains the parameters from
+#'     gamfreq() for parent 1, the second contains the parameters from
+#'     gamfreq of parent 2. The third contains the outlier proportion.
+#'     These parameters in the parent lists are \code{g}, \code{gam},
+#'     \code{beta}, and \code{alpha}. See \code{\link{gamfreq}()} for
+#'     details on these parameters.
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' rule <- list(
+#'   list(ploidy = 4, g = 2, type = "mix"),
+#'   list(ploidy = 8, g = 4, type = "polysomic"),
+#'   list(outlier = TRUE)
+#'   )
+#' par <- c(-2, 0.1, 0.2, 0.03)
+#' par_to_par(par = par, rule = rule)
+#'
+#'
+#' @noRd
+par_to_par <- function(par, rule) {
+  parlist <- list()
+  parlist[[1]] <- list(
+    ploidy = rule[[1]]$ploidy,
+    g = rule[[1]]$g,
+    alpha = NULL,
+    beta = NULL,
+    gam = NULL,
+    type = NULL,
+    add_dr = NULL)
+  parlist[[2]] <- list(
+    ploidy = rule[[2]]$ploidy,
+    g = rule[[2]]$g,
+    alpha = NULL,
+    beta = NULL,
+    gam = NULL,
+    type = NULL,
+    add_dr = NULL)
+  parlist[[3]] <- list(
+    outlier = rule[[3]]$outlier,
+    pi = NULL
+  )
+
+  ## Do parent 1 ----
+  cindex <- 1 ## keeps track of where we are in par
+  if (rule[[1]]$type == "polysomic") {
+    parlist[[1]]$type <- "polysomic"
+    parlist[[1]]$add_dr <- FALSE
+    ndr <- floor(rule[[1]]$ploidy / 4)
+    parlist[[1]]$alpha <- par[cindex:(cindex + ndr - 1)]
+    cindex <- cindex + ndr
+  } else if (rule[[1]]$type == "mix_dr" && (rule[[1]]$g == 1 || rule[[1]]$g == rule[[1]]$ploidy - 1)) {
+    parlist[[1]]$type <- "mix"
+    parlist[[1]]$add_dr <- TRUE
+    parlist[[1]]$beta <- par[[cindex]]
+    cindex <- cindex + 1
+  } else if (rule[[1]]$type == "mix" || rule[[1]]$type == "mix_dr") {
+    parlist[[1]]$type <- "mix"
+    parlist[[1]]$add_dr <- FALSE
+    npp <- n_pp_mix(g = rule[[1]]$g, ploidy = rule[[1]]$ploidy)
+    parlist[[1]]$gam <- real_to_simplex(par[cindex:(cindex + npp - 2)])
+    cindex <- cindex + npp - 1
+  } else {
+    stop("par_to_par 1: how did you get here?")
+  }
+
+  ## Do parent 2 ----
+  if (rule[[2]]$type == "polysomic") {
+    parlist[[2]]$type <- "polysomic"
+    parlist[[2]]$add_dr <- FALSE
+    ndr <- floor(rule[[2]]$ploidy / 4)
+    parlist[[2]]$alpha <- par[cindex:(cindex + ndr - 1)]
+    cindex <- cindex + ndr
+  } else if (rule[[2]]$type == "mix_dr" && (rule[[2]]$g == 1 || rule[[2]]$g == rule[[2]]$ploidy - 1)) {
+    parlist[[2]]$type <- "mix"
+    parlist[[2]]$add_dr <- TRUE
+    parlist[[2]]$beta <- par[[cindex]]
+    cindex <- cindex + 1
+  } else if (rule[[2]]$type == "mix" || rule[[2]]$type == "mix_dr") {
+    parlist[[2]]$type <- "mix"
+    parlist[[2]]$add_dr <- FALSE
+    npp <- n_pp_mix(g = rule[[2]]$g, ploidy = rule[[2]]$ploidy)
+    parlist[[2]]$gam <- real_to_simplex(par[cindex:(cindex + npp - 2)])
+    cindex <- cindex + npp - 1
+  } else {
+    stop("par_to_par 1: how did you get here?")
+  }
+
+  if (rule[[3]]$outlier) {
+    parlist[[3]]$pi <- par[[cindex]]
+  }
+
+  return(parlist)
+}
+
+#' Par to genotype frequencies
+#'
+#' @inheritParams par_to_par
+#'
+#' @return The vector of genotype frequencies.
+#'
+#' @author David Gerard
+#'
+#' @noRd
+par_to_gf <- function(par, rule) {
+  gampar <- par_to_par(par = par, rule = rule)
+  p1 <- do.call(what = gamfreq, args = gampar[[1]])
+  p2 <- do.call(what = gamfreq, args = gampar[[2]])
+  q <- stats::convolve(x = p1, y = p2, type = "open")
+  q[q < 0] <- 0 ## for -1e-16
+  q <- q / sum(q)
+  if (gampar[[3]]$outlier) {
+    q <- q * (1 - gampar[[3]]$pi) + gampar[[3]]$pi / length(q)
+  }
+  return(q)
+}
+
+
+
+
+
+
+
 
