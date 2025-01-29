@@ -42,11 +42,47 @@ only in simplex markers (where it matters the most, and where
 preferential pairing does not operate).}
 }
 \description{
-Gamete frequencies under a generalized model
+Returns the gamete frequencies for autopolyploids, allopolyploids,
+and segmental allopolyploids, accounting for the effects of double
+reduction and partial preferential pairing.
 }
+\section{Models}{
+
+
+If \code{type = "polysomic"}, then the gamete frequencies correspond
+to those of Huang et al (2019). Those formulas are for general multiallelic
+loci, so see also Appendix G of Gerard (2022) for special case of
+biallelic loci. The relevant parameter is \code{alpha}, a vector of
+length \code{floor(ploidy / 4)}, where \code{alpha[[i]]} is the
+probability that there are \code{i} pairs of double reduced alleles
+in a gamete. The theoretical upper bound on \code{alpha} is given in
+\code{\link{drbounds}()}.
+
+If \code{type = "mix"} and \code{add_dr = FALSE}, then the gamete
+frequencies correspond to the pairing configuration model of
+Gerard et al (2018). This model states that the gamete frequencies are
+a convex combination of the disomic inheritance frequencies. The weights
+of this convex combination are provided in the \code{gam} parameter. The
+total number of disomic segregation patterns is given by
+\code{\link{n_pp_mix}()}. The order of these segregation patterns used is
+the order in \code{\link{seg}}.
+
+The model for \code{type = "mix"} and \code{add_dr = TRUE} is the same
+as for \code{type = "mix"} and \code{add_dr = FALSE} \emph{except} at
+parental simplex loci. At such loci, there are no effects of preferential
+pairing, and so the option \code{add_dr = TRUE} allows for the effects
+of double reduction at simplex loci. The relevant parameter here is
+\code{beta}. The first three gamete frequencies at simplex loci are
+\code{c(0.5 + beta, 0.5 - 2 * beta, beta)}, and the rest are 0. The
+upper bound on beta for two different models are given by
+\code{\link{beta_bounds}()}.
+}
+
 \references{
 \itemize{
-\item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. Genetics, 210(3), 789-807.}
+\item{Gerard, D. (2023). Double reduction estimation and equilibrium tests in natural autopolyploid populations. \emph{Biometrics}, 79(3), 2143-2156.}
+\item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. \emph{Genetics}, 210(3), 789-807.}
+\item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
 }
 }
 \author{

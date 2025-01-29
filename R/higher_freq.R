@@ -25,24 +25,31 @@ all_multinom <- function (n, k) {
 
 #' Upper bounds on double reduction rates.
 #'
-#' @param ploidy The ploidy
-#' @param model Either complete equational segregation (Mather, 1935)
-#'    or pure random chromatid segregation (Haldane, 1930). See also
-#'    Huang (2019).
+#' Provides the upper bounds on the double reduction rates based on the
+#' formulas in Huang et al. (2019). There are two upper bounds provided.
+#' The upper bound from complete equational separation is higher than
+#' the upper bound from the pure random chromatid segregation.
 #'
-#' @return A vector of length floor(ploidy / 4) containing the upper bounds
-#'    on the rates of double reduction.
+#' @param ploidy The ploidy
+#' @param model Either complete equational segregation (\code{"ces"}) (Mather, 1935)
+#'    or pure random chromatid segregation \code{"prcs"})  (Haldane, 1930). See also
+#'    Huang et al. (2019).
+#'
+#' @return A vector of length \code{floor(ploidy / 4)} containing the upper bounds
+#'    on the rates of double reduction. The \code{i}the element is the
+#'    upper bound on the probability that there are \code{i} pairs of
+#'    identical by double reduction alleles in a gamete.
 #'
 #' @references
 #' \itemize{
-#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. Journal of genetics, 22, 359-372.}
-#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. G3: Genes, Genomes, Genetics, 9(5), 1693-1706.}
-#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. Journal of Genetics, 30, 53-78.}
+#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372.}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
+#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78.}
 #' }
 #'
 #' @author David Gerard
 #'
-#' @noRd
+#' @export
 drbounds <- function (ploidy, model = c("ces", "prcs")) {
   model <- match.arg(model)
   stopifnot(ploidy > 2)
@@ -69,6 +76,33 @@ drbounds <- function (ploidy, model = c("ces", "prcs")) {
     )
   }
   return(alpha)
+}
+
+#' Bounds on the distortion at simplex loci caused by double reduction.
+#'
+#' Returns the upper bound on the probability of a gamete with a genotype of
+#' 2 when the parent has a genotype of 1. This is based on two models.
+#' The upper bound from complete equational separation is higher than
+#' the upper bound from the pure random chromatid segregation. See
+#' Huang et al (2019) for a description of these models.
+#'
+#'
+#' @inheritParams drbounds
+#'
+#' @author David Gerard
+#'
+#' @references
+#' \itemize{
+#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372.}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
+#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78.}
+#' }
+#'
+#' @export
+beta_bounds <- function(ploidy, model = c("ces", "prcs")) {
+  model <- match.arg(model)
+  dvec <- drbounds(ploidy = ploidy, model = model)
+  return(sum(seq_along(dvec) * dvec) / ploidy)
 }
 
 #' Simplex to real function
@@ -294,12 +328,18 @@ pp_seg_pats <- function(ploidy) {
   return(df)
 }
 
-#' number of mixture components
+#' Number of mixture components
+#'
+#' The number of disomic inheritance patterns for a given ploidy and a given
+#' parental dosage. See also \code{\link{seg}} for the list of all possible
+#' disomic inheritance patterns for even ploidies up to 20.
 #'
 #' @param g parent genotype
 #' @param ploidy parent ploidy
 #'
-#' @noRd
+#' @return The number of mixture components.
+#'
+#' @export
 n_pp_mix <- function(g, ploidy) {
   ifelse(ell >= ploidy / 2, ploidy / 2 - ceiling(g / 2) + 1, floor(g / 2) + 1)
 }
@@ -331,6 +371,40 @@ gamfreq_pp <- function(gam, g, ploidy) {
 
 #' Gamete frequencies under a generalized model
 #'
+#' Returns the gamete frequencies for autopolyploids, allopolyploids,
+#' and segmental allopolyploids, accounting for the effects of double
+#' reduction and partial preferential pairing.
+#'
+#' @section Models:
+#'
+#' If \code{type = "polysomic"}, then the gamete frequencies correspond
+#' to those of Huang et al (2019). Those formulas are for general multiallelic
+#' loci, so see also Appendix G of Gerard (2022) for special case of
+#' biallelic loci. The relevant parameter is \code{alpha}, a vector of
+#' length \code{floor(ploidy / 4)}, where \code{alpha[[i]]} is the
+#' probability that there are \code{i} pairs of double reduced alleles
+#' in a gamete. The theoretical upper bound on \code{alpha} is given in
+#' \code{\link{drbounds}()}.
+#'
+#' If \code{type = "mix"} and \code{add_dr = FALSE}, then the gamete
+#' frequencies correspond to the pairing configuration model of
+#' Gerard et al (2018). This model states that the gamete frequencies are
+#' a convex combination of the disomic inheritance frequencies. The weights
+#' of this convex combination are provided in the \code{gam} parameter. The
+#' total number of disomic segregation patterns is given by
+#' \code{\link{n_pp_mix}()}. The order of these segregation patterns used is
+#' the order in \code{\link{seg}}.
+#'
+#' The model for \code{type = "mix"} and \code{add_dr = TRUE} is the same
+#' as for \code{type = "mix"} and \code{add_dr = FALSE} \emph{except} at
+#' parental simplex loci. At such loci, there are no effects of preferential
+#' pairing, and so the option \code{add_dr = TRUE} allows for the effects
+#' of double reduction at simplex loci. The relevant parameter here is
+#' \code{beta}. The first three gamete frequencies at simplex loci are
+#' \code{c(0.5 + beta, 0.5 - 2 * beta, beta)}, and the rest are 0. The
+#' upper bound on beta for two different models are given by
+#' \code{\link{beta_bounds}()}.
+#'
 #' @param g Parent genotype.
 #' @param ploidy Parent ploidy. Should be even, and between 2 and 20 (inclusive).
 #'    Let me know if you need the ploidy to be higher. I can update
@@ -353,7 +427,9 @@ gamfreq_pp <- function(gam, g, ploidy) {
 #'
 #' @references
 #' \itemize{
-#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. Genetics, 210(3), 789-807.}
+#'   \item{Gerard, D. (2023). Double reduction estimation and equilibrium tests in natural autopolyploid populations. \emph{Biometrics}, 79(3), 2143-2156.}
+#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. \emph{Genetics}, 210(3), 789-807.}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
 #' }
 #'
 #' @author David Gerard
