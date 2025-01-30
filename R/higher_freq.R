@@ -15,8 +15,7 @@ all_multinom <- function (n, k) {
   }
   mat_list <- list()
   for (i in 0:n) {
-    mat_list[[i + 1]] <- cbind(i, all_multinom(n - i, k -
-                                                 1))
+    mat_list[[i + 1]] <- cbind(i, all_multinom(n - i, k - 1))
   }
   mat <- do.call(what = rbind, args = mat_list)
   colnames(mat) <- NULL
@@ -775,10 +774,58 @@ par_to_gf <- function(par, rule) {
 #'   pi = 0.03
 #' )
 gam_to_par <- function(gam) {
-  if (gam[[1]]$type == "polysomic") {
+  ret <- list()
+  ret$par <- c()
+  ret$rule <- list()
+  ret$rule[[1]] <- list(
+    ploidy = gam[[1]]$ploidy,
+    g = gam[[1]]$g,
+    type = NULL
+  )
+  ret$rule[[2]] <- list(
+    ploidy = gam[[2]]$ploidy,
+    g = gam[[2]]$g,
+    type = NULL
+  )
+  ret$rule[[3]] <- list(
+    outlier = NULL
+  )
 
+
+  if (gam[[1]]$g == 0 || gam[[1]]$g == gam[[1]]$ploidy) {
+    ret$rule[[1]]$type <- gam[[1]]$type
+  } else if (gam[[1]]$type == "polysomic" && gam[[1]]$g != 0 && gam[[1]]$g != gam[[1]]$ploidy) {
+    ret$par <- c(ret$par, gam[[1]]$alpha)
+    ret$rule[[1]]$type <- "polysomic"
+  } else if (gam[[1]]$type == "mix" && gam[[1]]$add_dr && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1)) {
+    ret$par <- c(ret$par, gam[[1]]$beta)
+    ret$rule[[1]]$type <- "mix_dr"
+  } else if (gam[[1]]$type == "mix" && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1) {
+    ret$par <- c(ret$par, simplex_to_real(q = gam[[1]]$gamma))
+    ret$rule[[1]]$type <- "mix"
   }
 
+  if (gam[[2]]$g == 0 || gam[[2]]$g == gam[[2]]$ploidy) {
+    ret$rule[[2]]$type <- gam[[2]]$type
+  } else if (gam[[2]]$type == "polysomic" && gam[[2]]$g != 0 && gam[[2]]$g != gam[[2]]$ploidy) {
+    ret$par <- c(ret$par, gam[[2]]$alpha)
+    ret$rule[[2]]$type <- "polysomic"
+  } else if (gam[[2]]$type == "mix" && gam[[2]]$add_dr && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
+    ret$par <- c(ret$par, gam[[2]]$beta)
+    ret$rule[[2]]$type <- "mix_dr"
+  } else if (gam[[2]]$type == "mix" && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
+    ret$par <- c(ret$par, simplex_to_real(q = gam[[2]]$gamma))
+    ret$rule[[2]]$type <- "mix"
+  }
+
+  if (gam[[3]]$outlier) {
+    ret$par <- c(ret$par, gam[[3]]$pi)
+    ret$rule[[3]]$outlier <- TRUE
+  } else {
+    ret$rule[[3]]$outlier <- FALSE
+  }
+
+  return(ret)
 }
 
 
