@@ -360,7 +360,7 @@ gamfreq_pp <- function(gamma, g, ploidy) {
     length(gamma) == n_pp_mix(g = g, ploidy = ploidy),
     abs(sum(gamma) - 1) < TOL,
     gamma >= 0)
-  plist <- seg[seg$ploidy == ploidy & (seg$mode == "disomic" | seg$mode == "both") & seg$g == g, ]$p
+  plist <- segtest::seg[segtest::seg$ploidy == ploidy & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both") & segtest::seg$g == g, ]$p
   pvec <- rep(0, length.out = ploidy / 2 + 1)
   for (i in seq_along(plist)) {
     pvec <- pvec + plist[[i]] * gamma[[i]]
@@ -862,7 +862,7 @@ ll_gl <- function(par, rule, gl, log_p = TRUE) {
 #' Test for segregation distortion in a polyploid F1 population.
 #'
 #' @param x The data. Can be one of two forms:
-#'   \itemeize{
+#'   \itemize{
 #'     \item{A vector of genotype counts. This is when offspring genotypes are known.}
 #'     \item{A matrix of genotype log-likelihoods. This is when there is genotype uncertainty.
 #'           The rows index the individuals and the columns index the possible genotypes.

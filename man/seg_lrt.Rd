@@ -25,7 +25,7 @@ seg_lrt(
 }
 \arguments{
 \item{x}{The data. Can be one of two forms:
-\itemeize{
+\itemize{
 \item{A vector of genotype counts. This is when offspring genotypes are known.}
 \item{A matrix of genotype log-likelihoods. This is when there is genotype uncertainty.
 The rows index the individuals and the columns index the possible genotypes.
