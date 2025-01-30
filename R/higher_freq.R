@@ -531,6 +531,72 @@ gamfreq <- function(
   return(pvec)
 }
 
+#' Genotype frequencies of an F1 population under a generalized model.
+#'
+#' @param p1_g,p1_ploidy,p1_gamma,p1_alpha,p1_beta,p1_type,p1_add_dr The first parent's version of the parameters in \code{\link{gamfreq}()}.
+#' @param p2_g,p2_ploidy,p2_gamma,p2_alpha,p2_beta,p2_type,p2_add_dr The second parent's version of the parameters in \code{\link{gamfreq}()}.
+#' @param pi The proportion of outliers.
+#'
+#' @author David Gerard
+#'
+#' @seealso \code{\link{gamfreq}()}.
+#'
+#' @export
+#'
+#' @examples
+#' q <- gf_freq(
+#'   p1_g = 2,
+#'   p1_ploidy = 4,
+#'   p1_gamma = c(0.1, 0.9),
+#'   p1_type = "mix",
+#'   p2_g = 2,
+#'   p2_ploidy = 6,
+#'   p2_alpha = 0.1,
+#'   p2_type = "polysomic",
+#'   pi = 0.05)
+#'
+gf_freq <- function(
+    p1_g,
+    p1_ploidy,
+    p1_gamma = NULL,
+    p1_alpha = NULL,
+    p1_beta = NULL,
+    p1_type = c("mix", "polysomic"),
+    p1_add_dr = TRUE,
+    p2_g,
+    p2_ploidy,
+    p2_gamma = NULL,
+    p2_alpha = NULL,
+    p2_beta = NULL,
+    p2_type = c("mix", "polysomic"),
+    p2_add_dr = TRUE,
+    pi = 0) {
+  TOL <- sqrt(.Machine$double.eps)
+  p1_type <- match.arg(p1_type)
+  p2_type <- match.arg(p2_type)
+  p1 <- gamfreq(
+    g = p1_g,
+    ploidy = p1_ploidy,
+    gamma = p1_gamma,
+    alpha = p1_alpha,
+    beta = p1_beta,
+    type = p1_type,
+    add_dr = p1_add_dr)
+  p2 <- gamfreq(
+    g = p2_g,
+    ploidy = p2_ploidy,
+    gamma = p2_gamma,
+    alpha = p2_alpha,
+    beta = p2_beta,
+    type = p2_type,
+    add_dr = p2_add_dr)
+  q <- stats::convolve(x = p1, y = rev(p2), type = "open")
+  q[q < TOL] <- 0 ## for -1e-16
+  q <- q / sum(q)
+  q <- q * (1 - pi) + pi / length(q)
+  return(q)
+}
+
 #' Convert parameterization from something optim() can use to something
 #' gamfreq() can use.
 #'
@@ -637,6 +703,7 @@ par_to_gam <- function(par, rule) {
     gam[[1]]$type <- "mix"
     gam[[1]]$add_dr <- TRUE
     gam[[1]]$beta <- par[[cindex]]
+    gam[[1]]$gamma <- 1
     cindex <- cindex + 1
   } else if (rule[[1]]$type == "mix" && (rule[[1]]$g == 1 || rule[[1]]$g == rule[[1]]$ploidy - 1)) {
     gam[[1]]$type <- "mix"
@@ -667,6 +734,7 @@ par_to_gam <- function(par, rule) {
     gam[[2]]$type <- "mix"
     gam[[2]]$add_dr <- TRUE
     gam[[2]]$beta <- par[[cindex]]
+    gam[[2]]$gamma <- 1
     cindex <- cindex + 1
   } else if (rule[[2]]$type == "mix" && (rule[[2]]$g == 1 || rule[[2]]$g == rule[[2]]$ploidy - 1)) {
     gam[[2]]$type <- "mix"
@@ -846,16 +914,16 @@ ll_g <- function(par, rule, x, log_p = TRUE) {
 #' (log) likelihood when genotypes are not known
 #'
 #' @inheritParams par_to_gam
-#' @param gl A matrix of genotype log-likelihoods. The rows index the
+#' @param x A matrix of genotype log-likelihoods. The rows index the
 #'     individuals and the columns index the genotypes.
 #' @param log_p A logical on whether we should log the likelihood or not.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-ll_gl <- function(par, rule, gl, log_p = TRUE) {
+ll_gl <- function(par, rule, x, log_p = TRUE) {
   gf <- par_to_gf(par = par, rule = rule)
-  ll <- llike_li(B = gl, lpivec = log(gf))
+  ll <- llike_li(B = x, lpivec = log(gf))
   return(ifelse(log_p, ll, exp(ll)))
 }
 
@@ -897,6 +965,25 @@ ll_gl <- function(par, rule, gl, log_p = TRUE) {
 #'
 #' @author David Gerard
 #'
+#' @examples
+#' p1_ploidy <- 4
+#' p1 <- 2
+#' p2_ploidy <- 8
+#' p2 <- 2
+#' q <- gf_freq(
+#'   p1_g = p1,
+#'   p1_ploidy = p1_ploidy,
+#'   p1_gamma = c(0.8, 0.2),
+#'   p1_type = "mix",
+#'   p2_g = p2,
+#'   p2_ploidy = p2_ploidy,
+#'   p2_alpha = c(0.1, 0.05),
+#'   p2_type = "polysomic",
+#'   pi = 0.03)
+#' nvec <- c(stats::rmultinom(n = 1, size = 20, prob = q))
+#' gl <- simgl(nvec = nvec)
+#'
+#'
 #' @export
 seg_lrt <- function(
     x,
@@ -916,6 +1003,170 @@ seg_lrt <- function(
     p2_gamma = NULL,
     p2_alpha = NULL) {
 
+  ## Check input ----------
+  p1_model <- match.arg(p1_model)
+  p2_model <- match.arg(p2_model)
+  drbound <- match.arg(drbound)
+  stopifnot(
+    p1_ploidy %% 2 == 0, p1_ploidy > 1,
+    p2_ploidy %% 2 == 0, p2_ploidy > 1)
+  ## See if genotype counts or genotype log likelihoods.
+  if (is.matrix(x)) {
+    stopifnot(ncol(x) == (p1_ploidy + p2_ploidy) / 2 + 1)
+    data_type <- "glike"
+  } else {
+    stopifnot(length(x) == (p1_ploidy + p2_ploidy) / 2 + 1, x >= 0)
+    data_type <- "gcount"
+  }
+  ## See p1 data type. p1_pos is possible dosages, p1 is genotype log-likelihoods
+  if (is.null(p1)) {
+    p1 <- rep(0, times = p1_ploidy + 1)
+    p1_pos <- 0:p1_ploidy
+  } else if (length(p1) == 1) {
+    stopifnot(p1 >= 0, p1 <= p1_ploidy, length(p1) == 1)
+    p1_pos <- p1
+    p1 <- rep(-Inf, times = p1_ploidy + 1)
+    p1[p1_pos + 1] <- 0
+  } else {
+    stopifnot(length(p1) == p1_ploidy + 1)
+    p1_pos <- 0:p1_ploidy
+  }
+  ## See p2 data type. p2_pos is possible dosages, p2 is genotype log-likelihoods
+  if (is.null(p2)) {
+    p2 <- rep(0, times = p2_ploidy + 1)
+    p2_pos <- 0:p2_ploidy
+  } else if (length(p2) == 1) {
+    stopifnot(p2 >= 0, p2 <= p2_ploidy, length(p2) == 1)
+    p2_pos <- p2
+    p2 <- rep(-Inf, times = p2_ploidy + 1)
+    p2[p2_pos + 1] <- 0
+  } else {
+    stopifnot(length(p2) == p2_ploidy + 1)
+    p2_pos <- 0:p2_ploidy
+  }
+  ## check outlier inputs
+  stopifnot(length(outlier) == 1, is.logical(outlier))
+  stopifnot(length(pi) == 1, pi >= 0, pi <= 1)
+
+  ## TODO check the fixed parameters
+
+  ## Set up rule list
+  gam <- list()
+  gam[[1]] <- list(
+    ploidy = p1_ploidy,
+    g = NULL,
+    alpha = NULL,
+    beta = NULL,
+    gamma = NULL,
+    type = NULL,
+    add_dr = NULL)
+  gam[[2]] <- list(
+    ploidy = p2_ploidy,
+    g = NULL,
+    alpha = NULL,
+    beta = NULL,
+    gamma = NULL,
+    type = NULL,
+    add_dr = NULL)
+  gam[[3]] <- list(
+    outlier = outlier,
+    pi = pi / 2 ## initial value
+  )
+  if (p1_model == "seg") {
+    gam[[1]]$type <- "mix"
+    gam[[1]]$add_dr <- TRUE
+  } else if (p1_model == "auto") {
+    gam[[1]]$type <- "polysomic"
+    gam[[1]]$add_dr <- FALSE
+    gam[[1]]$alpha <- rep(0, times = floor(p1_ploidy / 4))
+  } else if (p1_model == "auto_dr") {
+    gam[[1]]$type <- "polysomic"
+    gam[[1]]$add_dr <- TRUE
+    gam[[1]]$alpha <- drbounds(ploidy = p1_ploidy, model = drbound)
+  } else if (p1_model == "allo" || p1_model == "allo_pp" || p1_model == "auto_allo") {
+    gam[[1]]$type <- "mix"
+    gam[[1]]$add_dr <- FALSE
+  }
+  if (p2_model == "seg") {
+    gam[[2]]$type <- "mix"
+    gam[[2]]$add_dr <- TRUE
+  } else if (p2_model == "auto") {
+    gam[[2]]$type <- "polysomic"
+    gam[[2]]$add_dr <- FALSE
+    gam[[2]]$alpha <- rep(0, times = floor(p2_ploidy / 4))
+  } else if (p2_model == "auto_dr") {
+    gam[[2]]$type <- "polysomic"
+    gam[[2]]$add_dr <- TRUE
+    gam[[2]]$alpha <- drbounds(ploidy = p2_ploidy, model = drbound)
+  } else if (p2_model == "allo" || p2_model == "allo_pp" || p2_model == "auto_allo") {
+    gam[[2]]$type <- "mix"
+    gam[[2]]$add_dr <- FALSE
+  }
+
+
+  ## Alternative optimization ----
+  if (data_type == "glike") {
+    log_qhat1 <- c(em_li(B = x))
+    qhat1 <- exp(log_qhat1)
+    l1 <- llike_li(B = x, lpivec = log_qhat1)
+  } else if (data_type == "gcount") {
+    qhat1 <- x / sum(x)
+    l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
+  }
+
+  ## Null optimization ----
+  ## This below only works if both are seg
+  for (p1_geno in p1_pos) {
+    for (p2_geno in p2_pos) {
+      gam[[1]]$g <- p1_geno
+      gam[[2]]$g <- p2_geno
+
+      if (p1_geno == 1 || p1_geno == p1_ploidy - 1) {
+        gam[[1]]$gamma <- 1
+        gam[[1]]$beta <- beta_bounds(ploidy = p1_ploidy) / 2
+      } else {
+        nmix <- n_pp_mix(g = p1_geno, ploidy = p1_ploidy)
+        gam[[1]]$gamma <- rep(1 / nmix, times = nmix)
+      }
+
+      if (p2_geno == 1 || p2_geno == p2_ploidy - 1) {
+        gam[[2]]$gamma <- 1
+        gam[[2]]$beta <- beta_bounds(ploidy = p2_ploidy) / 2
+      } else {
+        nmix <- n_pp_mix(g = p2_geno, ploidy = p2_ploidy)
+        gam[[2]]$gamma <- rep(1 / nmix, times = nmix)
+      }
+
+      ret <- gam_to_par(gam = gam)
+      par <- ret$par
+      rule <- ret$rule
+
+      # oout <- stats::optim(
+      #   par = par,
+      #   fn = ifelse(data_type == "glike", ll_gl, ll_g),
+      #   method = "L-BFGS-B",
+      #   rule = rule,
+      #   x = x,
+      #   control = list(fnscale = -1),
+      #   lower = c(-Inf, 0, 0), ## These are placeholder bounds, delete
+      #   upper = c(Inf, 1/7, 0.03)) ## TODO: lower and upper
+
+    }
+  }
+
+
+
+  # if (p1_model == "allo") {
+  #   p1_gamlist <- segtest::seg[segtest::seg$ploidy == p1_ploidy & segtest::seg$g == p1_geno & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both"), ]
+  # } else if (p1_model == "auto_allo") {
+  #   p1_gamlist <- segtest::seg[segtest::seg$ploidy == p1_ploidy & segtest::seg$g == p1_geno & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both" | segtest::seg$mode == "polysomic"), ]
+  # }
+  # if (p2_model == "allo") {
+  #   p2_gamlist <- segtest::seg[segtest::seg$ploidy == p2_ploidy & segtest::seg$g == p2_geno & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both"), ]
+  # } else if (p2_model == "auto_allo") {
+  #   p2_gamlist <- segtest::seg[segtest::seg$ploidy == p2_ploidy & segtest::seg$g == p2_geno & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both" | segtest::seg$mode == "polysomic"), ]
+  # }
 
 }
+
 

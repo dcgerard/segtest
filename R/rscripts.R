@@ -322,20 +322,33 @@ po_gl <- function(genovec, ploidy, p1_geno = NULL, p2_geno = NULL, rd = 10, seq 
     p2rd <- NULL
   }
 
-  fout <- updog::flexdog_full(refvec = refvec,
-                              sizevec = sizevec,
-                              ploidy = ploidy,
-                              model = "f1pp",
-                              seq = seq,
-                              bias = bias,
-                              od = od,
-                              update_bias = FALSE,
-                              update_seq = FALSE,
-                              update_od = FALSE,
-                              p1ref = p1ref,
-                              p1size = p1rd,
-                              p2ref = p2ref,
-                              p2size = p2rd)
+  if (!is.null(p1_geno) && !is.null(p2_geno)) {
+    fout <- updog::flexdog_full(refvec = refvec,
+                                sizevec = sizevec,
+                                ploidy = ploidy,
+                                model = "f1pp",
+                                seq = seq,
+                                bias = bias,
+                                od = od,
+                                update_bias = FALSE,
+                                update_seq = FALSE,
+                                update_od = FALSE,
+                                p1ref = p1ref,
+                                p1size = p1rd,
+                                p2ref = p2ref,
+                                p2size = p2rd)
+  } else {
+    fout <- updog::flexdog_full(refvec = refvec,
+                                sizevec = sizevec,
+                                ploidy = ploidy,
+                                model = "norm",
+                                seq = seq,
+                                bias = bias,
+                                od = od,
+                                update_bias = FALSE,
+                                update_seq = FALSE,
+                                update_od = FALSE)
+  }
 
   return(fout)
 }

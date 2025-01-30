@@ -68,6 +68,26 @@ Set these to \code{NULL} so that they are not fixed.}
 \description{
 Test for segregation distortion in a polyploid F1 population.
 }
+\examples{
+p1_ploidy <- 4
+p1 <- 2
+p2_ploidy <- 8
+p2 <- 2
+q <- gf_freq(
+  p1_g = p1,
+  p1_ploidy = p1_ploidy,
+  p1_gamma = c(0.8, 0.2),
+  p1_type = "mix",
+  p2_g = p2,
+  p2_ploidy = p2_ploidy,
+  p2_alpha = c(0.1, 0.05),
+  p2_type = "polysomic",
+  pi = 0.03)
+nvec <- c(stats::rmultinom(n = 1, size = 20, prob = q))
+gl <- simgl(nvec = nvec)
+
+
+}
 \author{
 David Gerard
 }
