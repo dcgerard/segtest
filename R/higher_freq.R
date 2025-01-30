@@ -829,6 +829,93 @@ gam_to_par <- function(gam) {
 }
 
 
+#' (log) likelihood when genotypes are known
+#'
+#' @inheritParams par_to_gam
+#' @param x vector of counts of offspring genotypes
+#' @param log_p A logical on whether we should log the likelihood or not.
+#'
+#' @author David Gerard
+#'
+#' @noRd
+ll_g <- function(par, rule, x, log_p = TRUE) {
+  gf <- par_to_gf(par = par, rule = rule)
+  return(stats::dmultinom(x = x, prob = gf, log = log_p))
+}
+
+#' (log) likelihood when genotypes are not known
+#'
+#' @inheritParams par_to_gam
+#' @param gl A matrix of genotype log-likelihoods. The rows index the
+#'     individuals and the columns index the genotypes.
+#' @param log_p A logical on whether we should log the likelihood or not.
+#'
+#' @author David Gerard
+#'
+#' @noRd
+ll_gl <- function(par, rule, gl, log_p = TRUE) {
+  gf <- par_to_gf(par = par, rule = rule)
+  ll <- llike_li(B = gl, lpivec = log(gf))
+  return(ifelse(log_p, ll, exp(ll)))
+}
+
+#' Test for segregation distortion in a polyploid F1 population.
+#'
+#' @param x The data. Can be one of two forms:
+#'   \itemeize{
+#'     \item{A vector of genotype counts. This is when offspring genotypes are known.}
+#'     \item{A matrix of genotype log-likelihoods. This is when there is genotype uncertainty.
+#'           The rows index the individuals and the columns index the possible genotypes.
+#'           The genotype log-likelihoods should be base e (natural log).}
+#'   }
+#' @param p1_ploidy,p2_ploidy The ploidy of the first or second parent. Should be even.
+#' @param p1,p2 One of three forms:
+#'   \itemize{
+#'     \item{The known genotype of the first or second parent.}
+#'     \item{The vector of genotype log-likelihoods of the first or second parent. Should be base e (natural log).}
+#'     \item{\code{NULL} (completely uknown)}
+#'   }
+#' @param p1_model,p2_model One of four forms:
+#'   \describe{
+#'     \item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for both double reduction and preferential pairing.}
+#'     \item{\code{"auto"}}{Autopolyploid. Allows only for polysomic inheritance. No double reduction.}
+#'     \item{\code{"auto_dr"}}{Autopolyploid, allowing for the effects of double reduction.}
+#'     \item{\code{"allo"}}{Allopolyploid. Only complete disomic inheritance is explored.}
+#'     \item{\code{"allo_pp"}}{Allopolyploid, allowing for the effects of partial preferential pairing.}
+#'     \item{\code{"auto_allo"}}{Only complete disomic and complete polysomic inheritance is studied.}
+#'   }
+#' @param outlier A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?
+#' @param pi The default upper bound on the outlier proportion.
+#' @param drbound Should we use the complete equational segregation model (\code{"ces"}) or
+#'    the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
+#'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
+#'    for details.
+#' @param p1_beta,p1_gamma,p1_alpha,p2_beta,p2_gamma,p2_alpha If specified, this
+#'    fixes the parameters to those values for the specified parent.
+#'    See \code{\link{gamfreq}()} for a full description of these parameters.
+#'    Set these to \code{NULL} so that they are not fixed.
+#'
+#' @author David Gerard
+#'
+#' @export
+seg_lrt <- function(
+    x,
+    p1_ploidy,
+    p2_ploidy,
+    p1 = NULL,
+    p2 = NULL,
+    p1_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
+    p2_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
+    outlier = TRUE,
+    pi = 0.03,
+    drbound = c("ces", "prcs"),
+    p1_beta = NULL,
+    p1_gamma = NULL,
+    p1_alpha = NULL,
+    p2_beta = NULL,
+    p2_gamma = NULL,
+    p2_alpha = NULL) {
 
 
+}
 
