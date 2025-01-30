@@ -7,7 +7,7 @@
 gamfreq(
   g,
   ploidy,
-  gam = NULL,
+  gamma = NULL,
   alpha = NULL,
   beta = NULL,
   type = c("mix", "polysomic"),
@@ -21,7 +21,7 @@ gamfreq(
 Let me know if you need the ploidy to be higher. I can update
 the package really easily.}
 
-\item{gam}{The mixture proportions for the pairing configurations.
+\item{gamma}{The mixture proportions for the pairing configurations.
 The proportions are in the same order the configurations in
 \code{\link{seg}}. See Gerard et al (2018) for details on
 pairing configurations.}
@@ -62,7 +62,7 @@ If \code{type = "mix"} and \code{add_dr = FALSE}, then the gamete
 frequencies correspond to the pairing configuration model of
 Gerard et al (2018). This model states that the gamete frequencies are
 a convex combination of the disomic inheritance frequencies. The weights
-of this convex combination are provided in the \code{gam} parameter. The
+of this convex combination are provided in the \code{gamma} parameter. The
 total number of disomic segregation patterns is given by
 \code{\link{n_pp_mix}()}. The order of these segregation patterns used is
 the order in \code{\link{seg}}.
@@ -80,16 +80,16 @@ upper bound on beta for two different models are given by
 
 \examples{
 ## Various duplex models
-gamfreq(g = 2, ploidy = 4, gam = c(0, 1), type = "mix")
-gamfreq(g = 2, ploidy = 4, gam = c(1, 0), type = "mix")
-gamfreq(g = 2, ploidy = 4, gam = c(0.5, 0.5), type = "mix")
+gamfreq(g = 2, ploidy = 4, gamma = c(0, 1), type = "mix")
+gamfreq(g = 2, ploidy = 4, gamma = c(1, 0), type = "mix")
+gamfreq(g = 2, ploidy = 4, gamma = c(0.5, 0.5), type = "mix")
 gamfreq(g = 2, ploidy = 4, alpha = 0, type = "polysomic")
 gamfreq(g = 2, ploidy = 4, alpha = 1/6, type = "polysomic")
 
 ## Various simplex models
-gamfreq(g = 1, ploidy = 4, beta = 1/24, gam = 1, type = "mix", add_dr = TRUE)
+gamfreq(g = 1, ploidy = 4, beta = 1/24, gamma = 1, type = "mix", add_dr = TRUE)
 gamfreq(g = 1, ploidy = 4, alpha = 1/6, type = "polysomic")
-gamfreq(g = 1, ploidy = 4, gam = 1, type = "mix", add_dr = FALSE)
+gamfreq(g = 1, ploidy = 4, gamma = 1, type = "mix", add_dr = FALSE)
 gamfreq(g = 1, ploidy = 4, alpha = 0, type = "polysomic")
 }
 \references{

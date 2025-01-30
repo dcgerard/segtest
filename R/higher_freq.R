@@ -346,7 +346,7 @@ n_pp_mix <- function(g, ploidy) {
 
 #' Gamete frequencies from mixture of pairing configurations.
 #'
-#' @param gam The mixing probabilities for the pairing configurations.
+#' @param gamma The mixing probabilities for the pairing configurations.
 #' @param g The parent gentoype.
 #' @param ploidy The ploidy of the parent.
 #'
@@ -355,16 +355,16 @@ n_pp_mix <- function(g, ploidy) {
 #' @return A vector of gamete frequencies.
 #'
 #' @noRd
-gamfreq_pp <- function(gam, g, ploidy) {
+gamfreq_pp <- function(gamma, g, ploidy) {
   TOL <- sqrt(.Machine$double.eps)
   stopifnot(
-    length(gam) == n_pp_mix(g = g, ploidy = ploidy),
-    abs(sum(gam) - 1) < TOL,
-    gam >= 0)
+    length(gamma) == n_pp_mix(g = g, ploidy = ploidy),
+    abs(sum(gamma) - 1) < TOL,
+    gamma >= 0)
   plist <- seg[seg$ploidy == ploidy & (seg$mode == "disomic" | seg$mode == "both") & seg$g == g, ]$p
   pvec <- rep(0, length.out = ploidy / 2 + 1)
   for (i in seq_along(plist)) {
-    pvec <- pvec + plist[[i]] * gam[[i]]
+    pvec <- pvec + plist[[i]] * gamma[[i]]
   }
   return(pvec)
 }
@@ -390,7 +390,7 @@ gamfreq_pp <- function(gam, g, ploidy) {
 #' frequencies correspond to the pairing configuration model of
 #' Gerard et al (2018). This model states that the gamete frequencies are
 #' a convex combination of the disomic inheritance frequencies. The weights
-#' of this convex combination are provided in the \code{gam} parameter. The
+#' of this convex combination are provided in the \code{gamma} parameter. The
 #' total number of disomic segregation patterns is given by
 #' \code{\link{n_pp_mix}()}. The order of these segregation patterns used is
 #' the order in \code{\link{seg}}.
@@ -409,7 +409,7 @@ gamfreq_pp <- function(gam, g, ploidy) {
 #' @param ploidy Parent ploidy. Should be even, and between 2 and 20 (inclusive).
 #'    Let me know if you need the ploidy to be higher. I can update
 #'    the package really easily.
-#' @param gam The mixture proportions for the pairing configurations.
+#' @param gamma The mixture proportions for the pairing configurations.
 #'    The proportions are in the same order the configurations in
 #'    \code{\link{seg}}. See Gerard et al (2018) for details on
 #'    pairing configurations.
@@ -438,34 +438,43 @@ gamfreq_pp <- function(gam, g, ploidy) {
 #'
 #' @examples
 #' ## Various duplex models
-#' gamfreq(g = 2, ploidy = 4, gam = c(0, 1), type = "mix")
-#' gamfreq(g = 2, ploidy = 4, gam = c(1, 0), type = "mix")
-#' gamfreq(g = 2, ploidy = 4, gam = c(0.5, 0.5), type = "mix")
+#' gamfreq(g = 2, ploidy = 4, gamma = c(0, 1), type = "mix")
+#' gamfreq(g = 2, ploidy = 4, gamma = c(1, 0), type = "mix")
+#' gamfreq(g = 2, ploidy = 4, gamma = c(0.5, 0.5), type = "mix")
 #' gamfreq(g = 2, ploidy = 4, alpha = 0, type = "polysomic")
 #' gamfreq(g = 2, ploidy = 4, alpha = 1/6, type = "polysomic")
 #'
 #' ## Various simplex models
-#' gamfreq(g = 1, ploidy = 4, beta = 1/24, gam = 1, type = "mix", add_dr = TRUE)
+#' gamfreq(g = 1, ploidy = 4, beta = 1/24, gamma = 1, type = "mix", add_dr = TRUE)
 #' gamfreq(g = 1, ploidy = 4, alpha = 1/6, type = "polysomic")
-#' gamfreq(g = 1, ploidy = 4, gam = 1, type = "mix", add_dr = FALSE)
+#' gamfreq(g = 1, ploidy = 4, gamma = 1, type = "mix", add_dr = FALSE)
 #' gamfreq(g = 1, ploidy = 4, alpha = 0, type = "polysomic")
 gamfreq <- function(
     g,
     ploidy,
-    gam = NULL,
+    gamma = NULL,
     alpha = NULL,
     beta = NULL,
     type = c("mix", "polysomic"),
     add_dr = TRUE) {
+
+  if (g == 0) {
+    pvec <- c(1, rep(x = 0, times = ploidy / 2))
+    return(pvec)
+  } else if (g == ploidy) {
+    pvec <- c(rep(x = 0, times = ploidy / 2), 1)
+    return(pvec)
+  }
+
   ## Check input
   TOL <- sqrt(.Machine$double.eps)
   stopifnot(ploidy >= 2, ploidy %% 2 == 0, ploidy <= 20)
   stopifnot(g >= 0, g <= ploidy)
-  if (!is.null(gam)) {
+  if (!is.null(gamma)) {
     stopifnot(
-      length(gam) == n_pp_mix(g = g, ploidy = ploidy),
-      abs(sum(gam) - 1) < TOL,
-      gam >= 0
+      length(gamma) == n_pp_mix(g = g, ploidy = ploidy),
+      abs(sum(gamma) - 1) < TOL,
+      gamma >= 0
     )
   }
   if (!is.null(alpha)) {
@@ -485,7 +494,7 @@ gamfreq <- function(
   stopifnot(is.logical(add_dr), length(add_dr) == 1)
   type <- match.arg(type)
   if (type == "mix") {
-    stopifnot(!is.null(gam))
+    stopifnot(!is.null(gamma))
     if (add_dr) {
       if (is.null(beta)) {
         beta <- 0
@@ -517,7 +526,7 @@ gamfreq <- function(
       )
     }
   } else if (type == "mix") {
-    pvec <- gamfreq_pp(gam = gam, g = g, ploidy = ploidy)
+    pvec <- gamfreq_pp(gamma = gamma, g = g, ploidy = ploidy)
   }
 
   return(pvec)
@@ -539,7 +548,7 @@ gamfreq <- function(
 #'    \itemize{
 #'    \item{
 #'      If \code{type = "mix"}, then
-#'      gam is assumed to be the real-line parameterization (see
+#'      gamma is assumed to be the real-line parameterization (see
 #'      \code{\link{real_to_simplex}()} and \code{\link{simplex_to_real}()})
 #'      }
 #'    \item{
@@ -566,9 +575,11 @@ gamfreq <- function(
 #' @return A list of length 3. The first contains the parameters from
 #'     gamfreq() for parent 1, the second contains the parameters from
 #'     gamfreq of parent 2. The third contains the outlier proportion.
-#'     These parameters in the parent lists are \code{g}, \code{gam},
-#'     \code{beta}, and \code{alpha}. See \code{\link{gamfreq}()} for
-#'     details on these parameters.
+#'     These parameters in the parent lists are \code{ploidy}, \code{g}, \code{gamma},
+#'     \code{beta}, \code{alpha}, \code{type}, and \code{add_dr}.
+#'     See \code{\link{gamfreq}()} for details on these parameters. The third
+#'     is a list with elements \code{outlier} (a logical on whether
+#'     outliers are modeled) and \code{pi} (the outlier proportion).
 #'
 #' @author David Gerard
 #'
@@ -579,29 +590,36 @@ gamfreq <- function(
 #'   list(outlier = TRUE)
 #'   )
 #' par <- c(-2, 0.1, 0.2, 0.03)
-#' par_to_par(par = par, rule = rule)
+#' par_to_gam(par = par, rule = rule)
 #'
+#' rule <- list(
+#'   list(ploidy = 4, g = 0, type = "mix"),
+#'   list(ploidy = 8, g = 1, type = "mix"),
+#'   list(outlier = TRUE)
+#'   )
+#' par <- c(0.1)
+#' par_to_gam(par = par, rule = rule)
 #'
 #' @noRd
-par_to_par <- function(par, rule) {
-  parlist <- list()
-  parlist[[1]] <- list(
+par_to_gam <- function(par, rule) {
+  gam <- list()
+  gam[[1]] <- list(
     ploidy = rule[[1]]$ploidy,
     g = rule[[1]]$g,
     alpha = NULL,
     beta = NULL,
-    gam = NULL,
+    gamma = NULL,
     type = NULL,
     add_dr = NULL)
-  parlist[[2]] <- list(
+  gam[[2]] <- list(
     ploidy = rule[[2]]$ploidy,
     g = rule[[2]]$g,
     alpha = NULL,
     beta = NULL,
-    gam = NULL,
+    gamma = NULL,
     type = NULL,
     add_dr = NULL)
-  parlist[[3]] <- list(
+  gam[[3]] <- list(
     outlier = rule[[3]]$outlier,
     pi = NULL
   )
@@ -609,70 +627,105 @@ par_to_par <- function(par, rule) {
   ## Do parent 1 ----
   cindex <- 1 ## keeps track of where we are in par
   if (rule[[1]]$type == "polysomic") {
-    parlist[[1]]$type <- "polysomic"
-    parlist[[1]]$add_dr <- FALSE
-    ndr <- floor(rule[[1]]$ploidy / 4)
-    parlist[[1]]$alpha <- par[cindex:(cindex + ndr - 1)]
-    cindex <- cindex + ndr
+    gam[[1]]$type <- "polysomic"
+    gam[[1]]$add_dr <- FALSE
+    if (rule[[1]]$g != 0 && rule[[1]]$g != rule[[1]]$ploidy) {
+      ndr <- floor(rule[[1]]$ploidy / 4)
+      gam[[1]]$alpha <- par[cindex:(cindex + ndr - 1)]
+      cindex <- cindex + ndr
+    }
   } else if (rule[[1]]$type == "mix_dr" && (rule[[1]]$g == 1 || rule[[1]]$g == rule[[1]]$ploidy - 1)) {
-    parlist[[1]]$type <- "mix"
-    parlist[[1]]$add_dr <- TRUE
-    parlist[[1]]$beta <- par[[cindex]]
+    gam[[1]]$type <- "mix"
+    gam[[1]]$add_dr <- TRUE
+    gam[[1]]$beta <- par[[cindex]]
     cindex <- cindex + 1
-  } else if (rule[[1]]$type == "mix" || rule[[1]]$type == "mix_dr") {
-    parlist[[1]]$type <- "mix"
-    parlist[[1]]$add_dr <- FALSE
-    npp <- n_pp_mix(g = rule[[1]]$g, ploidy = rule[[1]]$ploidy)
-    parlist[[1]]$gam <- real_to_simplex(par[cindex:(cindex + npp - 2)])
-    cindex <- cindex + npp - 1
+  } else if (rule[[1]]$type == "mix" && (rule[[1]]$g == 1 || rule[[1]]$g == rule[[1]]$ploidy - 1)) {
+    gam[[1]]$type <- "mix"
+    gam[[1]]$gamma <- 1
+    gam[[1]]$add_dr <- FALSE
+  } else if ((rule[[1]]$type == "mix" || rule[[1]]$type == "mix_dr")) {
+    gam[[1]]$type <- "mix"
+    gam[[1]]$add_dr <- FALSE
+    if (rule[[1]]$g != 0 && rule[[1]]$g != rule[[1]]$ploidy) {
+      npp <- n_pp_mix(g = rule[[1]]$g, ploidy = rule[[1]]$ploidy)
+      gam[[1]]$gamma <- real_to_simplex(par[cindex:(cindex + npp - 2)])
+      cindex <- cindex + npp - 1
+    }
   } else {
-    stop("par_to_par 1: how did you get here?")
+    stop("par_to_gam 1: how did you get here?")
   }
 
   ## Do parent 2 ----
   if (rule[[2]]$type == "polysomic") {
-    parlist[[2]]$type <- "polysomic"
-    parlist[[2]]$add_dr <- FALSE
-    ndr <- floor(rule[[2]]$ploidy / 4)
-    parlist[[2]]$alpha <- par[cindex:(cindex + ndr - 1)]
-    cindex <- cindex + ndr
+    gam[[2]]$type <- "polysomic"
+    gam[[2]]$add_dr <- FALSE
+    if (rule[[2]]$g != 0 && rule[[2]]$g != rule[[2]]$ploidy) {
+      ndr <- floor(rule[[2]]$ploidy / 4)
+      gam[[2]]$alpha <- par[cindex:(cindex + ndr - 1)]
+      cindex <- cindex + ndr
+    }
   } else if (rule[[2]]$type == "mix_dr" && (rule[[2]]$g == 1 || rule[[2]]$g == rule[[2]]$ploidy - 1)) {
-    parlist[[2]]$type <- "mix"
-    parlist[[2]]$add_dr <- TRUE
-    parlist[[2]]$beta <- par[[cindex]]
+    gam[[2]]$type <- "mix"
+    gam[[2]]$add_dr <- TRUE
+    gam[[2]]$beta <- par[[cindex]]
     cindex <- cindex + 1
-  } else if (rule[[2]]$type == "mix" || rule[[2]]$type == "mix_dr") {
-    parlist[[2]]$type <- "mix"
-    parlist[[2]]$add_dr <- FALSE
-    npp <- n_pp_mix(g = rule[[2]]$g, ploidy = rule[[2]]$ploidy)
-    parlist[[2]]$gam <- real_to_simplex(par[cindex:(cindex + npp - 2)])
-    cindex <- cindex + npp - 1
+  } else if (rule[[2]]$type == "mix" && (rule[[2]]$g == 1 || rule[[2]]$g == rule[[2]]$ploidy - 1)) {
+    gam[[2]]$type <- "mix"
+    gam[[2]]$gamma <- 1
+    gam[[2]]$add_dr <- FALSE
+  } else if ((rule[[2]]$type == "mix" || rule[[2]]$type == "mix_dr")) {
+    gam[[2]]$type <- "mix"
+    gam[[2]]$add_dr <- FALSE
+    if (rule[[2]]$g != 0 && rule[[2]]$g != rule[[2]]$ploidy) {
+      npp <- n_pp_mix(g = rule[[2]]$g, ploidy = rule[[2]]$ploidy)
+      gam[[2]]$gamma <- real_to_simplex(par[cindex:(cindex + npp - 2)])
+      cindex <- cindex + npp - 1
+    }
   } else {
-    stop("par_to_par 1: how did you get here?")
+    stop("par_to_gam 2: how did you get here?")
   }
 
   if (rule[[3]]$outlier) {
-    parlist[[3]]$pi <- par[[cindex]]
+    gam[[3]]$pi <- par[[cindex]]
+    cindex <- cindex + 1
   }
 
-  return(parlist)
+  return(gam)
 }
 
 #' Par to genotype frequencies
 #'
-#' @inheritParams par_to_par
+#' @inheritParams par_to_gam
 #'
 #' @return The vector of genotype frequencies.
 #'
 #' @author David Gerard
 #'
+#' @examples
+#' rule <- list(
+#'   list(ploidy = 4, g = 2, type = "mix"),
+#'   list(ploidy = 8, g = 4, type = "polysomic"),
+#'   list(outlier = TRUE)
+#'   )
+#' par <- c(-2, 0.1, 0.2, 0.03)
+#' par_to_gf(par = par, rule = rule)
+#'
+#' rule <- list(
+#'   list(ploidy = 4, g = 0, type = "mix"),
+#'   list(ploidy = 8, g = 8, type = "polysomic"),
+#'   list(outlier = FALSE)
+#'   )
+#' par <- c()
+#' par_to_gf(par = par, rule = rule)
+#'
 #' @noRd
 par_to_gf <- function(par, rule) {
-  gampar <- par_to_par(par = par, rule = rule)
+  TOL <- sqrt(.Machine$double.eps)
+  gampar <- par_to_gam(par = par, rule = rule)
   p1 <- do.call(what = gamfreq, args = gampar[[1]])
   p2 <- do.call(what = gamfreq, args = gampar[[2]])
-  q <- stats::convolve(x = p1, y = p2, type = "open")
-  q[q < 0] <- 0 ## for -1e-16
+  q <- stats::convolve(x = p1, y = rev(p2), type = "open")
+  q[q < TOL] <- 0 ## for -1e-16
   q <- q / sum(q)
   if (gampar[[3]]$outlier) {
     q <- q * (1 - gampar[[3]]$pi) + gampar[[3]]$pi / length(q)
@@ -681,7 +734,52 @@ par_to_gf <- function(par, rule) {
 }
 
 
+#' Inverse function of par_to_gam()
+#'
+#' @param gam A list of length 3. The first contains the parameters from
+#'     gamfreq() for parent 1, the second contains the parameters from
+#'     gamfreq of parent 2. The third contains the outlier proportion.
+#'     These parameters in the parent lists are \code{ploidy}, \code{g}, \code{gamma},
+#'     \code{beta}, \code{alpha}, \code{type}, and \code{add_dr}.
+#'     See \code{\link{gamfreq}()} for details on these parameters. The third
+#'     is a list with elements \code{outlier} (a logical on whether
+#'     outliers are modeled) and \code{pi} (the outlier proportion).
+#'
+#' @return A list of length 2, containing \code{par} and \code{rule}. See
+#'     \code{\link{par_to_gam}()} for a description of these elements.
+#'
+#' @author David Gerard
+#'
+#' @noRd
+#'
+#' @examples
+#' gam <- list()
+#' gam[[1]] <- list(
+#'   ploidy = 4,
+#'   g = 1,
+#'   alpha = 1/6,
+#'   beta = NULL,
+#'   gamma = NULL,
+#'   type = "polysomic",
+#'   add_dr = NULL)
+#' gam[[2]] <- list(
+#'   ploidy = 8,
+#'   g = 4,
+#'   alpha = NULL,
+#'   beta = NULL,
+#'   gamma = c(0.1, 0.9),
+#'   type = "mix",
+#'   add_dr = NULL)
+#' gam[[3]] <- list(
+#'   outlier = TRUE,
+#'   pi = 0.03
+#' )
+gam_to_par <- function(gam) {
+  if (gam[[1]]$type == "polysomic") {
 
+  }
+
+}
 
 
 
