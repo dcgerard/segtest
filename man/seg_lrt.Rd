@@ -7,7 +7,7 @@
 seg_lrt(
   x,
   p1_ploidy,
-  p2_ploidy,
+  p2_ploidy = p1_ploidy,
   p1 = NULL,
   p2 = NULL,
   p1_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
@@ -15,12 +15,7 @@ seg_lrt(
   outlier = TRUE,
   pi = 0.03,
   db = c("ces", "prcs"),
-  p1_beta = NULL,
-  p1_gamma = NULL,
-  p1_alpha = NULL,
-  p2_beta = NULL,
-  p2_gamma = NULL,
-  p2_alpha = NULL
+  ntry = 5
 )
 }
 \arguments{
@@ -38,10 +33,10 @@ The genotype log-likelihoods should be base e (natural log).}
 \itemize{
 \item{The known genotype of the first or second parent.}
 \item{The vector of genotype log-likelihoods of the first or second parent. Should be base e (natural log).}
-\item{\code{NULL} (completely uknown)}
+\item{\code{NULL} (completely unknown)}
 }}
 
-\item{p1_model, p2_model}{One of four forms:
+\item{p1_model, p2_model}{One of six forms:
 \describe{
 \item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for both double reduction and preferential pairing.}
 \item{\code{"auto"}}{Autopolyploid. Allows only for polysomic inheritance. No double reduction.}
@@ -60,10 +55,7 @@ the pure random chromatid segregation model (\code{"prcs"}) to determine the upp
 bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 for details.}
 
-\item{p1_beta, p1_gamma, p1_alpha, p2_beta, p2_gamma, p2_alpha}{If specified, this
-fixes the parameters to those values for the specified parent.
-See \code{\link{gamfreq}()} for a full description of these parameters.
-Set these to \code{NULL} so that they are not fixed.}
+\item{ntry}{The number of times to try the optimization}
 }
 \description{
 Test for segregation distortion in a polyploid F1 population.
@@ -80,12 +72,17 @@ q <- gf_freq(
   p1_type = "mix",
   p2_g = p2,
   p2_ploidy = p2_ploidy,
-  p2_alpha = c(0.1, 0.05),
-  p2_type = "polysomic",
-  pi = 0.03)
-nvec <- c(stats::rmultinom(n = 1, size = 20, prob = q))
+  p2_gamma= c(0.1, 0.9),
+  p2_type = "mix",
+  pi = 0.01)
+nvec <- c(stats::rmultinom(n = 1, size = 200, prob = q))
 gl <- simgl(nvec = nvec)
+seg_lrt(x = nvec, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$p_value
+seg_lrt(x = gl, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$p_value
 
+
+seg_lrt(x = c(1L, 23L, 51L, 23L, 1L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
+seg_lrt(x = c(0L, 39L, 115L, 42L, 3L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 
 }
 \author{
