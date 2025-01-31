@@ -862,9 +862,15 @@ par_to_gf <- function(par, rule) {
 #'    to a list element in \code{gam}. E.g. \code{fix_list[[1]]$alpha = TRUE}
 #'    would mean that \code{gam[[1]]$alpha} is fixed (not part of \code{par}).
 #'    This can be NULL if not elements are fixed.
+#' @param db Bound on double reduction rate(s). Should we use the CES or the
+#'    PRCS model for the upper bounds of the double reduction rate.
+#' @param ob Upper bound on the outlier proportion.
 #'
-#' @return A list of length 2, containing \code{par} and \code{rule}. See
-#'     \code{\link{par_to_gam}()} for a description of these elements.
+#'
+#' @return A list of length 4, containing \code{par}, \code{rule},
+#'     \code{lower}, and \code{upper}. See \code{\link{par_to_gam}()}
+#'     for a description of \code{par} and \code{rule}. The \code{lower}
+#'     and \code{upper} elements are the bounds on \code{par}.
 #'
 #' @seealso \code{\link{gamfreq}()} for more details on the parent parameters.
 #'
@@ -894,10 +900,15 @@ par_to_gf <- function(par, rule) {
 #'   outlier = TRUE,
 #'   pi = 0.03
 #' )
-gam_to_par <- function(gam, fix_list = NULL) {
+gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   ret <- list()
   ret$par <- c()
   ret$rule <- list()
+  ret$lower <- c()
+  ret$upper <- c()
+  db <- match.arg(db)
+
+  ## prepopulate rule
   ret$rule[[1]] <- list(
     ploidy = gam[[1]]$ploidy,
     g = gam[[1]]$g,
@@ -936,6 +947,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   } else if (gam[[1]]$type == "polysomic" && gam[[1]]$g != 0 && gam[[1]]$g != gam[[1]]$ploidy) {
     if (!fix_list[[1]]$alpha) {
       ret$par <- c(ret$par, gam[[1]]$alpha)
+      ret$lower <- c(ret$lower, rep(x = 0, times = floor(gam[[1]]$ploidy / 4)))
+      ret$upper <- c(ret$upper, drbounds(ploidy = gam[[1]]$ploidy, model = db))
     } else {
       ret$rule[[1]]$alpha <- gam[[1]]$alpha
     }
@@ -943,6 +956,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   } else if (gam[[1]]$type == "mix" && gam[[1]]$add_dr && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1)) {
     if (!fix_list[[1]]$beta) {
       ret$par <- c(ret$par, gam[[1]]$beta)
+      ret$lower <- c(ret$lower, 0)
+      ret$upper <- c(ret$upper, beta_bounds(ploidy = gam[[1]]$ploidy, model = db))
     } else {
       ret$rule[[1]]$beta <- gam[[1]]$beta
     }
@@ -950,6 +965,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   } else if (gam[[1]]$type == "mix" && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1) {
     if (!fix_list[[1]]$gamma) {
       ret$par <- c(ret$par, simplex_to_real(q = gam[[1]]$gamma))
+      ret$lower <- c(ret$lower, rep(x = -Inf, times = n_pp_mix(g = gam[[1]]$g, ploidy = gam[[1]]$ploidy) - 1))
+      ret$upper <- c(ret$upper, rep(x = Inf, times = n_pp_mix(g = gam[[1]]$g, ploidy = gam[[1]]$ploidy) - 1))
     } else {
       ret$rule[[1]]$gamma <- gam[[1]]$gamma
     }
@@ -961,6 +978,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   } else if (gam[[2]]$type == "polysomic" && gam[[2]]$g != 0 && gam[[2]]$g != gam[[2]]$ploidy) {
     if (!fix_list[[2]]$alpha) {
       ret$par <- c(ret$par, gam[[2]]$alpha)
+      ret$lower <- c(ret$lower, rep(x = 0, times = floor(gam[[2]]$ploidy / 4)))
+      ret$upper <- c(ret$upper, drbounds(ploidy = gam[[2]]$ploidy, model = db))
     } else {
       ret$rule[[2]]$alpha <- gam[[2]]$alpha
     }
@@ -968,6 +987,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   } else if (gam[[2]]$type == "mix" && gam[[2]]$add_dr && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
     if (!fix_list[[2]]$beta) {
       ret$par <- c(ret$par, gam[[2]]$beta)
+      ret$lower <- c(ret$lower, 0)
+      ret$upper <- c(ret$upper, beta_bounds(ploidy = gam[[2]]$ploidy, model = db))
     } else {
       ret$rule[[2]]$beta <- gam[[2]]$beta
     }
@@ -975,6 +996,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   } else if (gam[[2]]$type == "mix" && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
     if (!fix_list[[2]]$gamma) {
       ret$par <- c(ret$par, simplex_to_real(q = gam[[2]]$gamma))
+      ret$lower <- c(ret$lower, rep(x = -Inf, times = n_pp_mix(g = gam[[2]]$g, ploidy = gam[[2]]$ploidy) - 1))
+      ret$upper <- c(ret$upper, rep(x = Inf, times = n_pp_mix(g = gam[[2]]$g, ploidy = gam[[2]]$ploidy) - 1))
     } else {
       ret$rule[[2]]$gamma <- gam[[2]]$gamma
     }
@@ -984,6 +1007,8 @@ gam_to_par <- function(gam, fix_list = NULL) {
   if (gam[[3]]$outlier) {
     if(!fix_list[[3]]$pi) {
       ret$par <- c(ret$par, gam[[3]]$pi)
+      ret$lower <- c(ret$lower, 0)
+      ret$upper <- c(ret$upper, ob)
     } else {
       ret$rule[[3]]$pi <- gam[[3]]$pi
     }
@@ -1053,7 +1078,7 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #'   }
 #' @param outlier A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?
 #' @param pi The default upper bound on the outlier proportion.
-#' @param drbound Should we use the complete equational segregation model (\code{"ces"}) or
+#' @param db Should we use the complete equational segregation model (\code{"ces"}) or
 #'    the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
 #'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 #'    for details.
@@ -1094,7 +1119,7 @@ seg_lrt <- function(
     p2_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
     pi = 0.03,
-    drbound = c("ces", "prcs"),
+    db = c("ces", "prcs"),
     p1_beta = NULL,
     p1_gamma = NULL,
     p1_alpha = NULL,
@@ -1105,7 +1130,7 @@ seg_lrt <- function(
   ## Check input ----------
   p1_model <- match.arg(p1_model)
   p2_model <- match.arg(p2_model)
-  drbound <- match.arg(drbound)
+  db <- match.arg(db)
   stopifnot(
     p1_ploidy %% 2 == 0, p1_ploidy > 1,
     p2_ploidy %% 2 == 0, p2_ploidy > 1)
@@ -1181,7 +1206,7 @@ seg_lrt <- function(
   } else if (p1_model == "auto_dr") {
     gam[[1]]$type <- "polysomic"
     gam[[1]]$add_dr <- TRUE
-    gam[[1]]$alpha <- drbounds(ploidy = p1_ploidy, model = drbound)
+    gam[[1]]$alpha <- drbounds(ploidy = p1_ploidy, model = db)
   } else if (p1_model == "allo" || p1_model == "allo_pp" || p1_model == "auto_allo") {
     gam[[1]]$type <- "mix"
     gam[[1]]$add_dr <- FALSE
@@ -1196,7 +1221,7 @@ seg_lrt <- function(
   } else if (p2_model == "auto_dr") {
     gam[[2]]$type <- "polysomic"
     gam[[2]]$add_dr <- TRUE
-    gam[[2]]$alpha <- drbounds(ploidy = p2_ploidy, model = drbound)
+    gam[[2]]$alpha <- drbounds(ploidy = p2_ploidy, model = db)
   } else if (p2_model == "allo" || p2_model == "allo_pp" || p2_model == "auto_allo") {
     gam[[2]]$type <- "mix"
     gam[[2]]$add_dr <- FALSE

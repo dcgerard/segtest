@@ -14,7 +14,7 @@ seg_lrt(
   p2_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
   outlier = TRUE,
   pi = 0.03,
-  drbound = c("ces", "prcs"),
+  db = c("ces", "prcs"),
   p1_beta = NULL,
   p1_gamma = NULL,
   p1_alpha = NULL,
@@ -55,7 +55,7 @@ The genotype log-likelihoods should be base e (natural log).}
 
 \item{pi}{The default upper bound on the outlier proportion.}
 
-\item{drbound}{Should we use the complete equational segregation model (\code{"ces"}) or
+\item{db}{Should we use the complete equational segregation model (\code{"ces"}) or
 the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
 bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 for details.}
