@@ -603,11 +603,19 @@ gf_freq <- function(
 #' @param rule A list of length three. The first element gives the model
 #'     of parent 1. The second element gives the model of parent 2.
 #'     The third element is a logiical on whether we add an outlier or now.
+#'     The first two lists have elements
 #'     \describe {
 #'       \item{ploidy}{The parent's ploidy.}
 #'       \item{g}{The parent dosage.}
 #'       \item{type}{Either "mix", "mix_dr", or "polysomic".}
-#'       \item{outlier}{(only in third element) A logical on whether outliers are modeled.}
+#'       \item{alpha}{The fixed value of alpha (not from par}
+#'       \item{beta}{The fixed value of beta (not from par)}
+#'       \item{gamma}{The fixed value of gamma (not from par)}
+#'     }
+#'     The third list has the following elements
+#'     \describe{
+#'       \item{outlier}{A logical on whether to include and outlier.}
+#'       \item{pi}{The fixed value of pi (not from par).}
 #'     }
 #' @param par A vector of parameters to be converted based on rule.
 #'    \itemize{
@@ -671,22 +679,22 @@ par_to_gam <- function(par, rule) {
   gam[[1]] <- list(
     ploidy = rule[[1]]$ploidy,
     g = rule[[1]]$g,
-    alpha = NULL,
-    beta = NULL,
-    gamma = NULL,
+    alpha = rule[[1]]$alpha,
+    beta = rule[[1]]$beta,
+    gamma = rule[[1]]$gamma,
     type = NULL,
     add_dr = NULL)
   gam[[2]] <- list(
     ploidy = rule[[2]]$ploidy,
     g = rule[[2]]$g,
-    alpha = NULL,
-    beta = NULL,
-    gamma = NULL,
+    alpha = rule[[2]]$alpha,
+    beta = rule[[2]]$beta,
+    gamma = rule[[2]]$gamma,
     type = NULL,
     add_dr = NULL)
   gam[[3]] <- list(
     outlier = rule[[3]]$outlier,
-    pi = NULL
+    pi = rule[[3]]$pi
   )
 
   ## Do parent 1 ----
@@ -695,16 +703,24 @@ par_to_gam <- function(par, rule) {
     gam[[1]]$type <- "polysomic"
     gam[[1]]$add_dr <- FALSE
     if (rule[[1]]$g != 0 && rule[[1]]$g != rule[[1]]$ploidy) {
-      ndr <- floor(rule[[1]]$ploidy / 4)
-      gam[[1]]$alpha <- par[cindex:(cindex + ndr - 1)]
-      cindex <- cindex + ndr
+      if (is.null(rule[[1]]$alpha)) {
+        ndr <- floor(rule[[1]]$ploidy / 4)
+        gam[[1]]$alpha <- par[cindex:(cindex + ndr - 1)]
+        cindex <- cindex + ndr
+      } else {
+        gam[[1]]$alpha <- rule[[1]]$alpha
+      }
     }
   } else if (rule[[1]]$type == "mix_dr" && (rule[[1]]$g == 1 || rule[[1]]$g == rule[[1]]$ploidy - 1)) {
     gam[[1]]$type <- "mix"
     gam[[1]]$add_dr <- TRUE
-    gam[[1]]$beta <- par[[cindex]]
     gam[[1]]$gamma <- 1
-    cindex <- cindex + 1
+    if (is.null(rule[[1]]$beta)) {
+      gam[[1]]$beta <- par[[cindex]]
+      cindex <- cindex + 1
+    } else {
+      gam[[1]]$beta <- rule[[1]]$beta
+    }
   } else if (rule[[1]]$type == "mix" && (rule[[1]]$g == 1 || rule[[1]]$g == rule[[1]]$ploidy - 1)) {
     gam[[1]]$type <- "mix"
     gam[[1]]$gamma <- 1
@@ -713,9 +729,13 @@ par_to_gam <- function(par, rule) {
     gam[[1]]$type <- "mix"
     gam[[1]]$add_dr <- FALSE
     if (rule[[1]]$g != 0 && rule[[1]]$g != rule[[1]]$ploidy) {
-      npp <- n_pp_mix(g = rule[[1]]$g, ploidy = rule[[1]]$ploidy)
-      gam[[1]]$gamma <- real_to_simplex(par[cindex:(cindex + npp - 2)])
-      cindex <- cindex + npp - 1
+      if (is.null(rule[[1]]$gamma)) {
+        npp <- n_pp_mix(g = rule[[1]]$g, ploidy = rule[[1]]$ploidy)
+        gam[[1]]$gamma <- real_to_simplex(par[cindex:(cindex + npp - 2)])
+        cindex <- cindex + npp - 1
+      } else {
+        gam[[1]]$gamma <- rule[[1]]$gamma
+      }
     }
   } else {
     stop("par_to_gam 1: how did you get here?")
@@ -726,16 +746,24 @@ par_to_gam <- function(par, rule) {
     gam[[2]]$type <- "polysomic"
     gam[[2]]$add_dr <- FALSE
     if (rule[[2]]$g != 0 && rule[[2]]$g != rule[[2]]$ploidy) {
-      ndr <- floor(rule[[2]]$ploidy / 4)
-      gam[[2]]$alpha <- par[cindex:(cindex + ndr - 1)]
-      cindex <- cindex + ndr
+      if (is.null(rule[[2]]$alpha)) {
+        ndr <- floor(rule[[2]]$ploidy / 4)
+        gam[[2]]$alpha <- par[cindex:(cindex + ndr - 1)]
+        cindex <- cindex + ndr
+      } else {
+        gam[[2]]$alpha <- rule[[2]]$alpha
+      }
     }
   } else if (rule[[2]]$type == "mix_dr" && (rule[[2]]$g == 1 || rule[[2]]$g == rule[[2]]$ploidy - 1)) {
     gam[[2]]$type <- "mix"
     gam[[2]]$add_dr <- TRUE
-    gam[[2]]$beta <- par[[cindex]]
     gam[[2]]$gamma <- 1
-    cindex <- cindex + 1
+    if (is.null(rule[[2]]$beta)) {
+      gam[[2]]$beta <- par[[cindex]]
+      cindex <- cindex + 1
+    } else {
+      gam[[2]]$beta <- rule[[2]]$beta
+    }
   } else if (rule[[2]]$type == "mix" && (rule[[2]]$g == 1 || rule[[2]]$g == rule[[2]]$ploidy - 1)) {
     gam[[2]]$type <- "mix"
     gam[[2]]$gamma <- 1
@@ -744,17 +772,25 @@ par_to_gam <- function(par, rule) {
     gam[[2]]$type <- "mix"
     gam[[2]]$add_dr <- FALSE
     if (rule[[2]]$g != 0 && rule[[2]]$g != rule[[2]]$ploidy) {
-      npp <- n_pp_mix(g = rule[[2]]$g, ploidy = rule[[2]]$ploidy)
-      gam[[2]]$gamma <- real_to_simplex(par[cindex:(cindex + npp - 2)])
-      cindex <- cindex + npp - 1
+      if (is.null(rule[[2]]$gamma)) {
+        npp <- n_pp_mix(g = rule[[2]]$g, ploidy = rule[[2]]$ploidy)
+        gam[[2]]$gamma <- real_to_simplex(par[cindex:(cindex + npp - 2)])
+        cindex <- cindex + npp - 1
+      } else {
+        gam[[2]]$gamma <- rule[[2]]$gamma
+      }
     }
   } else {
     stop("par_to_gam 2: how did you get here?")
   }
 
   if (rule[[3]]$outlier) {
-    gam[[3]]$pi <- par[[cindex]]
-    cindex <- cindex + 1
+    if (is.null(rule[[3]]$pi)) {
+      gam[[3]]$pi <- par[[cindex]]
+      cindex <- cindex + 1
+    } else {
+      gam[[3]]$pi <- rule[[3]]$pi
+    }
   }
 
   return(gam)
@@ -805,15 +841,32 @@ par_to_gf <- function(par, rule) {
 #'
 #' @param gam A list of length 3. The first contains the parameters from
 #'     gamfreq() for parent 1, the second contains the parameters from
-#'     gamfreq of parent 2. The third contains the outlier proportion.
-#'     These parameters in the parent lists are \code{ploidy}, \code{g}, \code{gamma},
-#'     \code{beta}, \code{alpha}, \code{type}, and \code{add_dr}.
-#'     See \code{\link{gamfreq}()} for details on these parameters. The third
-#'     is a list with elements \code{outlier} (a logical on whether
-#'     outliers are modeled) and \code{pi} (the outlier proportion).
+#'     gamfreq() of parent 2. The third contains the outlier proportion.
+#'     The parameters in the parent lists are
+#'     \describe{
+#'       \item{\code{ploidy}}{Ploidy of the parent}
+#'       \item{\code{g}}{Genotype of the parent}
+#'       \item{\code{gamma}}{Preferential pairing parameter of parent}
+#'       \item{\code{beta}}{Double reduction adjustment at simplex markers}
+#'       \item{\code{alpha}}{Double reduction rates}
+#'       \item{\code{type}}{Either \code{"mix"} or \code{"polysomic"}.}
+#'       \item{\code{add_dr}}{Logical. Under "mix" should we adjust for double reduction at simplex loci?}
+#'     }
+#'     The third list contains the following elements
+#'     \describe{
+#'       \item{\code{outlier}}{A logical. Should we account for outliers?}
+#'       \item{\code{pi}}{The outlier proportion.}
+#'     }
+#' @param fix_list A list of length three, determining which elements are fixed
+#'    (not part of \code{par}). They are all logicals. Each list element corresponds
+#'    to a list element in \code{gam}. E.g. \code{fix_list[[1]]$alpha = TRUE}
+#'    would mean that \code{gam[[1]]$alpha} is fixed (not part of \code{par}).
+#'    This can be NULL if not elements are fixed.
 #'
 #' @return A list of length 2, containing \code{par} and \code{rule}. See
 #'     \code{\link{par_to_gam}()} for a description of these elements.
+#'
+#' @seealso \code{\link{gamfreq}()} for more details on the parent parameters.
 #'
 #' @author David Gerard
 #'
@@ -841,7 +894,7 @@ par_to_gf <- function(par, rule) {
 #'   outlier = TRUE,
 #'   pi = 0.03
 #' )
-gam_to_par <- function(gam) {
+gam_to_par <- function(gam, fix_list = NULL) {
   ret <- list()
   ret$par <- c()
   ret$rule <- list()
@@ -859,35 +912,81 @@ gam_to_par <- function(gam) {
     outlier = NULL
   )
 
+  if (is.null(fix_list)) {
+    fix_list <- list(
+      list(
+        alpha = FALSE,
+        beta = FALSE,
+        gamma = FALSE
+      ),
+      list(
+        alpha = FALSE,
+        beta = FALSE,
+        gamma = FALSE
+      ),
+      list(
+        pi = FALSE
+      )
+    )
+  }
+
 
   if (gam[[1]]$g == 0 || gam[[1]]$g == gam[[1]]$ploidy) {
     ret$rule[[1]]$type <- gam[[1]]$type
   } else if (gam[[1]]$type == "polysomic" && gam[[1]]$g != 0 && gam[[1]]$g != gam[[1]]$ploidy) {
-    ret$par <- c(ret$par, gam[[1]]$alpha)
+    if (!fix_list[[1]]$alpha) {
+      ret$par <- c(ret$par, gam[[1]]$alpha)
+    } else {
+      ret$rule[[1]]$alpha <- gam[[1]]$alpha
+    }
     ret$rule[[1]]$type <- "polysomic"
   } else if (gam[[1]]$type == "mix" && gam[[1]]$add_dr && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1)) {
-    ret$par <- c(ret$par, gam[[1]]$beta)
+    if (!fix_list[[1]]$beta) {
+      ret$par <- c(ret$par, gam[[1]]$beta)
+    } else {
+      ret$rule[[1]]$beta <- gam[[1]]$beta
+    }
     ret$rule[[1]]$type <- "mix_dr"
   } else if (gam[[1]]$type == "mix" && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1) {
-    ret$par <- c(ret$par, simplex_to_real(q = gam[[1]]$gamma))
+    if (!fix_list[[1]]$gamma) {
+      ret$par <- c(ret$par, simplex_to_real(q = gam[[1]]$gamma))
+    } else {
+      ret$rule[[1]]$gamma <- gam[[1]]$gamma
+    }
     ret$rule[[1]]$type <- "mix"
   }
 
   if (gam[[2]]$g == 0 || gam[[2]]$g == gam[[2]]$ploidy) {
     ret$rule[[2]]$type <- gam[[2]]$type
   } else if (gam[[2]]$type == "polysomic" && gam[[2]]$g != 0 && gam[[2]]$g != gam[[2]]$ploidy) {
-    ret$par <- c(ret$par, gam[[2]]$alpha)
+    if (!fix_list[[2]]$alpha) {
+      ret$par <- c(ret$par, gam[[2]]$alpha)
+    } else {
+      ret$rule[[2]]$alpha <- gam[[2]]$alpha
+    }
     ret$rule[[2]]$type <- "polysomic"
   } else if (gam[[2]]$type == "mix" && gam[[2]]$add_dr && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
-    ret$par <- c(ret$par, gam[[2]]$beta)
+    if (!fix_list[[2]]$beta) {
+      ret$par <- c(ret$par, gam[[2]]$beta)
+    } else {
+      ret$rule[[2]]$beta <- gam[[2]]$beta
+    }
     ret$rule[[2]]$type <- "mix_dr"
   } else if (gam[[2]]$type == "mix" && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
-    ret$par <- c(ret$par, simplex_to_real(q = gam[[2]]$gamma))
+    if (!fix_list[[2]]$gamma) {
+      ret$par <- c(ret$par, simplex_to_real(q = gam[[2]]$gamma))
+    } else {
+      ret$rule[[2]]$gamma <- gam[[2]]$gamma
+    }
     ret$rule[[2]]$type <- "mix"
   }
 
   if (gam[[3]]$outlier) {
-    ret$par <- c(ret$par, gam[[3]]$pi)
+    if(!fix_list[[3]]$pi) {
+      ret$par <- c(ret$par, gam[[3]]$pi)
+    } else {
+      ret$rule[[3]]$pi <- gam[[3]]$pi
+    }
     ret$rule[[3]]$outlier <- TRUE
   } else {
     ret$rule[[3]]$outlier <- FALSE
