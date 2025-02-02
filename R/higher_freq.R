@@ -1244,7 +1244,7 @@ seg_lrt <- function(
   alt_best <- list(
     l1 = l1,
     q1 = qhat1,
-    df1 = sum(qhat1 > .Machine$double.eps^(1/4)) - 1
+    ## df1 = length(qhat1) - 1 ## done below
   )
 
   ## Null optimization ----
@@ -1301,6 +1301,8 @@ seg_lrt <- function(
     }
   }
 
+  ## subtract off if both zero under null and alt, then subtract off one.
+  alt_best$df1 <- length(alt_best$q1) - sum((alt_best$q1 < .Machine$double.eps^(1/4)) & (null_best$q0 < .Machine$double.eps^(1/4))) - 1
 
   ## Run test
   ret <- list(
