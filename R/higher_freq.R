@@ -1414,7 +1414,7 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
 #' Each parent should have non-null gamma parameters. So no simplex
 #' and nullplex parents.
 #'
-#' The parameterspace is not identified. This calculates the jacobian of the
+#' The parameterspace might not be identified. This calculates the jacobian of the
 #' genotype frequencies (dependent variable) as a function of the null parameters
 #' (independent variable). The rank of the jacobian is the true number of parameters.
 #'
