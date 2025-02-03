@@ -1,27 +1,31 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
-  p1_ploidy <- 6
-  p1 <- 3
-  p2_ploidy <- 6
-  p2 <- 3
+  p1_ploidy <- 12
+  p1 <- 6
+  p2_ploidy <- 12
+  p2 <- 6
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = c(0.5, 0.5),
+    p1_gamma = c(1/4, 1/4, 1/4, 1/4),
     p1_beta = NULL,
     p1_type = "mix",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
-    p2_gamma= c(0.3, 0.7),
+    p2_gamma= c(1/4, 1/4, 1/4, 1/4),
+    p2_beta = NULL,
     p2_type = "mix",
     pi = 0.03)
   niter <- 1000
-  nsamp <- 200
+  nsamp <- 2000
 
 
   pval_vec <- rep(NA_real_, times = niter)
   df_vec <- rep(NA_real_, times = niter)
   stat_vec <- rep(NA_real_, times = niter)
+  df1_vec <- rep(NA_real_, times = niter)
+  df0_vec <- rep(NA_real_, times = niter)
+  pi_vec <- rep(NA_real_, times = niter)
 
   for (i in seq_len(niter)) {
     if (i %% 50 == 0) {
@@ -32,6 +36,9 @@ test_that("null simulations produce uniform p-values", {
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
     stat_vec[[i]] <- sout$stat
+    df1_vec[[i]] <- sout$alt$df1
+    df0_vec[[i]] <- sout$null$df0
+    pi_vec[[i]] <- sout$null$gam[[3]]$pi
   }
 
   plot(
@@ -41,5 +48,8 @@ test_that("null simulations produce uniform p-values", {
     ylab = "Sample")
   abline(a = 0, b = 1, lty = 2, col = 2)
 
-
 })
+
+
+
+

@@ -1243,8 +1243,7 @@ seg_lrt <- function(
   }
   alt_best <- list(
     l1 = l1,
-    q1 = qhat1,
-    ## df1 = length(qhat1) - 1 ## done below
+    q1 = qhat1
   )
 
   ## Null optimization ----
@@ -1302,6 +1301,7 @@ seg_lrt <- function(
   }
 
   ## subtract off if both zero under null and alt, then subtract off one.
+  # alt_best$df1 <- length(alt_best$q1) - 1
   alt_best$df1 <- length(alt_best$q1) - sum((alt_best$q1 < .Machine$double.eps^(1/4)) & (null_best$q0 < .Machine$double.eps^(1/4))) - 1
 
   ## Run test
@@ -1386,12 +1386,86 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
     }
   }
 
+  ## Adjust for special case of two gammas, both in interior, neither fixed
+  ## overwrite df in this case
+  if (!fix_list[[1]]$gamma && !fix_list[[2]]$gamma && !is.null(gam[[1]]$gamma) && !is.null(gam[[2]]$gamma) && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1 && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
+    if (all(gam[[1]]$gamma > TOL) && all(gam[[2]]$gamma > TOL)) {
+      df <- gam_to_nparam(gam = gam)
+    }
+  }
+  if (!fix_list[[1]]$beta && !fix_list[[2]]$beta && !is.null(gam[[1]]$beta) && !is.null(gam[[2]]$beta) && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1) && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
+    if (gam[[1]]$beta > TOL && gam[[1]]$beta < beta_bounds(ploidy = gam[[1]]$ploidy, model = db) - TOL && gam[[2]]$beta > TOL && gam[[2]]$beta < beta_bounds(ploidy = gam[[2]]$ploidy, model = db) - TOL) {
+      df <- gam_to_nparam(gam = gam)
+    }
+  }
+
+
   if (gam[[3]]$outlier && !fix_list[[3]]$pi && !is.null(gam[[3]]$pi)) {
-    if (gam[[3]]$pi > TOL && gam[[3]]$pi < 1 - TOL) {
+    if (gam[[3]]$pi > TOL && gam[[3]]$pi < ob - TOL) {
       df <- df + 1
     }
   }
 
   return(df)
+}
+
+#' Calculates the true dimension of the parameter space
+#'
+#' Each parent should have non-null gamma parameters. So no simplex
+#' and nullplex parents.
+#'
+#' The parameterspace is not identified. This calculates the jacobian of the
+#' genotype frequencies (dependent variable) as a function of the null parameters
+#' (independent variable). The rank of the jacobian is the true number of parameters.
+#'
+#' @inheritParams gam_to_par
+#'
+#' @author David Gerard
+#'
+#' @noRd
+gam_to_nparam <- function(gam) {
+  if (gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1 && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
+    fix_list <- list(
+      list(
+        alpha = TRUE,
+        beta = TRUE,
+        gamma = FALSE
+      ),
+      list(
+        alpha = TRUE,
+        beta = TRUE,
+        gamma = FALSE
+      ),
+      list(
+        pi = TRUE
+      )
+    )
+  } else if ((gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1) && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
+    fix_list <- list(
+      list(
+        alpha = TRUE,
+        beta = FALSE,
+        gamma = TRUE
+      ),
+      list(
+        alpha = TRUE,
+        beta = FALSE,
+        gamma = TRUE
+      ),
+      list(
+        pi = TRUE
+      )
+    )
+  } else {
+    stop("gam_to_nparam: only both simplex or both multiplex allowed?")
+  }
+
+  ret <- gam_to_par(gam = gam, fix_list = fix_list)
+
+  env <- new.env()
+  env$par <- ret$par
+  env$rule <- ret$rule
+  dout <- stats::numericDeriv(expr = quote(par_to_gf(par = par, rule = rule)), theta = "par", rho = env)
+  return(sum(svd(attr(dout, "gradient"))$d > .Machine$double.eps^(1/4)))
 }
 
