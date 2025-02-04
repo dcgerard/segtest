@@ -54,6 +54,10 @@ test_that("par_to_gam and gam_to_par are inverses", {
 
 
 test_that("fixed parameterizations work", {
+  lower_val <- -1e3
+  upper_val <- 1e3
+  TOL <- sqrt(.Machine$double.eps)
+
   ## fix gamma
   rule <- list(
     list(ploidy = 12, g = 6, type = "mix", gamma = c(0.1, 0.5, 0.2, 0.2)),
@@ -67,11 +71,10 @@ test_that("fixed parameterizations work", {
     list(pi = FALSE)
   )
   expect_equal(par_to_gam(par = par, rule = rule)[[1]]$gamma, c(0.1, 0.5, 0.2, 0.2))
-
   ret <- gam_to_par(gam = par_to_gam(par = par, rule = rule), fix_list = fix_list, ob = 0.03)
   expect_equal(ret$par, par)
   expect_equal(ret$rule, rule)
-  expect_equal(ret$lower, rep(0, 4))
+  expect_equal(ret$lower, rep(TOL, 4))
   expect_equal(ret$upper, c(drbounds(ploidy = 12, model = "ces"), 0.03))
 
   ## fix alpha
@@ -91,8 +94,8 @@ test_that("fixed parameterizations work", {
   ret <- gam_to_par(gam = par_to_gam(par = par, rule = rule), fix_list = fix_list, ob = 0.03)
   expect_equal(ret$par, par)
   expect_equal(ret$rule, rule)
-  expect_equal(ret$lower, c(-Inf, -Inf, -Inf, 0))
-  expect_equal(ret$upper, c(Inf, Inf, Inf, 0.03))
+  expect_equal(ret$lower, c(rep(lower_val, times = 3), TOL))
+  expect_equal(ret$upper, c(rep(upper_val, times = 3), 0.03))
 
   ## fix outlier
   rule <- list(
@@ -111,7 +114,7 @@ test_that("fixed parameterizations work", {
   ret <- gam_to_par(gam = par_to_gam(par = par, rule = rule), fix_list = fix_list, ob = 0.03)
   expect_equal(ret$par, par)
   expect_equal(ret$rule, rule)
-  expect_equal(ret$lower, c(-Inf, -Inf, -Inf, rep(0, 3)))
-  expect_equal(ret$upper, c(Inf, Inf, Inf, drbounds(ploidy = 12, model = "ces")))
+  expect_equal(ret$lower, c(rep(lower_val, 3), rep(TOL, 3)))
+  expect_equal(ret$upper, c(rep(upper_val, 3), drbounds(ploidy = 12, model = "ces")))
 
 })

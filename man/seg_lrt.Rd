@@ -10,8 +10,7 @@ seg_lrt(
   p2_ploidy = p1_ploidy,
   p1 = NULL,
   p2 = NULL,
-  p1_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
-  p2_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
+  model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
   outlier = TRUE,
   pi = 0.03,
   db = c("ces", "prcs"),
@@ -36,7 +35,7 @@ The genotype log-likelihoods should be base e (natural log).}
 \item{\code{NULL} (completely unknown)}
 }}
 
-\item{p1_model, p2_model}{One of six forms:
+\item{model}{One of six forms:
 \describe{
 \item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for both double reduction and preferential pairing.}
 \item{\code{"auto"}}{Autopolyploid. Allows only for polysomic inheritance. No double reduction.}

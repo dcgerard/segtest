@@ -1072,7 +1072,7 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #'     \item{The vector of genotype log-likelihoods of the first or second parent. Should be base e (natural log).}
 #'     \item{\code{NULL} (completely unknown)}
 #'   }
-#' @param p1_model,p2_model One of six forms:
+#' @param model One of six forms:
 #'   \describe{
 #'     \item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for both double reduction and preferential pairing.}
 #'     \item{\code{"auto"}}{Autopolyploid. Allows only for polysomic inheritance. No double reduction.}
@@ -1122,19 +1122,17 @@ seg_lrt <- function(
     p2_ploidy = p1_ploidy,
     p1 = NULL,
     p2 = NULL,
-    p1_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
-    p2_model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
+    model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
     pi = 0.03,
     db = c("ces", "prcs"),
     ntry = 5) {
 
   ## Check input ----------
-  p1_model <- match.arg(p1_model)
-  p2_model <- match.arg(p2_model)
+  model <- match.arg(model)
   db <- match.arg(db)
 
-  if (p1_model != "seg" || p2_model != "seg") {
+  if (model != "seg") {
     stop("only seg is supported right now")
   }
 
@@ -1201,33 +1199,28 @@ seg_lrt <- function(
     outlier = outlier,
     pi = NULL
   )
-  if (p1_model == "seg") {
+  if (model == "seg") {
     gam[[1]]$type <- "mix"
     gam[[1]]$add_dr <- TRUE
-  } else if (p1_model == "auto") {
+    gam[[2]]$type <- "mix"
+    gam[[2]]$add_dr <- TRUE
+  } else if (model == "auto") {
     gam[[1]]$type <- "polysomic"
     gam[[1]]$add_dr <- FALSE
     gam[[1]]$alpha <- rep(0, times = floor(p1_ploidy / 4))
-  } else if (p1_model == "auto_dr") {
-    gam[[1]]$type <- "polysomic"
-    gam[[1]]$add_dr <- TRUE
-    gam[[1]]$alpha <- drbounds(ploidy = p1_ploidy, model = db)
-  } else if (p1_model == "allo" || p1_model == "allo_pp" || p1_model == "auto_allo") {
-    gam[[1]]$type <- "mix"
-    gam[[1]]$add_dr <- FALSE
-  }
-  if (p2_model == "seg") {
-    gam[[2]]$type <- "mix"
-    gam[[2]]$add_dr <- TRUE
-  } else if (p2_model == "auto") {
     gam[[2]]$type <- "polysomic"
     gam[[2]]$add_dr <- FALSE
     gam[[2]]$alpha <- rep(0, times = floor(p2_ploidy / 4))
-  } else if (p2_model == "auto_dr") {
+  } else if (model == "auto_dr") {
+    gam[[1]]$type <- "polysomic"
+    gam[[1]]$add_dr <- TRUE
+    gam[[1]]$alpha <- drbounds(ploidy = p1_ploidy, model = db)
     gam[[2]]$type <- "polysomic"
     gam[[2]]$add_dr <- TRUE
     gam[[2]]$alpha <- drbounds(ploidy = p2_ploidy, model = db)
-  } else if (p2_model == "allo" || p2_model == "allo_pp" || p2_model == "auto_allo") {
+  } else if (model == "allo" || model == "allo_pp" || model == "auto_allo") {
+    gam[[1]]$type <- "mix"
+    gam[[1]]$add_dr <- FALSE
     gam[[2]]$type <- "mix"
     gam[[2]]$add_dr <- FALSE
   }
