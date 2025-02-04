@@ -368,6 +368,36 @@ gamfreq_pp <- function(gamma, g, ploidy) {
   return(pvec)
 }
 
+#' Gamete frequencies from a mixture of pairing configurations and polysomic
+#'
+#' This is the same as \code{\link{gamfreq_pp}()} but adds a mixture
+#' component of polysomic inheritance at the maximum double reduction rate.
+#' The last mixture component is the one for polysomic inheritance.
+#'
+#' @inheritParams gamfreq_pp
+#' @param db The model for the maximum double reduction rate(s). Either
+#'    complete equational segregation ("ces") or pure random
+#'    chromatid segregation ("prcs').
+#'
+#' @author David Gerard
+#'
+#' @noRd
+gamfreq_seg <- function(gamma, g, ploidy, db = c("ces", "prcs")) {
+  db <- match.arg(db)
+  TOL <- sqrt(.Machine$double.eps)
+  stopifnot(
+    length(gamma) == n_pp_mix(g = g, ploidy = ploidy) + 1,
+    abs(sum(gamma) - 1) < TOL,
+    gamma >= 0)
+  plist <- segtest::seg[segtest::seg$ploidy == ploidy & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both") & segtest::seg$g == g, ]$p
+  pvec <- rep(0, length.out = ploidy / 2 + 1)
+  for (i in seq_along(plist)) {
+    pvec <- pvec + plist[[i]] * gamma[[i]]
+  }
+  pvec <- pvec + gamfreq_dr(alpha = drbounds(ploidy = ploidy, model = db), g = g, ploidy = ploidy, log_p = FALSE) * gamma[[length(gamma)]]
+  return(pvec)
+}
+
 #' Gamete frequencies under a generalized model
 #'
 #' Returns the gamete frequencies for autopolyploids, allopolyploids,
