@@ -1380,6 +1380,7 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   }
 
   ## Adjust for special case of two gammas, both in interior, neither fixed
+  ## or two betas, both interior, neither fixed.
   ## overwrite df in this case
   if (!fix_list[[1]]$gamma && !fix_list[[2]]$gamma && !is.null(gam[[1]]$gamma) && !is.null(gam[[2]]$gamma) && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1 && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
     if (all(gam[[1]]$gamma > TOL) && all(gam[[2]]$gamma > TOL)) {

@@ -50,6 +50,28 @@ test_that("null simulations produce uniform p-values", {
 
 })
 
+test_that("corner cases work", {
+  sout <- seg_lrt(x = c(1, 0, 0, 0, 0), p1_ploidy = 4, p2_ploidy = 4, p1 = 0, p2 = 0, outlier = FALSE)
+  expect_equal(sout$p_value, 1)
+
+  sout <- seg_lrt(x = c(0, 0, 1, 0, 0), p1_ploidy = 4, p2_ploidy = 4, p1 = 0, p2 = 4, outlier = FALSE)
+  expect_equal(sout$p_value, 1)
+
+  sout <- seg_lrt(x = c(0, 0, 0, 0, 1), p1_ploidy = 4, p2_ploidy = 4, p1 = 4, p2 = 4, outlier = FALSE)
+  expect_equal(sout$p_value, 1)
+
+  sout <- seg_lrt(x = c(0, 1, 0, 0, 0), p1_ploidy = 4, p2_ploidy = 4, p1 = 0, p2 = 0, outlier = FALSE)
+  expect_equal(sout$p_value, 0)
+
+  sout <- seg_lrt(x = c(0, 0, 1, 0, 0), p1_ploidy = 4, p2_ploidy = 4, p1 = 0, p2 = 0, outlier = FALSE)
+  expect_equal(sout$p_value, 0)
+
+  sout <- seg_lrt(x = c(0, 0, 0, 1, 0), p1_ploidy = 4, p2_ploidy = 4, p1 = 0, p2 = 0, outlier = FALSE)
+  expect_equal(sout$p_value, 0)
+
+  sout <- seg_lrt(x = c(0, 0, 0, 0, 1), p1_ploidy = 4, p2_ploidy = 4, p1 = 0, p2 = 0, outlier = FALSE)
+  expect_equal(sout$p_value, 0)
+})
 
 
 
