@@ -61,17 +61,17 @@ Test for segregation distortion in a polyploid F1 population.
 }
 \examples{
 p1_ploidy <- 4
-p1 <- 2
+p1 <- 1
 p2_ploidy <- 8
-p2 <- 2
+p2 <- 1
 q <- gf_freq(
   p1_g = p1,
   p1_ploidy = p1_ploidy,
-  p1_gamma = c(0.8, 0.2),
+  p1_gamma = 1,
   p1_type = "mix",
   p2_g = p2,
   p2_ploidy = p2_ploidy,
-  p2_gamma= c(0.1, 0.9),
+  p2_gamma= 1,
   p2_type = "mix",
   pi = 0.01)
 nvec <- c(stats::rmultinom(n = 1, size = 200, prob = q))

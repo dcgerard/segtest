@@ -372,29 +372,32 @@ gamfreq_pp <- function(gamma, g, ploidy) {
 #'
 #' This is the same as \code{\link{gamfreq_pp}()} but adds a mixture
 #' component of polysomic inheritance at the maximum double reduction rate.
-#' The last mixture component is the one for polysomic inheritance.
+#' The last mixture component is the one for polysomic inheritance, with
+#' the effects of double reduction.
 #'
 #' @inheritParams gamfreq_pp
-#' @param db The model for the maximum double reduction rate(s). Either
-#'    complete equational segregation ("ces") or pure random
-#'    chromatid segregation ("prcs').
+#' @param alpha The double reduction rate of the polysomic component.
 #'
 #' @author David Gerard
 #'
+#' @examples
+#' gamfreq_seg(gamma = c(0.1, 0.3, 0.6), g = 2, ploidy = 6, alpha = 0.3)
+#'
+#'
 #' @noRd
-gamfreq_seg <- function(gamma, g, ploidy, db = c("ces", "prcs")) {
-  db <- match.arg(db)
+gamfreq_seg <- function(gamma, g, ploidy, alpha) {
   TOL <- sqrt(.Machine$double.eps)
   stopifnot(
     length(gamma) == n_pp_mix(g = g, ploidy = ploidy) + 1,
     abs(sum(gamma) - 1) < TOL,
     gamma >= 0)
+  stopifnot(alpha >= 0, length(alpha) == floor(ploidy / 4))
   plist <- segtest::seg[segtest::seg$ploidy == ploidy & (segtest::seg$mode == "disomic" | segtest::seg$mode == "both") & segtest::seg$g == g, ]$p
   pvec <- rep(0, length.out = ploidy / 2 + 1)
   for (i in seq_along(plist)) {
     pvec <- pvec + plist[[i]] * gamma[[i]]
   }
-  pvec <- pvec + gamfreq_dr(alpha = drbounds(ploidy = ploidy, model = db), g = g, ploidy = ploidy, log_p = FALSE) * gamma[[length(gamma)]]
+  pvec <- pvec + gamfreq_dr(alpha = alpha, g = g, ploidy = ploidy, log_p = FALSE) * gamma[[length(gamma)]]
   return(pvec)
 }
 
@@ -1123,17 +1126,17 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #'
 #' @examples
 #' p1_ploidy <- 4
-#' p1 <- 2
+#' p1 <- 1
 #' p2_ploidy <- 8
-#' p2 <- 2
+#' p2 <- 4
 #' q <- gf_freq(
 #'   p1_g = p1,
 #'   p1_ploidy = p1_ploidy,
-#'   p1_gamma = c(0.8, 0.2),
+#'   p1_gamma = 1,
 #'   p1_type = "mix",
 #'   p2_g = p2,
 #'   p2_ploidy = p2_ploidy,
-#'   p2_gamma= c(0.1, 0.9),
+#'   p2_gamma= c(0.2, 0.2, 0.6),
 #'   p2_type = "mix",
 #'   pi = 0.01)
 #' nvec <- c(stats::rmultinom(n = 1, size = 200, prob = q))
@@ -1281,7 +1284,9 @@ seg_lrt <- function(
       for (i in seq_len(ntry)) {
         if (p1_geno == 1 || p1_geno == p1_ploidy - 1) {
           gam[[1]]$gamma <- 1
-          gam[[1]]$beta <- stats::runif(n = 1, min = 0, max = beta_bounds(ploidy = p1_ploidy))
+          if (model == "seg") {
+            gam[[1]]$beta <- stats::runif(n = 1, min = 0, max = beta_bounds(ploidy = p1_ploidy))
+          }
         } else {
           nmix <- n_pp_mix(g = p1_geno, ploidy = p1_ploidy)
           gam[[1]]$gamma <- stats::runif(n = nmix)
@@ -1290,7 +1295,9 @@ seg_lrt <- function(
 
         if (p2_geno == 1 || p2_geno == p2_ploidy - 1) {
           gam[[2]]$gamma <- 1
-          gam[[2]]$beta <- stats::runif(n = 1, min = 0, max = beta_bounds(ploidy = p2_ploidy))
+          if (model == "seg") {
+            gam[[2]]$beta <- stats::runif(n = 1, min = 0, max = beta_bounds(ploidy = p2_ploidy))
+          }
         } else {
           nmix <- n_pp_mix(g = p2_geno, ploidy = p2_ploidy)
           gam[[2]]$gamma <- stats::runif(n = nmix)
