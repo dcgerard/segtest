@@ -1000,6 +1000,9 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
       ret$rule[[1]]$beta <- gam[[1]]$beta
     }
     ret$rule[[1]]$type <- "mix_dr"
+  } else if (gam[[1]]$type == "mix" && !gam[[1]]$add_dr && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1)) {
+    ret$rule[[1]]$type <- "mix"
+    ret$rule[[1]]$beta <- 0
   } else if (gam[[1]]$type == "mix" && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1) {
     if (!fix_list[[1]]$gamma) {
       ret$par <- c(ret$par, simplex_to_real(q = gam[[1]]$gamma))
@@ -1031,6 +1034,9 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
       ret$rule[[2]]$beta <- gam[[2]]$beta
     }
     ret$rule[[2]]$type <- "mix_dr"
+  } else if (gam[[2]]$type == "mix" && !gam[[2]]$add_dr && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
+    ret$rule[[2]]$type <- "mix"
+    ret$rule[[2]]$beta <- 0
   } else if (gam[[2]]$type == "mix" && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
     if (!fix_list[[2]]$gamma) {
       ret$par <- c(ret$par, simplex_to_real(q = gam[[2]]$gamma))
@@ -1164,10 +1170,6 @@ seg_lrt <- function(
   ## Check input ----------
   model <- match.arg(model)
   db <- match.arg(db)
-
-  if (model != "seg") {
-    stop("only seg is supported right now")
-  }
 
   stopifnot(
     p1_ploidy %% 2 == 0, p1_ploidy > 1,
