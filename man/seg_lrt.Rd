@@ -12,9 +12,9 @@ seg_lrt(
   p2 = NULL,
   model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
   outlier = TRUE,
-  pi = 0.03,
+  ob = 0.03,
   db = c("ces", "prcs"),
-  ntry = 5
+  ntry = 10
 )
 }
 \arguments{
@@ -47,7 +47,7 @@ The genotype log-likelihoods should be base e (natural log).}
 
 \item{outlier}{A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?}
 
-\item{pi}{The default upper bound on the outlier proportion.}
+\item{ob}{The default upper bound on the outlier proportion.}
 
 \item{db}{Should we use the complete equational segregation model (\code{"ces"}) or
 the pure random chromatid segregation model (\code{"prcs"}) to determine the upper

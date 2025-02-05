@@ -1,3 +1,7 @@
+pkg_env <- new.env()
+pkg_env$TOL_small <- sqrt(.Machine$double.eps)
+pkg_env$TOL_big <- .Machine$double.eps^(1/4)
+
 logit <- function (x) {
     log(x) - log(1 - x)
 }
@@ -216,7 +220,7 @@ gamfreq_dr <- function (alpha, g, ploidy, log_p = FALSE) {
           log = log_p)
         return(retvec)
     }
-    if (all(abs(alpha) < sqrt(.Machine$double.eps))) {
+    if (all(abs(alpha) < pkg_env$TOL_small)) {
         retvec <- stats::dhyper(
           x = x,
           m = g,
@@ -355,7 +359,7 @@ n_pp_mix <- function(g, ploidy) {
 #'
 #' @noRd
 gamfreq_pp <- function(gamma, g, ploidy) {
-  TOL <- sqrt(.Machine$double.eps)
+  TOL <- pkg_env$TOL_small
   stopifnot(
     length(gamma) == n_pp_mix(g = g, ploidy = ploidy),
     abs(sum(gamma) - 1) < TOL,
@@ -386,7 +390,7 @@ gamfreq_pp <- function(gamma, g, ploidy) {
 #'
 #' @noRd
 gamfreq_seg <- function(gamma, g, ploidy, alpha) {
-  TOL <- sqrt(.Machine$double.eps)
+  TOL <- pkg_env$TOL_small
   stopifnot(
     length(gamma) == n_pp_mix(g = g, ploidy = ploidy) + 1,
     abs(sum(gamma) - 1) < TOL,
@@ -499,7 +503,7 @@ gamfreq <- function(
   }
 
   ## Check input
-  TOL <- sqrt(.Machine$double.eps)
+  TOL <- pkg_env$TOL_small
   stopifnot(ploidy >= 2, ploidy %% 2 == 0, ploidy <= 20)
   stopifnot(g >= 0, g <= ploidy)
   if (!is.null(gamma)) {
@@ -604,7 +608,7 @@ gf_freq <- function(
     p2_type = c("mix", "polysomic"),
     p2_add_dr = TRUE,
     pi = 0) {
-  TOL <- sqrt(.Machine$double.eps)
+  TOL <- pkg_env$TOL_small
   p1_type <- match.arg(p1_type)
   p2_type <- match.arg(p2_type)
   p1 <- gamfreq(
@@ -832,6 +836,7 @@ par_to_gam <- function(par, rule) {
 #' Par to genotype frequencies
 #'
 #' @inheritParams par_to_gam
+#' @param nudge how much to move above 0.
 #'
 #' @return The vector of genotype frequencies.
 #'
@@ -855,13 +860,13 @@ par_to_gam <- function(par, rule) {
 #' par_to_gf(par = par, rule = rule)
 #'
 #' @noRd
-par_to_gf <- function(par, rule) {
-  TOL <- sqrt(.Machine$double.eps)
+par_to_gf <- function(par, rule, nudge = sqrt(.Machine$double.eps)) {
+  TOL <- pkg_env$TOL_small
   gampar <- par_to_gam(par = par, rule = rule)
   p1 <- do.call(what = gamfreq, args = gampar[[1]])
   p2 <- do.call(what = gamfreq, args = gampar[[2]])
   q <- stats::convolve(x = p1, y = rev(p2), type = "open")
-  q[q < TOL] <- 0 ## for -1e-16
+  q[q < TOL] <- nudge ## for -1e-16
   q <- q / sum(q)
   if (gampar[[3]]$outlier) {
     q <- q * (1 - gampar[[3]]$pi) + gampar[[3]]$pi / length(q)
@@ -903,7 +908,8 @@ par_to_gf <- function(par, rule) {
 #' @return A list of length 4, containing \code{par}, \code{rule},
 #'     \code{lower}, and \code{upper}. See \code{\link{par_to_gam}()}
 #'     for a description of \code{par} and \code{rule}. The \code{lower}
-#'     and \code{upper} elements are the bounds on \code{par}.
+#'     and \code{upper} elements are the bounds on \code{par}. \code{name}
+#'     tells you what each element of par corresponds to.
 #'
 #' @seealso \code{\link{gamfreq}()} for more details on the parent parameters.
 #'
@@ -920,25 +926,27 @@ par_to_gf <- function(par, rule) {
 #'   beta = NULL,
 #'   gamma = NULL,
 #'   type = "polysomic",
-#'   add_dr = NULL)
+#'   add_dr = FALSE)
 #' gam[[2]] <- list(
 #'   ploidy = 8,
 #'   g = 4,
 #'   alpha = NULL,
 #'   beta = NULL,
-#'   gamma = c(0.1, 0.9),
+#'   gamma = c(0.1, 0.8, 0.1),
 #'   type = "mix",
-#'   add_dr = NULL)
+#'   add_dr = FALSE)
 #' gam[[3]] <- list(
 #'   outlier = TRUE,
 #'   pi = 0.03
 #' )
+#' gam_to_par(gam)
 gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   ret <- list()
   ret$par <- c()
   ret$rule <- list()
   ret$lower <- c()
   ret$upper <- c()
+  ret$name <- c()
   db <- match.arg(db)
 
   ## prepopulate rule
@@ -977,25 +985,29 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   ## smallest and largest values for transformed gamma parameter
   lower_val <- -1e3
   upper_val <- 1e3
-  TOL <- sqrt(.Machine$double.eps)
-
+  TOL <- pkg_env$TOL_small
 
   if (gam[[1]]$g == 0 || gam[[1]]$g == gam[[1]]$ploidy) {
     ret$rule[[1]]$type <- gam[[1]]$type
   } else if (gam[[1]]$type == "polysomic" && gam[[1]]$g != 0 && gam[[1]]$g != gam[[1]]$ploidy) {
     if (!fix_list[[1]]$alpha) {
+      nd <- floor(gam[[1]]$ploidy / 4)
+      stopifnot(length(gam[[1]]$alpha) == nd)
       ret$par <- c(ret$par, gam[[1]]$alpha)
-      ret$lower <- c(ret$lower, rep(x = TOL, times = floor(gam[[1]]$ploidy / 4)))
+      ret$lower <- c(ret$lower, rep(x = TOL, times = nd))
       ret$upper <- c(ret$upper, drbounds(ploidy = gam[[1]]$ploidy, model = db))
+      ret$name <- c(ret$name, rep(x = "alpha_1", times = nd))
     } else {
       ret$rule[[1]]$alpha <- gam[[1]]$alpha
     }
     ret$rule[[1]]$type <- "polysomic"
   } else if (gam[[1]]$type == "mix" && gam[[1]]$add_dr && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1)) {
     if (!fix_list[[1]]$beta) {
+      stopifnot(length(gam[[1]]$beta) == 1)
       ret$par <- c(ret$par, gam[[1]]$beta)
       ret$lower <- c(ret$lower, TOL)
       ret$upper <- c(ret$upper, beta_bounds(ploidy = gam[[1]]$ploidy, model = db))
+      ret$name <- c(ret$name, "beta_1")
     } else {
       ret$rule[[1]]$beta <- gam[[1]]$beta
     }
@@ -1005,9 +1017,12 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
     ret$rule[[1]]$beta <- 0
   } else if (gam[[1]]$type == "mix" && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1) {
     if (!fix_list[[1]]$gamma) {
+      npp <- n_pp_mix(g = gam[[1]]$g, ploidy = gam[[1]]$ploidy)
+      stopifnot(length(gam[[1]]$gamma) == npp)
       ret$par <- c(ret$par, simplex_to_real(q = gam[[1]]$gamma))
-      ret$lower <- c(ret$lower, rep(x = lower_val, times = n_pp_mix(g = gam[[1]]$g, ploidy = gam[[1]]$ploidy) - 1))
-      ret$upper <- c(ret$upper, rep(x = upper_val, times = n_pp_mix(g = gam[[1]]$g, ploidy = gam[[1]]$ploidy) - 1))
+      ret$lower <- c(ret$lower, rep(x = lower_val, times = npp - 1))
+      ret$upper <- c(ret$upper, rep(x = upper_val, times = npp - 1))
+      ret$name <- c(ret$name, rep(x = "gamma_1", times = npp - 1))
     } else {
       ret$rule[[1]]$gamma <- gam[[1]]$gamma
     }
@@ -1018,18 +1033,23 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
     ret$rule[[2]]$type <- gam[[2]]$type
   } else if (gam[[2]]$type == "polysomic" && gam[[2]]$g != 0 && gam[[2]]$g != gam[[2]]$ploidy) {
     if (!fix_list[[2]]$alpha) {
+      nd <- floor(gam[[2]]$ploidy / 4)
+      stopifnot(length(gam[[2]]$alpha) == nd)
       ret$par <- c(ret$par, gam[[2]]$alpha)
-      ret$lower <- c(ret$lower, rep(x = TOL, times = floor(gam[[2]]$ploidy / 4)))
+      ret$lower <- c(ret$lower, rep(x = TOL, times = nd))
       ret$upper <- c(ret$upper, drbounds(ploidy = gam[[2]]$ploidy, model = db))
+      ret$name <- c(ret$name, rep(x = "alpha_2", times = nd))
     } else {
       ret$rule[[2]]$alpha <- gam[[2]]$alpha
     }
     ret$rule[[2]]$type <- "polysomic"
   } else if (gam[[2]]$type == "mix" && gam[[2]]$add_dr && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
     if (!fix_list[[2]]$beta) {
+      stopifnot(length(gam[[2]]$beta) == 1)
       ret$par <- c(ret$par, gam[[2]]$beta)
       ret$lower <- c(ret$lower, TOL)
       ret$upper <- c(ret$upper, beta_bounds(ploidy = gam[[2]]$ploidy, model = db))
+      ret$name <- c(ret$name, "beta_2")
     } else {
       ret$rule[[2]]$beta <- gam[[2]]$beta
     }
@@ -1039,9 +1059,12 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
     ret$rule[[2]]$beta <- 0
   } else if (gam[[2]]$type == "mix" && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
     if (!fix_list[[2]]$gamma) {
+      npp <- n_pp_mix(g = gam[[2]]$g, ploidy = gam[[2]]$ploidy)
+      stopifnot(length(gam[[2]]$gamma) == npp)
       ret$par <- c(ret$par, simplex_to_real(q = gam[[2]]$gamma))
-      ret$lower <- c(ret$lower, rep(x = lower_val, times = n_pp_mix(g = gam[[2]]$g, ploidy = gam[[2]]$ploidy) - 1))
-      ret$upper <- c(ret$upper, rep(x = upper_val, times = n_pp_mix(g = gam[[2]]$g, ploidy = gam[[2]]$ploidy) - 1))
+      ret$lower <- c(ret$lower, rep(x = lower_val, times = npp - 1))
+      ret$upper <- c(ret$upper, rep(x = upper_val, times = npp - 1))
+      ret$name <- c(ret$name, rep(x = "gamma_2", times = npp - 1))
     } else {
       ret$rule[[2]]$gamma <- gam[[2]]$gamma
     }
@@ -1050,9 +1073,11 @@ gam_to_par <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
 
   if (gam[[3]]$outlier) {
     if(!fix_list[[3]]$pi) {
+      stopifnot(length(gam[[3]]$pi) == 1)
       ret$par <- c(ret$par, gam[[3]]$pi)
       ret$lower <- c(ret$lower, TOL)
       ret$upper <- c(ret$upper, ob)
+      ret$name <- c(ret$name, "pi")
     } else {
       ret$rule[[3]]$pi <- gam[[3]]$pi
     }
@@ -1121,7 +1146,7 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #'     \item{\code{"auto_allo"}}{Only complete disomic and complete polysomic inheritance is studied.}
 #'   }
 #' @param outlier A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?
-#' @param pi The default upper bound on the outlier proportion.
+#' @param ob The default upper bound on the outlier proportion.
 #' @param db Should we use the complete equational segregation model (\code{"ces"}) or
 #'    the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
 #'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
@@ -1163,9 +1188,9 @@ seg_lrt <- function(
     p2 = NULL,
     model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
-    pi = 0.03,
+    ob = 0.03,
     db = c("ces", "prcs"),
-    ntry = 5) {
+    ntry = 10) {
 
   ## Check input ----------
   model <- match.arg(model)
@@ -1210,7 +1235,7 @@ seg_lrt <- function(
   }
   ## check outlier inputs
   stopifnot(length(outlier) == 1, is.logical(outlier))
-  stopifnot(length(pi) == 1, pi >= 0, pi <= 1)
+  stopifnot(length(ob) == 1, ob >= 0, ob <= 1)
 
   ## Set up gam
   gam <- list()
@@ -1242,17 +1267,13 @@ seg_lrt <- function(
   } else if (model == "auto") {
     gam[[1]]$type <- "polysomic"
     gam[[1]]$add_dr <- FALSE
-    gam[[1]]$alpha <- rep(0, times = floor(p1_ploidy / 4))
     gam[[2]]$type <- "polysomic"
     gam[[2]]$add_dr <- FALSE
-    gam[[2]]$alpha <- rep(0, times = floor(p2_ploidy / 4))
   } else if (model == "auto_dr") {
     gam[[1]]$type <- "polysomic"
     gam[[1]]$add_dr <- TRUE
-    gam[[1]]$alpha <- drbounds(ploidy = p1_ploidy, model = db)
     gam[[2]]$type <- "polysomic"
     gam[[2]]$add_dr <- TRUE
-    gam[[2]]$alpha <- drbounds(ploidy = p2_ploidy, model = db)
   } else if (model == "allo" || model == "allo_pp" || model == "auto_allo") {
     gam[[1]]$type <- "mix"
     gam[[1]]$add_dr <- FALSE
@@ -1275,66 +1296,133 @@ seg_lrt <- function(
   )
 
   ## Null optimization ----
-  ## This below only works if both are seg
-  null_best <- list()
-  null_best$l0_pp <- -Inf
-  for (p1_geno in p1_pos) {
-    for (p2_geno in p2_pos) {
-      gam[[1]]$g <- p1_geno
-      gam[[2]]$g <- p2_geno
+  if (model == "seg" || model == "allo_pp" || model == "auto" || model == "auto_dr") {
+    fix_list <- list(
+      list(
+        alpha = FALSE,
+        beta = FALSE,
+        gamma = FALSE
+      ),
+      list(
+        alpha = FALSE,
+        beta = FALSE,
+        gamma = FALSE
+      ),
+      list(
+        pi = FALSE
+      )
+    )
 
-      for (i in seq_len(ntry)) {
-        if (p1_geno == 1 || p1_geno == p1_ploidy - 1) {
-          gam[[1]]$gamma <- 1
-          if (model == "seg") {
-            gam[[1]]$beta <- stats::runif(n = 1, min = 0, max = beta_bounds(ploidy = p1_ploidy))
+    if (model == "auto") {
+      fix_list[[1]]$alpha <- TRUE
+      fix_list[[2]]$alpha <- TRUE
+      gam[[1]]$alpha <- rep(x = 0, times = floor(gam[[1]]$ploidy / 4))
+      gam[[2]]$alpha <- rep(x = 0, times = floor(gam[[1]]$ploidy / 4))
+    }
+
+    null_best <- list()
+    null_best$l0_pp <- -Inf
+    for (p1_geno in p1_pos) {
+      for (p2_geno in p2_pos) {
+        gam[[1]]$g <- p1_geno
+        gam[[2]]$g <- p2_geno
+        nudge <- pkg_env$TOL_small ## bound for starting values
+        for (i in seq_len(ntry)) {
+          ## Do parent 1
+          if (model == "auto_dr") {
+            ndr <- floor(gam[[1]]$ploidy / 4)
+            gam[[1]]$alpha <- stats::runif(n = ndr, min = rep(x = nudge, times = ndr), max = drbounds(ploidy = gam[[1]]$ploidy, model = db) - nudge)
+          } else if (model == "seg") {
+            if (p1_geno == 1 || p1_geno == p1_ploidy - 1) {
+              gam[[1]]$gamma <- 1
+              gam[[1]]$beta <- stats::runif(n = 1, min = nudge, max = beta_bounds(ploidy = p1_ploidy) - nudge)
+            } else {
+              nmix <- n_pp_mix(g = p1_geno, ploidy = p1_ploidy)
+              gam[[1]]$gamma <- stats::runif(n = nmix)
+              gam[[1]]$gamma <- gam[[1]]$gamma / sum(gam[[1]]$gamma)
+            }
+          } else if (model == "allo_pp") {
+            if (p1_geno == 1 || p1_geno == p1_ploidy - 1) {
+              gam[[1]]$gamma <- 1
+            } else {
+              nmix <- n_pp_mix(g = p1_geno, ploidy = p1_ploidy)
+              gam[[1]]$gamma <- stats::runif(n = nmix)
+              gam[[1]]$gamma <- gam[[1]]$gamma / sum(gam[[1]]$gamma)
+            }
           }
-        } else {
-          nmix <- n_pp_mix(g = p1_geno, ploidy = p1_ploidy)
-          gam[[1]]$gamma <- stats::runif(n = nmix)
-          gam[[1]]$gamma <- gam[[1]]$gamma / sum(gam[[1]]$gamma)
-        }
 
-        if (p2_geno == 1 || p2_geno == p2_ploidy - 1) {
-          gam[[2]]$gamma <- 1
-          if (model == "seg") {
-            gam[[2]]$beta <- stats::runif(n = 1, min = 0, max = beta_bounds(ploidy = p2_ploidy))
+          ## do parent 2
+          if (model == "auto_dr") {
+            ndr <- floor(gam[[2]]$ploidy / 4)
+            gam[[2]]$alpha <- stats::runif(n = ndr, min = rep(x = nudge, times = ndr), max = drbounds(ploidy = gam[[2]]$ploidy, model = db) - nudge)
+          } else if (model == "seg") {
+            if (p2_geno == 1 || p2_geno == p2_ploidy - 1) {
+              gam[[2]]$gamma <- 1
+              gam[[2]]$beta <- stats::runif(n = 1, min = nudge, max = beta_bounds(ploidy = p2_ploidy) - nudge)
+            } else {
+              nmix <- n_pp_mix(g = p2_geno, ploidy = p2_ploidy)
+              gam[[2]]$gamma <- stats::runif(n = nmix)
+              gam[[2]]$gamma <- gam[[2]]$gamma / sum(gam[[2]]$gamma)
+            }
+          } else if (model == "allo_pp") {
+            if (p2_geno == 1 || p2_geno == p2_ploidy - 1) {
+              gam[[2]]$gamma <- 1
+            } else {
+              nmix <- n_pp_mix(g = p2_geno, ploidy = p2_ploidy)
+              gam[[2]]$gamma <- stats::runif(n = nmix)
+              gam[[2]]$gamma <- gam[[2]]$gamma / sum(gam[[2]]$gamma)
+            }
           }
-        } else {
-          nmix <- n_pp_mix(g = p2_geno, ploidy = p2_ploidy)
-          gam[[2]]$gamma <- stats::runif(n = nmix)
-          gam[[2]]$gamma <- gam[[2]]$gamma / sum(gam[[2]]$gamma)
-        }
 
-        if (gam[[3]]$outlier) {
-          gam[[3]]$pi <- stats::runif(n = 1, min = 0, max = pi)
-        }
+          if (gam[[3]]$outlier) {
+            gam[[3]]$pi <- stats::runif(n = 1, min = 0, max = ob)
+          }
 
-        ret <- gam_to_par(gam = gam, db = db, ob = pi)
-        oout <- stats::optim(
-          par = ret$par,
-          fn = ifelse(data_type == "glike", ll_gl, ll_g),
-          method = ifelse(length(ret$par) == 1, "Brent", "L-BFGS-B"),
-          rule = ret$rule,
-          x = x,
-          control = list(fnscale = -1),
-          lower = ret$lower,
-          upper = ret$upper)
+          ret <- gam_to_par(gam = gam, fix_list = fix_list, db = db, ob = ob)
+          oout <- stats::optim(
+            par = ret$par,
+            fn = ifelse(data_type == "glike", ll_gl, ll_g),
+            method = ifelse(length(ret$par) == 1, "Brent", "L-BFGS-B"),
+            rule = ret$rule,
+            x = x,
+            control = list(fnscale = -1),
+            lower = ret$lower,
+            upper = ret$upper)
 
-        if (oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]] > null_best$l0_pp) {
-          null_best$l0_pp <- oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]]
-          null_best$l0 <- oout$value
-          null_best$q0 <- par_to_gf(par = oout$par, rule = ret$rule) ## ML genotype frequency
-          null_best$gam <- par_to_gam(par = oout$par, rule = ret$rule) ## MLE's
-          null_best$df0 <- gam_to_df(gam = null_best$gam, db = db, ob = pi)
+          if (oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]] > null_best$l0_pp) {
+            null_best$l0_pp <- oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]]
+            null_best$l0 <- oout$value
+            null_best$q0 <- par_to_gf(par = oout$par, rule = ret$rule) ## ML genotype frequency
+            null_best$gam <- par_to_gam(par = oout$par, rule = ret$rule) ## MLE's
+            ## find df0
+            if (model == "seg" || model == "allo_pp") {
+              null_best$df0 <- gam_to_df_seg(gam = null_best$gam, db = db, ob = ob)
+            } else if (model == "auto") {
+              if (outlier) {
+                if (null_best$gam[[3]]$pi > pkg_env$TOL_big && null_best$gam[[3]]$pi < ob - pkg_env$TOL_big) {
+                  null_best$df0 <- 1
+                } else {
+                  null_best$df0 <- 0
+                }
+              } else {
+                null_best$df0 <- 0
+              }
+            } else if (model == "auto_dr") {
+                null_best$df0 <- gam_to_df_auto_dr(gam = null_best$gam, db = db, ob = ob)
+            }
+          }
         }
       }
     }
+  } else if (model == "allo" || model == "auto_allo") {
+
+  } else {
+    stop("seg_lrt: how did you get here?")
   }
 
   ## subtract off if both zero under null and alt, then subtract off one.
   # alt_best$df1 <- length(alt_best$q1) - 1
-  alt_best$df1 <- length(alt_best$q1) - sum((alt_best$q1 < .Machine$double.eps^(1/4)) & (null_best$q0 < .Machine$double.eps^(1/4))) - 1
+  alt_best$df1 <- length(alt_best$q1) - sum((alt_best$q1 < pkg_env$TOL_big) & (null_best$q0 < pkg_env$TOL_big)) - 1
 
   ## Run test
   ret <- list(
@@ -1349,12 +1437,24 @@ seg_lrt <- function(
 }
 
 
-gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
+#' Calculate number of parameters under the null.
+#'
+#' Does so by counting number on boundary and then passing those to
+#' gam_to_nparam_seg to get identified dimesion.
+#'
+#' @inheritParams gam_to_par
+#'
+#' This only works for model = "seg" and model = "allo_pp"
+#'
+#' @author David Gerard
+#'
+#' @noRd
+gam_to_df_seg <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   stopifnot(is.null(gam[[1]]$alpha) || is.null(gam[[1]]$beta))
   stopifnot(is.null(gam[[1]]$alpha) || is.null(gam[[1]]$gamma))
   stopifnot(is.null(gam[[2]]$alpha) || is.null(gam[[2]]$beta))
   stopifnot(is.null(gam[[2]]$alpha) || is.null(gam[[2]]$gamma))
-  TOL <- .Machine$double.eps ^ (1/4)
+  TOL <- pkg_env$TOL_big
   db <- match.arg(db)
   if (is.null(fix_list)) {
     fix_list <- list(
@@ -1423,12 +1523,12 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   ## overwrite df in this case
   if (!fix_list[[1]]$gamma && !fix_list[[2]]$gamma && !is.null(gam[[1]]$gamma) && !is.null(gam[[2]]$gamma) && gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1 && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
     if (all(gam[[1]]$gamma > TOL) && all(gam[[2]]$gamma > TOL)) {
-      df <- gam_to_nparam(gam = gam)
+      df <- gam_to_nparam_seg(gam = gam)
     }
   }
   if (!fix_list[[1]]$beta && !fix_list[[2]]$beta && !is.null(gam[[1]]$beta) && !is.null(gam[[2]]$beta) && (gam[[1]]$g == 1 || gam[[1]]$g == gam[[1]]$ploidy - 1) && (gam[[2]]$g == 1 || gam[[2]]$g == gam[[2]]$ploidy - 1)) {
     if (gam[[1]]$beta > TOL && gam[[1]]$beta < beta_bounds(ploidy = gam[[1]]$ploidy, model = db) - TOL && gam[[2]]$beta > TOL && gam[[2]]$beta < beta_bounds(ploidy = gam[[2]]$ploidy, model = db) - TOL) {
-      df <- gam_to_nparam(gam = gam)
+      df <- gam_to_nparam_seg(gam = gam)
     }
   }
 
@@ -1447,6 +1547,8 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
 #' Each parent should have non-null gamma parameters. So no simplex
 #' and nullplex parents.
 #'
+#' This only works for model = "seg" or model = "allo_pp"
+#'
 #' The parameterspace might not be identified. This calculates the jacobian of the
 #' genotype frequencies (dependent variable) as a function of the null parameters
 #' (independent variable). The rank of the jacobian is the true number of parameters.
@@ -1456,7 +1558,7 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
 #' @author David Gerard
 #'
 #' @noRd
-gam_to_nparam <- function(gam) {
+gam_to_nparam_seg <- function(gam) {
   if (gam[[1]]$g > 1 && gam[[1]]$g < gam[[1]]$ploidy - 1 && gam[[2]]$g > 1 && gam[[2]]$g < gam[[2]]$ploidy - 1) {
     fix_list <- list(
       list(
@@ -1490,7 +1592,7 @@ gam_to_nparam <- function(gam) {
       )
     )
   } else {
-    stop("gam_to_nparam: only both simplex or both multiplex allowed?")
+    stop("gam_to_nparam_seg: only both simplex or both multiplex allowed?")
   }
 
   ret <- gam_to_par(gam = gam, fix_list = fix_list)
@@ -1499,6 +1601,43 @@ gam_to_nparam <- function(gam) {
   env$par <- ret$par
   env$rule <- ret$rule
   dout <- stats::numericDeriv(expr = quote(par_to_gf(par = par, rule = rule)), theta = "par", rho = env)
-  return(sum(svd(attr(dout, "gradient"))$d > .Machine$double.eps^(1/4)))
+  return(sum(svd(attr(dout, "gradient"))$d > pkg_env$TOL_big))
+}
+
+#' Number of null parameters under auto_dr model
+#'
+#' Counts the dimenson of the inner parameters
+#'
+#' @inheritParams gam_to_par
+#'
+#' @author David Gerard
+#'
+#' @noRd
+gam_to_df_auto_dr <- function(gam,  db = c("ces", "prcs"), ob = 0.03) {
+  db <- match.arg(db)
+  TOL <- pkg_env$TOL_big
+
+  ret <- gam_to_par(gam = gam, db = db, ob = ob)
+  onbound <- (ret$par < ret$lower + TOL) | (ret$par > ret$upper - TOL)
+  if (sum(!onbound) == 0) {
+    return(0)
+  }
+  par_inner <- ret$par[!onbound]
+  par_edge <-ret$par[onbound]
+  fn <- function(par_inner, par_edge, onbound, rule) {
+    par <- rep(NA_real_, times = length(onbound))
+    par[!onbound] <- par_inner
+    par[onbound] <- par_edge
+    par_to_gf(par = par, rule = rule)
+  }
+
+  env <- new.env()
+  env$par_inner <- par_inner
+  env$par_edge <- par_edge
+  env$onbound <- onbound
+  env$rule <- ret$rule
+  dout <- stats::numericDeriv(expr = quote(fn(par_inner = par_inner, par_edge = par_edge, onbound = onbound, rule = rule)), theta = "par_inner", rho = env)
+  nparam <- sum(svd(attr(dout, "gradient"))$d > TOL)
+  return(nparam)
 }
 
