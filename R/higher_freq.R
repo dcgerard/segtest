@@ -1450,7 +1450,38 @@ seg_lrt <- function(
       }
     }
   } else if (model == "allo" || model == "auto_allo") {
+    if (model == "allo") {
+      pos_modes <- c("disomic", "both")
+    } else if (model == "auto_allo") {
+      pos_modes <- c("disomic", "both", "polysomic")
+    }
+    null_best <- list()
+    null_best$l0_pp <- -Inf
+    for (p1_geno in p1_pos) {
+      p1_list <- segtest::seg[segtest::seg$ploidy == p1_ploidy & segtest::seg$g == p1_geno & segtest::seg$mode %in% pos_modes, ]$p
+      for (p2_geno in p2_pos) {
+        p2_list <- segtest::seg[segtest::seg$ploidy == p2_ploidy & segtest::seg$g == p2_geno & segtest::seg$mode %in% pos_modes, ]$p
+        for (i in seq_along(p1_list)) {
+          p1_freq <- p1_list[[i]]
+          for (j in seq_along(p2_list)) {
+            p2_freq <- p2_list[[j]]
+            zyg_freq <- stats::convolve(p1_freq, rev(p2_freq), type = "open")
+            if (!outlier) {
+              if (data_type == "glike") {
+                llike_li(B = x, lpivec = log(zyg_freq))
+              } else if (data_type == "gcount") {
+                stats::dmultinom(x = x, prob = zyg_freq, log = TRUE)
+              }
+            } else {
 
+            }
+
+            ## see if we have a new best
+
+          }
+        }
+      }
+    }
   } else {
     stop("seg_lrt: how did you get here?")
   }
