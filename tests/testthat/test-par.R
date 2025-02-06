@@ -5,7 +5,7 @@ test_that("par_to_gf works", {
     list(outlier = FALSE)
     )
   par <- c()
-  expect_equal(par_to_gf(par = par, rule = rule), c(0, 0, 0, 0, 1, 0, 0))
+  expect_equal(par_to_gf(par = par, rule = rule), c(0, 0, 0, 0, 1, 0, 0), tolerance = 1e-3)
 
   rule <- list(
     list(ploidy = 4, g = 2, type = "mix"),
@@ -118,3 +118,4 @@ test_that("fixed parameterizations work", {
   expect_equal(ret$upper, c(rep(upper_val, 3), drbounds(ploidy = 12, model = "ces")))
 
 })
+

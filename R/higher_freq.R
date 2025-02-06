@@ -1,6 +1,7 @@
+## Tolerance global variables
 pkg_env <- new.env()
-pkg_env$TOL_small <- sqrt(.Machine$double.eps)
-pkg_env$TOL_big <- .Machine$double.eps^(1/4)
+pkg_env$TOL_small <- sqrt(.Machine$double.eps) ## for everything but df calculations.
+pkg_env$TOL_big <- .Machine$double.eps^(1/4) ## only used for df calculations
 
 logit <- function (x) {
     log(x) - log(1 - x)
