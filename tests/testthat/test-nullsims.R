@@ -1,25 +1,25 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
   p1_ploidy <- 4
-  p1 <- 2
+  p1 <- 1
   p2_ploidy <- 4
   p2 <- 1
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = NULL,
-    p1_beta = NULL,
-    p1_alpha = 0,
-    p1_type = "polysomic",
+    p1_gamma = 1,
+    p1_beta = 0.02,
+    p1_alpha = NULL,
+    p1_type = "mix",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
-    p2_gamma= NULL,
-    p2_beta = NULL,
-    p2_alpha = 0,
-    p2_type = "polysomic",
-    pi = 0)
+    p2_gamma= 1,
+    p2_beta = 0.02,
+    p2_alpha = NULL,
+    p2_type = "mix",
+    pi = 0.01)
   niter <- 1000
-  nsamp <- 100000
+  nsamp <- 10000
 
 
   pval_vec <- rep(NA_real_, times = niter)
@@ -40,7 +40,7 @@ test_that("null simulations produce uniform p-values", {
       p2_ploidy = p2_ploidy,
       p1 = p1,
       p2 = p2,
-      model = "auto_dr",
+      model = "seg",
       outlier = TRUE)
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
@@ -53,14 +53,6 @@ test_that("null simulations produce uniform p-values", {
   plot(
     x = ppoints(n = sum(!is.na(pval_vec))),
     y = sort(pval_vec[!is.na(pval_vec)]),
-    xlab = "Theoretical",
-    ylab = "Sample")
-  abline(a = 0, b = 1, lty = 2, col = 2)
-
-  ptemp <- pchisq(q = stat_vec, df = df_vec + 1, lower.tail = FALSE)
-  plot(
-    x = ppoints(n = sum(!is.na(pval_vec))),
-    y = sort(ptemp),
     xlab = "Theoretical",
     ylab = "Sample")
   abline(a = 0, b = 1, lty = 2, col = 2)

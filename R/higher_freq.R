@@ -1522,7 +1522,7 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   env$rule <- ret$rule
   dout <- stats::numericDeriv(expr = quote(fn(par_inner = par_inner, par_edge = par_edge, onbound = onbound, rule = rule)), theta = "par_inner", rho = env)
   dvec <- svd(attr(dout, "gradient"))$d
-  nparam <- sum(dvec > dvec[[1]] / 100) ## largest sv over 100 is a heuristic for rank that seems to work well in practice
+  nparam <- sum(dvec > dvec[[1]] / 1000) ## largest sv over 1000 is a heuristic for rank that seems to work well in practice
   return(nparam)
 }
 
