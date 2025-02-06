@@ -1,25 +1,25 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
-  p1_ploidy <- 8
-  p1 <- 4
-  p2_ploidy <- 8
-  p2 <- 4
+  p1_ploidy <- 4
+  p1 <- 2
+  p2_ploidy <- 4
+  p2 <- 1
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = c(0.3, 0.3, 0.4),
+    p1_gamma = NULL,
     p1_beta = NULL,
-    p1_alpha = NULL,
-    p1_type = "mix",
+    p1_alpha = 0,
+    p1_type = "polysomic",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
-    p2_gamma= c(0.6, 0.3, 0.1),
+    p2_gamma= NULL,
     p2_beta = NULL,
-    p2_alpha = NULL,
-    p2_type = "mix",
-    pi = 0.01)
+    p2_alpha = 0,
+    p2_type = "polysomic",
+    pi = 0)
   niter <- 1000
-  nsamp <- 10000
+  nsamp <- 100000
 
 
   pval_vec <- rep(NA_real_, times = niter)
@@ -34,7 +34,14 @@ test_that("null simulations produce uniform p-values", {
       cat(i, "out of", niter, "\n")
     }
     nvec <- c(stats::rmultinom(n = 1, size = nsamp, prob = q))
-    sout <- seg_lrt(x = nvec, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2, model = "seg", outlier = TRUE)
+    sout <- seg_lrt(
+      x = nvec,
+      p1_ploidy = p1_ploidy,
+      p2_ploidy = p2_ploidy,
+      p1 = p1,
+      p2 = p2,
+      model = "auto_dr",
+      outlier = TRUE)
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
     stat_vec[[i]] <- sout$stat
@@ -50,6 +57,13 @@ test_that("null simulations produce uniform p-values", {
     ylab = "Sample")
   abline(a = 0, b = 1, lty = 2, col = 2)
 
+  ptemp <- pchisq(q = stat_vec, df = df_vec + 1, lower.tail = FALSE)
+  plot(
+    x = ppoints(n = sum(!is.na(pval_vec))),
+    y = sort(ptemp),
+    xlab = "Theoretical",
+    ylab = "Sample")
+  abline(a = 0, b = 1, lty = 2, col = 2)
 })
 
 test_that("corner cases work", {
