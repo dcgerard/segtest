@@ -11,6 +11,17 @@ expit <- function (x) {
     1/(1 + exp(-x))
 }
 
+#' Returns all k-tuples that sum to n
+#'
+#' @param n The sum of the tuple
+#' @param k The tuple number
+#'
+#' @return A matrix, where the row is a k-tuple that sums to n. This
+#'    returns all possible such k-tuples
+#'
+#' @author David Gerard
+#'
+#' @noRd
 all_multinom <- function (n, k) {
   if (k == 0) {
     return(NULL)
@@ -25,6 +36,37 @@ all_multinom <- function (n, k) {
   mat <- do.call(what = rbind, args = mat_list)
   colnames(mat) <- NULL
   mat
+}
+
+#' Number of double reduction mixing components.
+#'
+#' If alpha_i is the probability that there are i copies of identical by
+#' double reduction alleles in a gamete, then this will return the max
+#' i. So there are really this plus 1 alphas (if you include alpha_0).
+#'
+#' @param ploidy Ploidy
+#'
+#' @author David Gerard
+#'
+#' @noRd
+n_dr_params <- function(ploidy) {
+  floor(ploidy / 4)
+}
+
+#' Conventional convolution (with type = open) for probability distributions.
+#'
+#' @param p1 Discrete distribution 1
+#' @param p2 Discrete distribution 2
+#' @param nudge If new distribution is less than nudge, returns nudge.
+#'
+#' @author David Gerard
+#'
+#' @noRd
+convolve_2 <- function(p1, p2, nudge = sqrt(.Machine$double.eps)) {
+  q <- stats::convolve(x = p1, y = rev(p2), type = "open")
+  q[q < nudge] <- nudge
+  q <- q / sum(q)
+  return(q)
 }
 
 #' Upper bounds on double reduction rates.
@@ -294,9 +336,7 @@ f1_gf_dr <- function (alpha, alpha2 = alpha, g1, g2, ploidy) {
       g = g2,
       ploidy = ploidy,
       log_p = FALSE)
-    zygdist <- stats::convolve(p1gamprob, rev(p2gamprob), type = "open")
-    zygdist[zygdist < 0] <- 0
-    zygdist <- zygdist/sum(zygdist)
+    zygdist <- convolve_2(p1 = p1gamprob, p2 = p2gamprob)
     return(zygdist)
 }
 
@@ -625,9 +665,7 @@ gf_freq <- function(
     beta = p2_beta,
     type = p2_type,
     add_dr = p2_add_dr)
-  q <- stats::convolve(x = p1, y = rev(p2), type = "open")
-  q[q < TOL] <- 0 ## for -1e-16
-  q <- q / sum(q)
+  q <- convolve_2(p1 = p1, p2 = p2)
   q <- q * (1 - pi) + pi / length(q)
   return(q)
 }
@@ -879,13 +917,10 @@ par_to_gam <- function(par, rule, gamma_type = c("real", "simplex")) {
 #' @noRd
 par_to_gf <- function(par, rule, nudge = sqrt(.Machine$double.eps), gamma_type = c("real", "simplex")) {
   gamma_type <- match.arg(gamma_type)
-  TOL <- pkg_env$TOL_small
   gampar <- par_to_gam(par = par, rule = rule, gamma_type = gamma_type)
   p1 <- do.call(what = gamfreq, args = gampar[[1]])
   p2 <- do.call(what = gamfreq, args = gampar[[2]])
-  q <- stats::convolve(x = p1, y = rev(p2), type = "open")
-  q[q < TOL] <- nudge ## for -1e-16
-  q <- q / sum(q)
+  q <- convolve_2(p1 = p1, p2 = p2, nudge = nudge)
   if (gampar[[3]]$outlier) {
     q <- q * (1 - gampar[[3]]$pi) + gampar[[3]]$pi / length(q)
   }
@@ -1195,7 +1230,10 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #'    the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
 #'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 #'    for details.
-#' @param ntry The number of times to try the optimization
+#' @param ntry The number of times to try the optimization.
+#'    You probably do not want to touch this.
+#' @param df_tol Threshhold for the rank of the Jacobian for df calculation.
+#'    You probably do not want to touch this.
 #'
 #' @author David Gerard
 #'
@@ -1223,7 +1261,7 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #' seg_lrt(x = c(1L, 23L, 51L, 23L, 1L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 #' seg_lrt(x = c(0L, 39L, 115L, 42L, 3L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 #'
-#' model <- "seg"
+#' model <- "allo"
 #' outlier <- TRUE
 #' ob <- 0.03
 #' db <- "ces"
@@ -1240,12 +1278,14 @@ seg_lrt <- function(
     outlier = TRUE,
     ob = 0.03,
     db = c("ces", "prcs"),
-    ntry = 10) {
+    ntry = 10,
+    df_tol = 1e-3) {
 
   ## Check input ----------
   model <- match.arg(model)
   db <- match.arg(db)
-
+  stopifnot(ntry > 0, length(ntry) == 1)
+  stopifnot(df_tol >= 0, length(df_tol) == 1)
   stopifnot(
     p1_ploidy %% 2 == 0, p1_ploidy > 1,
     p2_ploidy %% 2 == 0, p2_ploidy > 1)
@@ -1444,7 +1484,11 @@ seg_lrt <- function(
             null_best$l0 <- oout$value
             null_best$q0 <- par_to_gf(par = oout$par, rule = ret$rule) ## ML genotype frequency
             null_best$gam <- par_to_gam(par = oout$par, rule = ret$rule) ## MLE's
-            null_best$df0 <- gam_to_df(gam = null_best$gam, fix_list = fix_list, db = db, ob = ob)
+            null_best$df0 <- gam_to_df(gam = null_best$gam, fix_list = fix_list, db = db, ob = ob, df_tol = df_tol)
+          }
+          if (length(ret$par) <= 1) {
+            ## only do one ntry if par is 1, since Brent's is so awesome
+            break
           }
         }
       }
@@ -1465,19 +1509,36 @@ seg_lrt <- function(
           p1_freq <- p1_list[[i]]
           for (j in seq_along(p2_list)) {
             p2_freq <- p2_list[[j]]
-            zyg_freq <- stats::convolve(p1_freq, rev(p2_freq), type = "open")
+            zyg_freq <- convolve_2(p1 = p1_freq, p2 = p2_freq)
             if (!outlier) {
-              if (data_type == "glike") {
-                llike_li(B = x, lpivec = log(zyg_freq))
-              } else if (data_type == "gcount") {
-                stats::dmultinom(x = x, prob = zyg_freq, log = TRUE)
-              }
+              oout <- list()
+              oout$value <- ll_ao(par = 0, q = zyg_freq, x = x)
+              oout$q0 <- zyg_freq
+              oout$df0 <- 0
             } else {
-
+              oout <- stats::optim(
+                par = ob / 2,
+                fn = ll_ao,
+                method = "Brent",
+                lower = pkg_env$TOL_small,
+                upper = ob,
+                control = list(fnscale = -1),
+                q = zyg_freq,
+                x = x)
+              oout$q0 <- (1 - oout$par) * zyg_freq + oout$par / length(zyg_freq)
+              if (oout$par > pkg_env$TOL_big && oout$par < ob - pkg_env$TOL_big) {
+                oout$df0 <- 1
+              } else {
+                oout$df0 <- 0
+              }
             }
-
             ## see if we have a new best
-
+            if (oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]] > null_best$l0_pp) {
+              null_best$l0_pp <- oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]]
+              null_best$l0 <- oout$value
+              null_best$q0 <- oout$q0
+              null_best$df0 <- oout$df0
+            }
           }
         }
       }
@@ -1507,11 +1568,14 @@ seg_lrt <- function(
 #' Counts the dimenson of the inner parameters
 #'
 #' @inheritParams gam_to_par
+#' @param df_tol Multiply the largest singular value by `df_tol` to get the
+#'    lower bound threshold for numeric rank estimation of the Jacobian for
+#'    df calculation.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
+gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03, df_tol = 1e-3) {
   db <- match.arg(db)
   TOL <- pkg_env$TOL_big
   if (is.null(fix_list)) {
@@ -1553,7 +1617,30 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03) {
   env$rule <- ret$rule
   dout <- stats::numericDeriv(expr = quote(fn(par_inner = par_inner, par_edge = par_edge, onbound = onbound, rule = rule)), theta = "par_inner", rho = env)
   dvec <- svd(attr(dout, "gradient"))$d
-  nparam <- sum(dvec > dvec[[1]] / 1000) ## largest sv over 1000 is a heuristic for rank that seems to work well in practice
+  ## heuristic: Largest SV times small value (e.g. 1/1000) for rank. Works well in practice.
+  nparam <- sum(dvec > dvec[[1]] * df_tol)
   return(nparam)
 }
+
+#' Log-likelihood when we add the outlier proportion.
+#'
+#' @param par The outlier proportion
+#' @param q The genotype frequencies without the outliers
+#' @param x The data (either a vector of counts or a matrix of log-likelihoods)
+#'
+#' @author David Gerard
+#'
+#' @noRd
+ll_ao <- function(par, q, x) {
+  gf <- (1 - par) * q + par / length(q)
+  if (is.matrix(x)) {
+    stopifnot(ncol(x) == length(q))
+    ll <- llike_li(B = x, lpivec = log(gf))
+  } else {
+    stopifnot(length(x) == length(q))
+    ll <- stats::dmultinom(x = x, prob = gf, log = TRUE)
+  }
+  return(ll)
+}
+
 

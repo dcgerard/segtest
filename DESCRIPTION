@@ -1,6 +1,6 @@
 Package: segtest
 Title: Tests for Segregation Distortion in Polyploids
-Version: 1.0.2
+Version: 2.0.0
 Authors@R: 
     c(person(given = "David", 
              family = "Gerard",
@@ -16,8 +16,8 @@ Authors@R:
              comment = "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247")
      )
 Description: Provides a suite of tests for
-    segregation distortion in F1 polyploid populations (for
-    now, just tetraploids). This is under different assumptions of
+    segregation distortion in F1 polyploid populations. This is under 
+    different assumptions of
     meiosis. Details of these methods are described in
     Gerard et al. (2025) <doi:10.1007/s00122-025-04816-z>.
     This material is based upon work supported by the
