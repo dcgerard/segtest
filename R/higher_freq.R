@@ -1261,11 +1261,12 @@ ll_gl <- function(par, rule, x, log_p = TRUE) {
 #' seg_lrt(x = c(1L, 23L, 51L, 23L, 1L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 #' seg_lrt(x = c(0L, 39L, 115L, 42L, 3L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 #'
-#' model <- "allo"
+#' model <- "seg"
 #' outlier <- TRUE
 #' ob <- 0.03
 #' db <- "ces"
 #' ntry <- 10
+#' df_tol <- 1e-3
 #'
 #' @export
 seg_lrt <- function(
@@ -1643,4 +1644,186 @@ ll_ao <- function(par, q, x) {
   return(ll)
 }
 
+#' Parallelized likelihood ratio test for segregation distortion for
+#' arbitrary (even) ploidies.
+#'
+#' This will run \code{\link{seg_lrt}()} across many loci.
+#'
+#' @section Parallel Computation:
+#'
+#' The \code{seg_multi()} function supports parallel computing. It does
+#' so through the \href{https://cran.r-project.org/package=future}{future}
+#' package.
+#'
+#' You first specify the evaluation plan with \code{\link[future]{plan}()}
+#' from the \code{future} package. On a local machine, this is typically
+#' just \code{future::plan(future::multisession, workers = nc)} where
+#' \code{nc} is the number of workers you want. You can find the maximum
+#' number of possible workers with \code{\link[future]{availableCores}()}.
+#' You then run \code{seg_multi()}, then shut down the workers with
+#' \code{future::plan(future::sequential)}.
+#'
+#' @param g One of two inputs
+#'   \itemize{
+#'     \item{A matrix of genotype counts. The rows index the loci and the columns index the genotypes.}
+#'     \item{An array of genotype log-likelihoods. The rows index the loci, the columns index the individuals, and the slices index the genotypes. Log-likelihoods are base e (natural log).}
+#'   }
+#' @param p1 One of three inputs
+#'   \itemize{
+#'     \item{A vector of parent 1's genotypes.}
+#'     \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
+#'     \item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
+#'   }
+#' @param p2 One of three inputs
+#'   \itemize{
+#'     \item{A vector of parent 1's genotypes.}
+#'     \item{A matrix of parent 1's genotype log-likelihoods. The rows index the loci and the columns index the genotypes. Logs are in base e (natural log).}
+#'     \item{\code{NULL} (only supported when using genotype likelihoods for the offspring)}
+#'   }
+#' @inheritParams seg_lrt
+#'
+#' @author David Gerard
+#'
+#' @return A data frame with the following elements:
+#' \describe{
+#'   \item{\code{statistic}}{The likelihood ratio test statistic}
+#'   \item{\code{p_value}}{The p-value of the likelihood ratio test.}
+#'   \item{\code{df}}{The degrees of freedom of the test.}
+#'   \item{\code{df0}}{Number of parameters under null.}
+#'   \item{\code{df1}}{Number of parameters under the alternative.}
+#'   \item{\code{q0}}{The MLE of the genotype frequencies under the null.}
+#'   \item{\code{q1}}{The MLE of the genotype frequencies under the alternative.}
+#' }
+#'
+#' @seealso
+#' - [seg_lrt()] Single locus LRT for segregation distortion.
+#' - [gamfreq()] Gamete frequencies under various models of meiosos
+#' - [gf_freq()] F1 genotype frequencies under various models of meiosis.
+#' - [multidog_to_g()] Converts the output of `updog::multidog()` into something that you can input into `seg_multi()`.
+#'
+#' @examples
+#' \donttest{
+#' ## Assuming genotypes are known (typically a bad idea)
+#' glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' p1_1 <- glist$p1
+#' p2_1 <- glist$p2
+#' g_1 <- glist$g
+#' s1 <- seg_multi(g = g_1, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_1, p2 = p2_1)
+#' s2 <- seg_multi(g = g_1, p1_ploidy = 4, p2_ploidy = 4, p1 = NULL, p2 = NULL)
+#'
+#' ## Using genotype likelihoods (typically a good idea)
+#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' p1_2 <- glist$p1
+#' p2_2 <- glist$p2
+#' g_2 <- glist$g
+#'
+#' future::plan(future::multisession, workers = 2)
+#' s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2)
+#' future::plan(future::sequential)
+#'
+#' future::plan(future::multisession, workers = 2)
+#' s4 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = NULL, p2 = NULL)
+#' future::plan(future::sequential)
+#' }
+#'
+#' @export
+seg_multi <- function(
+    g,
+    p1_ploidy,
+    p2_ploidy = p1_ploidy,
+    p1 = NULL,
+    p2 = NULL,
+    model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
+    outlier = TRUE,
+    ob = 0.03,
+    db = c("ces", "prcs"),
+    ntry = 10,
+    df_tol = 1e-3) {
 
+  model <- match.arg(model)
+  db <- match.arg(db)
+
+  if (is.null(p1)) {
+    p1 <- rep(NA_real_, length.out = dim(g)[[1]])
+    names(p1) <- dimnames(g)[[1]]
+  }
+  if (is.null(p2)) {
+    p2 <- rep(NA_real_, length.out = dim(g)[[1]])
+    names(p2) <- dimnames(g)[[1]]
+  }
+
+  ## Check input --------------------------------------------------------------
+  if (length(dim(g)) == 3) {
+    if (inherits(p1, "matrix") && inherits(p2, "matrix")) {
+      type <- "glp"
+      stopifnot(dimnames(g)[[1]] == rownames(p1))
+      stopifnot(dimnames(g)[[1]] == rownames(p2))
+    } else {
+      type <- "glo"
+      stopifnot(dimnames(g)[[1]] == names(p1))
+      stopifnot(dimnames(g)[[1]] == names(p2))
+    }
+    nloc <- dim(g)[[1]]
+    nind <- dim(g)[[2]]
+    stopifnot(dim(g)[[3]] == 5)
+  } else if (length(dim(g)) == 2) {
+    type <- "g"
+    nloc <- nrow(g)
+    stopifnot(ncol(g) == 5)
+  }
+
+  ## Register doFuture  -------------------------------------------------------
+  oldDoPar <- doFuture::registerDoFuture()
+  on.exit(with(oldDoPar, foreach::setDoPar(fun=fun, data=data, info=info)), add = TRUE)
+
+  i <- NULL
+  ret <- foreach::foreach(
+    i = seq_len(nloc),
+    .combine = rbind
+    ) %dorng% {
+      if (type == "glp") {
+        g_now <- g[i, , ]
+        p1_now <- p1[i, ]
+        p2_now <- p2[i, ]
+      } else if (type == "glo") {
+        g_now <- g[i, , ]
+        p1_now <- if(is.na(p1[[i]])) NULL else p1[[i]]
+        p2_now <- if(is.na(p2[[i]])) NULL else p2[[i]]
+      } else if (type == "g") {
+        g_now <- g[i, ]
+        p1_now <- if(is.na(p1[[i]])) NULL else p1[[i]]
+        p2_now <- if(is.na(p2[[i]])) NULL else p2[[i]]
+      }
+        lout <- seg_lrt(
+          x = g_now,
+          p1_ploidy = p1_ploidy,
+          p2_ploidy = p2_ploidy,
+          p1 = p1_now,
+          p2 = p2_now,
+          model = model,
+          outlier = outlier,
+          ob = ob,
+          db = db,
+          ntry = ntry,
+          df_tol = df_tol)
+        row_now <- as.data.frame(
+          c(
+            lout[c("stat", "df", "p_value")],
+            lout$alt["df1"],
+            lout$null["df0"]
+          )
+        )
+        row_now$q0 <- vector(mode = "list", length = 1)
+        row_now$q0[[1]] <- lout$null[["q0"]]
+        row_now$q1 <- vector(mode = "list", length = 1)
+        row_now$q1[[1]] <- lout$alt[["q1"]]
+        row_now
+    }
+  ret$snp <- dimnames(g)[[1]]
+  rownames(ret) <- NULL
+
+  attr(ret, "rng") <- NULL
+  attr(ret, "doRNG_version") <- NULL
+
+  return(ret)
+}

@@ -29,6 +29,22 @@ test_that("multi_lrt gives same stuff as lrt funs", {
   expect_equal(mout$p_value[[i]], uout[["p_value"]])
 })
 
+test_that("seg_multi() gives same stuff as seg_lrt()", {
+  set.seed(1)
+  i <- 5
+  glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+  p1_1 <- glist$p1
+  p2_1 <- glist$p2
+  g_1 <- glist$g
+  mout <- seg_multi(g = g_1, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_1, p2 = p2_1)
+  sout <- seg_lrt(x = g_1[i, ], p1_ploidy = 4, p2_ploidy = 4, p1 = p1_1[[i]], p2 = p2_1[[i]])
+  expect_equal(
+    mout$p_value[[i]],
+    sout$p_value,
+    tolerance = 1e-5
+  )
+})
+
 
 test_that("Get uniform distribution under null with multi_lrt()", {
   skip("too long")
