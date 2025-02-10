@@ -1,23 +1,23 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
-  p1_ploidy <- 8
-  p1 <- 1
-  p2_ploidy <- 8
-  p2 <- 0
+  p1_ploidy <- 4
+  p1 <- 3
+  p2_ploidy <- 4
+  p2 <- 1
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = NULL,
-    p1_beta = NULL,
-    p1_alpha = c(0, 0),
-    p1_type = "polysomic",
+    p1_gamma = 1,
+    p1_beta = 0,
+    p1_alpha = NULL,
+    p1_type = "mix",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
-    p2_gamma= NULL,
-    p2_beta = NULL,
-    p2_alpha = c(0, 0),
-    p2_type = "polysomic",
-    pi = 0)
+    p2_gamma= 1,
+    p2_beta = 0,
+    p2_alpha = NULL,
+    p2_type = "mix",
+    pi = 0.015)
   niter <- 1000
   nsamp <- 10000
 
@@ -40,14 +40,14 @@ test_that("null simulations produce uniform p-values", {
       p2_ploidy = p2_ploidy,
       p1 = p1,
       p2 = p2,
-      model = "auto_allo",
+      model = "seg",
       outlier = FALSE)
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
     stat_vec[[i]] <- sout$stat
     df1_vec[[i]] <- sout$alt$df1
     df0_vec[[i]] <- sout$null$df0
-    ## pi_vec[[i]] <- sout$null$gam[[3]]$pi
+    # pi_vec[[i]] <- sout$null$gam[[3]]$pi
   }
 
   plot(
@@ -81,5 +81,37 @@ test_that("corner cases work", {
   expect_equal(sout$p_value, 0, tolerance = 1e-3)
 })
 
+test_that("skip", {
+  skip("testing out frequencies")
+  library(numDeriv)
+  fn <- function(par) {
+    gf_freq(
+      p1_g = 3,
+      p1_ploidy = 4,
+      p1_gamma = 1,
+      p1_beta = par[[1]],
+      p1_alpha = NULL,
+      p1_type = "mix",
+      p2_g = 1,
+      p2_ploidy = 4,
+      p2_gamma= 1,
+      p2_beta = par[[2]],
+      p2_alpha = NULL,
+      p2_type = "mix",
+      pi = par[[3]])
+  }
+  q <- fn(par = c(0, 0, 0.015))
+  par <- c(beta_bounds(4), beta_bounds(4), 0.03)
+  svd(numDeriv::jacobian(func = fn, x = par/2))$d
+
+  obj <- function(par) {
+    sum((fn(par) - q)^2)
+  }
+  oout <- optim(par = par, fn = obj, lower = c(0, 0, 0), upper = c(0.1, 0.1, 0.01), method = "L-BFGS-B")
+
+  oout$par
+  fn(oout$par) - q
+  q
+})
 
 
