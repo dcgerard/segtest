@@ -1488,7 +1488,6 @@ seg_lrt <- function(
             null_best$df0 <- gam_to_df(gam = null_best$gam, fix_list = fix_list, db = db, ob = ob, df_tol = df_tol)
           }
           if (length(ret$par) <= 1) {
-            ## only do one ntry if par is 1, since Brent's is so awesome
             break
           }
         }

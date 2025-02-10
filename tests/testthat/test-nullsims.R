@@ -41,13 +41,13 @@ test_that("null simulations produce uniform p-values", {
       p1 = p1,
       p2 = p2,
       model = "seg",
-      outlier = FALSE)
+      outlier = TRUE)
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
     stat_vec[[i]] <- sout$stat
     df1_vec[[i]] <- sout$alt$df1
     df0_vec[[i]] <- sout$null$df0
-    # pi_vec[[i]] <- sout$null$gam[[3]]$pi
+    pi_vec[[i]] <- sout$null$gam[[3]]$pi
   }
 
   plot(
