@@ -1173,30 +1173,37 @@ gam_to_par <- function(
 #'
 #' @inheritParams par_to_gam
 #' @param x vector of counts of offspring genotypes
-#' @param log_p A logical on whether we should log the likelihood or not.
+#' @param neg Should we return the negative log likelihood (TRUE) or the log-likelihood (FALSE)?
 #'
 #' @author David Gerard
 #'
 #' @noRd
-ll_g <- function(par, rule, x, log_p = TRUE) {
+ll_g <- function(par, rule, x, neg = FALSE) {
   gf <- par_to_gf(par = par, rule = rule)
-  return(stats::dmultinom(x = x, prob = gf, log = log_p))
+  ll <- stats::dmultinom(x = x, prob = gf, log = TRUE)
+  if (neg) {
+    ll <- -1 * ll
+  }
+  return(ll)
 }
 
-#' (log) likelihood when genotypes are not known
+#' log likelihood when genotypes are not known
 #'
 #' @inheritParams par_to_gam
 #' @param x A matrix of genotype log-likelihoods. The rows index the
 #'     individuals and the columns index the genotypes.
-#' @param log_p A logical on whether we should log the likelihood or not.
+#' @param neg Should we return the negative log likelihood (TRUE) or the log-likelihood (FALSE)?
 #'
 #' @author David Gerard
 #'
 #' @noRd
-ll_gl <- function(par, rule, x, log_p = TRUE) {
+ll_gl <- function(par, rule, x, neg = FALSE) {
   gf <- par_to_gf(par = par, rule = rule)
   ll <- llike_li(B = x, lpivec = log(gf))
-  return(ifelse(log_p, ll, exp(ll)))
+  if (neg) {
+    ll <- -1 * ll
+  }
+  return(ll)
 }
 
 #' Test for segregation distortion in a polyploid F1 population.
@@ -1279,7 +1286,7 @@ seg_lrt <- function(
     outlier = TRUE,
     ob = 0.03,
     db = c("ces", "prcs"),
-    ntry = 10,
+    ntry = 5,
     df_tol = 1e-3) {
 
   ## Check input ----------
@@ -1470,15 +1477,46 @@ seg_lrt <- function(
           }
 
           ret <- gam_to_par(gam = gam, fix_list = fix_list, db = db, ob = ob)
-          oout <- stats::optim(
-            par = ret$par,
-            fn = ifelse(data_type == "glike", ll_gl, ll_g),
-            method = ifelse(length(ret$par) == 1, "Brent", "L-BFGS-B"),
-            rule = ret$rule,
-            x = x,
-            control = list(fnscale = -1),
-            lower = ret$lower,
-            upper = ret$upper)
+
+          if (length(ret$par) == 1) {
+            oout <- stats::optim(
+              par = ret$par,
+              fn = ifelse(data_type == "glike", ll_gl, ll_g),
+              method = "Brent",
+              rule = ret$rule,
+              x = x,
+              control = list(fnscale = -1),
+              lower = ret$lower,
+              upper = ret$upper)
+          } else if (!any(is.infinite(ret$lower) | is.infinite(ret$upper))) {
+            ## bobyqa gives a warning when automatically adjusting a tuning parameter
+            ## This is not worrying, so suppressing it.
+            suppressWarnings(
+              oout_bob <- minqa::bobyqa(
+                par = ret$par,
+                fn = ifelse(data_type == "glike", ll_gl, ll_g),
+                lower = ret$lower,
+                upper = ret$upper,
+                x = x,
+                rule = ret$rule,
+                neg = TRUE)
+            )
+            oout <- list(
+              value = -1 * oout_bob$fval,
+              par = oout_bob$par
+            )
+          } else {
+            ## bobyqa is awesome, but too slow sometimes.
+            oout <- stats::optim(
+              par = ret$par,
+              fn = ifelse(data_type == "glike", ll_gl, ll_g),
+              method = "L-BFGS-B",
+              rule = ret$rule,
+              x = x,
+              control = list(fnscale = -1),
+              lower = ret$lower,
+              upper = ret$upper)
+          }
 
           if (oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]] > null_best$l0_pp) {
             null_best$l0_pp <- oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]]

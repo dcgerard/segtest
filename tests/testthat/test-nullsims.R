@@ -8,13 +8,13 @@ test_that("null simulations produce uniform p-values", {
     p1_g = p1,
     p1_ploidy = p1_ploidy,
     p1_gamma = 1,
-    p1_beta = 0,
+    p1_beta = .02,
     p1_alpha = NULL,
     p1_type = "mix",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
     p2_gamma= 1,
-    p2_beta = 0,
+    p2_beta = 0.02,
     p2_alpha = NULL,
     p2_type = "mix",
     pi = 0.015)
@@ -30,7 +30,7 @@ test_that("null simulations produce uniform p-values", {
   pi_vec <- rep(NA_real_, times = niter)
 
   for (i in seq_len(niter)) {
-    if (i %% 50 == 0) {
+    if (i %% 10 == 0) {
       cat(i, "out of", niter, "\n")
     }
     nvec <- c(stats::rmultinom(n = 1, size = nsamp, prob = q))
@@ -114,4 +114,42 @@ test_that("skip", {
   q
 })
 
+test_that("seg at simplex and auto_dr are same", {
+  q1 <- gamfreq(g = 1, ploidy = 4, gamma = 1, alpha = NULL, beta = 0.01, type = "mix", add_dr = TRUE)
+  q2 <- gamfreq(g = 1, ploidy = 4, gamma = NULL, alpha = 0.04, beta = NULL, type = "polysomic", add_dr = TRUE)
+  expect_equal(q1, q2)
 
+  q1 <- gamfreq(g = 3, ploidy = 4, gamma = 1, alpha = NULL, beta = 0.01, type = "mix", add_dr = TRUE)
+  q2 <- gamfreq(g = 3, ploidy = 4, gamma = NULL, alpha = 0.04, beta = NULL, type = "polysomic", add_dr = TRUE)
+  expect_equal(q1, q2)
+
+  q1 <- gf_freq(p1_g = 1, p1_ploidy = 4, p1_gamma = 1, p1_alpha = NULL, p1_beta = 0.01, p1_type = "mix", p1_add_dr = TRUE, p2_g = 3, p2_ploidy = 4, p2_gamma = 1, p2_alpha = NULL, p2_beta = 0.01, p2_type = "mix", p2_add_dr = TRUE, pi = 0.01)
+  q2 <- gf_freq(p1_g = 1, p1_ploidy = 4, p1_gamma = NULL, p1_alpha = 0.04, p1_beta = NULL, p1_type = "polysomic", p1_add_dr = TRUE, p2_g = 3, p2_ploidy = 4, p2_gamma = NULL, p2_alpha = 0.04, p2_beta = NULL, p2_type = "polysomic", p2_add_dr = TRUE, pi = 0.01)
+  expect_equal(q1, q2)
+
+  q1 <- gf_freq(p1_g = 3, p1_ploidy = 4, p1_gamma = 1, p1_alpha = NULL, p1_beta = 0.01, p1_type = "mix", p1_add_dr = TRUE, p2_g = 1, p2_ploidy = 4, p2_gamma = 1, p2_alpha = NULL, p2_beta = 0.01, p2_type = "mix", p2_add_dr = TRUE, pi = 0.01)
+  q2 <- gf_freq(p1_g = 3, p1_ploidy = 4, p1_gamma = NULL, p1_alpha = 0.04, p1_beta = NULL, p1_type = "polysomic", p1_add_dr = TRUE, p2_g = 1, p2_ploidy = 4, p2_gamma = NULL, p2_alpha = 0.04, p2_beta = NULL, p2_type = "polysomic", p2_add_dr = TRUE, pi = 0.01)
+  expect_equal(q1, q2)
+})
+
+test_that("auto_dr and seg are same", {
+  set.seed(1)
+  nvec <- c(32L, 2431L, 4979L, 2520L, 38L)
+  sout1 <- seg_lrt(
+    x = nvec,
+    p1_ploidy = 4,
+    p2_ploidy = 4,
+    p1 = 3,
+    p2 = 1,
+    model = "auto_dr",
+    outlier = TRUE)
+  sout2 <- seg_lrt(
+    x = nvec,
+    p1_ploidy = 4,
+    p2_ploidy = 4,
+    p1 = 3,
+    p2 = 1,
+    model = "seg",
+    outlier = TRUE)
+  expect_equal(sout1$null$l0, sout2$null$l0)
+})
