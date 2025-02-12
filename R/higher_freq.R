@@ -1488,7 +1488,7 @@ seg_lrt <- function(
               control = list(fnscale = -1),
               lower = ret$lower,
               upper = ret$upper)
-          } else if (!any(is.infinite(ret$lower) | is.infinite(ret$upper))) {
+          } else if (all(is.finite(ret$lower) & is.finite(ret$upper)) && length(ret$par) <= 3) {
             ## bobyqa gives a warning when automatically adjusting a tuning parameter
             ## This is not worrying, so suppressing it.
             suppressWarnings(
