@@ -1,20 +1,20 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
-  p1_ploidy <- 4
+  p1_ploidy <- 6
   p1 <- 3
-  p2_ploidy <- 4
-  p2 <- 1
+  p2_ploidy <- 6
+  p2 <- 3
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = 1,
-    p1_beta = .02,
+    p1_gamma = c(0.5, 0.5),
+    p1_beta = NULL,
     p1_alpha = NULL,
     p1_type = "mix",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
-    p2_gamma= 1,
-    p2_beta = 0.02,
+    p2_gamma= c(0.5, 0.5),
+    p2_beta = NULL,
     p2_alpha = NULL,
     p2_type = "mix",
     pi = 0.015)
