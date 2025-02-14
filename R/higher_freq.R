@@ -1478,6 +1478,12 @@ seg_lrt <- function(
 
           ret <- gam_to_par(gam = gam, fix_list = fix_list, db = db, ob = ob)
 
+          ## account edge case where gamma is simulated to start beyond bounds
+          par_bad <- (ret$par < ret$lower) | (ret$par > ret$upper)
+          if (sum(par_bad) > 0) {
+            ret$par[par_bad] <- (ret$upper[par_bad] + ret$lower[par_bad]) / 2
+          }
+
           if (length(ret$par) == 1) {
             oout <- stats::optim(
               par = ret$par,
