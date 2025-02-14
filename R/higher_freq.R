@@ -1045,8 +1045,8 @@ gam_to_par <- function(
   }
 
   ## smallest and largest values for transformed gamma parameter
-  lower_val <- -1e3
-  upper_val <- 1e3
+  lower_val <- -20
+  upper_val <- 20
   TOL <- pkg_env$TOL_small
 
   ## parent 1
@@ -1238,11 +1238,19 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 #'    for details.
 #' @param ntry The number of times to try the optimization.
-#'    You probably do not want to touch this.
-#' @param df_tol Threshhold for the rank of the Jacobian for df calculation.
+#'    You probably do not want to touch this. The default (\code{NULL}) chooses this based
+#'    on heuristics.
+#' @param opt For optimization, should we use bobyqa (Powell, 2009) or L-BFGS-B (Byrd et al, 1995)?
+#' @param df_tol Threshold for the rank of the Jacobian for df calculation.
 #'    You probably do not want to touch this.
 #'
 #' @author David Gerard
+#'
+#' @references
+#' \itemize{
+#'   \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
+#'   \item{M. J. D. Powell (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
+#' }
 #'
 #' @examples
 #' p1_ploidy <- 4
@@ -1286,10 +1294,21 @@ seg_lrt <- function(
     outlier = TRUE,
     ob = 0.03,
     db = c("ces", "prcs"),
-    ntry = 5,
+    ntry = NULL,
+    opt = c("bobyqa", "L-BFGS-B"),
     df_tol = 1e-3) {
 
   ## Check input ----------
+  opt <- match.arg(opt)
+  if (is.null(ntry)) {
+    if (opt == "bobyqa") {
+      ntry <- 10
+    } else {
+      ntry <- 50
+    }
+  }
+
+
   model <- match.arg(model)
   db <- match.arg(db)
   stopifnot(ntry > 0, length(ntry) == 1)
@@ -1480,8 +1499,8 @@ seg_lrt <- function(
 
           ## account edge case where gamma is simulated to start beyond bounds
           par_bad <- (ret$par < ret$lower) | (ret$par > ret$upper)
-          if (sum(par_bad) > 0) {
-            ret$par[par_bad] <- (ret$upper[par_bad] + ret$lower[par_bad]) / 2
+          if (any(par_bad)) {
+            ret$par[par_bad] <- stats::runif(n = sum(par_bad), min = ret$lower[par_bad], max = ret$upper[par_bad])
           }
 
           if (length(ret$par) == 1) {
@@ -1494,7 +1513,7 @@ seg_lrt <- function(
               control = list(fnscale = -1),
               lower = ret$lower,
               upper = ret$upper)
-          } else if (all(ret$lower >= -pkg_env$TOL_small & ret$upper <= 1 + pkg_env$TOL_small) && length(ret$par) <= 3) {
+          } else if (opt == "bobyqa") {
             ## bobyqa gives a warning when automatically adjusting a tuning parameter
             ## This is not worrying, so suppressing it.
             suppressWarnings(
@@ -1512,7 +1531,6 @@ seg_lrt <- function(
               par = oout_bob$par
             )
           } else {
-            ## bobyqa is awesome, but too slow sometimes.
             oout <- stats::optim(
               par = ret$par,
               fn = ifelse(data_type == "glike", ll_gl, ll_g),
@@ -1532,6 +1550,7 @@ seg_lrt <- function(
             null_best$df0 <- gam_to_df(gam = null_best$gam, fix_list = fix_list, db = db, ob = ob, df_tol = df_tol)
           }
           if (length(ret$par) <= 1) {
+            ## Brent is awesome.
             break
           }
         }

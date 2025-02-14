@@ -14,7 +14,8 @@ seg_lrt(
   outlier = TRUE,
   ob = 0.03,
   db = c("ces", "prcs"),
-  ntry = 5,
+  ntry = NULL,
+  opt = c("bobyqa", "L-BFGS-B"),
   df_tol = 0.001
 )
 }
@@ -56,9 +57,12 @@ bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 for details.}
 
 \item{ntry}{The number of times to try the optimization.
-You probably do not want to touch this.}
+You probably do not want to touch this. The default (\code{NULL}) chooses this based
+on heuristics.}
 
-\item{df_tol}{Threshhold for the rank of the Jacobian for df calculation.
+\item{opt}{For optimization, should we use bobyqa (Powell, 2009) or L-BFGS-B (Byrd et al, 1995)?}
+
+\item{df_tol}{Threshold for the rank of the Jacobian for df calculation.
 You probably do not want to touch this.}
 }
 \description{
@@ -95,6 +99,12 @@ db <- "ces"
 ntry <- 10
 df_tol <- 1e-3
 
+}
+\references{
+\itemize{
+\item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
+\item{M. J. D. Powell (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
+}
 }
 \author{
 David Gerard

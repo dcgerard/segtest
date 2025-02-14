@@ -62,9 +62,10 @@ bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 for details.}
 
 \item{ntry}{The number of times to try the optimization.
-You probably do not want to touch this.}
+You probably do not want to touch this. The default (\code{NULL}) chooses this based
+on heuristics.}
 
-\item{df_tol}{Threshhold for the rank of the Jacobian for df calculation.
+\item{df_tol}{Threshold for the rank of the Jacobian for df calculation.
 You probably do not want to touch this.}
 }
 \value{

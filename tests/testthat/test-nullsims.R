@@ -1,24 +1,24 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
   p1_ploidy <- 4
-  p1 <- 1
+  p1 <- 2
   p2_ploidy <- 4
-  p2 <- 3
+  p2 <- 2
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = 1,
-    p1_beta = 0.02,
+    p1_gamma = c(1, 0),
+    p1_beta = NULL,
     p1_alpha = NULL,
     p1_type = "mix",
     p2_g = p2,
     p2_ploidy = p2_ploidy,
-    p2_gamma= 1,
-    p2_beta = 0.02,
+    p2_gamma= c(0.5, 0.5),
+    p2_beta = NULL,
     p2_alpha = NULL,
     p2_type = "mix",
-    pi = 0.015)
-  niter <- 1000
+    pi = 0.03)
+  niter <- 400
   nsamp <- 10000
 
 
@@ -34,6 +34,7 @@ test_that("null simulations produce uniform p-values", {
       cat(i, "out of", niter, "\n")
     }
     nvec <- c(stats::rmultinom(n = 1, size = nsamp, prob = q))
+    system.time({
     sout <- seg_lrt(
       x = nvec,
       p1_ploidy = p1_ploidy,
@@ -42,6 +43,7 @@ test_that("null simulations produce uniform p-values", {
       p2 = p2,
       model = "seg",
       outlier = TRUE)
+    })
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
     stat_vec[[i]] <- sout$stat
