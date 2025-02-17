@@ -62,8 +62,7 @@ bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 for details.}
 
 \item{ntry}{The number of times to try the optimization.
-You probably do not want to touch this. The default (\code{NULL}) chooses this based
-on heuristics.}
+You probably do not want to touch this.}
 
 \item{df_tol}{Threshold for the rank of the Jacobian for df calculation.
 You probably do not want to touch this.}
@@ -115,10 +114,12 @@ p1_2 <- glist$p1
 p2_2 <- glist$p2
 g_2 <- glist$g
 
+# registerDoParallel(cores = 2)
 future::plan(future::multisession, workers = 2)
 s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2)
 future::plan(future::sequential)
 
+# registerDoParallel(cores = 2)
 future::plan(future::multisession, workers = 2)
 s4 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = NULL, p2 = NULL)
 future::plan(future::sequential)

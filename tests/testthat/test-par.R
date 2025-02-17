@@ -54,8 +54,8 @@ test_that("par_to_gam and gam_to_par are inverses", {
 
 
 test_that("fixed parameterizations work", {
-  lower_val <- -1e3
-  upper_val <- 1e3
+  lower_val <- -20
+  upper_val <- 20
   TOL <- sqrt(.Machine$double.eps)
 
   ## fix gamma

@@ -41,6 +41,7 @@ Imports:
     future,
     iterators,
     minqa,
+    nloptr,
     Rcpp,
     updog
 Suggests: 

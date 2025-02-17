@@ -1238,9 +1238,9 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
 #'    for details.
 #' @param ntry The number of times to try the optimization.
-#'    You probably do not want to touch this. The default (\code{NULL}) chooses this based
-#'    on heuristics.
-#' @param opt For optimization, should we use bobyqa (Powell, 2009) or L-BFGS-B (Byrd et al, 1995)?
+#'    You probably do not want to touch this.
+#' @param opt For local optimization, should we use bobyqa (Powell, 2009) or L-BFGS-B (Byrd et al, 1995)?
+#' @param optg Initial global optimization used to start local optimization. Methods are described in the nloptr package (Johnson, 2008).
 #' @param df_tol Threshold for the rank of the Jacobian for df calculation.
 #'    You probably do not want to touch this.
 #'
@@ -1249,6 +1249,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' @references
 #' \itemize{
 #'   \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
+#'   \item{Johnson S (2008). The NLopt nonlinear-optimization package. \url{https://github.com/stevengj/nlopt}.}
 #'   \item{M. J. D. Powell (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
 #' }
 #'
@@ -1294,20 +1295,14 @@ seg_lrt <- function(
     outlier = TRUE,
     ob = 0.03,
     db = c("ces", "prcs"),
-    ntry = NULL,
+    ntry = 3,
     opt = c("bobyqa", "L-BFGS-B"),
+    optg = c("NLOPT_GN_MLSL_LDS", "NLOPT_GN_ESCH", "NLOPT_GN_CRS2_LM", "NLOPT_GN_ISRES"),
     df_tol = 1e-3) {
 
   ## Check input ----------
   opt <- match.arg(opt)
-  if (is.null(ntry)) {
-    if (opt == "bobyqa") {
-      ntry <- 10
-    } else {
-      ntry <- 50
-    }
-  }
-
+  optg <- match.arg(optg) ## "NLOPT_GN_DIRECT_L" works bad
 
   model <- match.arg(model)
   db <- match.arg(db)
@@ -1323,6 +1318,9 @@ seg_lrt <- function(
   } else {
     stopifnot(length(x) == (p1_ploidy + p2_ploidy) / 2 + 1, x >= 0)
     data_type <- "gcount"
+    if (sum(x != 0) == 1) {
+      opt <- "L-BFGS-B" ## bobyqa doesn't work for this scenario
+    }
   }
   ## Get p1 data type. p1_pos is possible dosages, p1 is genotype log-likelihoods
   if (is.null(p1)) {
@@ -1514,11 +1512,26 @@ seg_lrt <- function(
               lower = ret$lower,
               upper = ret$upper)
           } else if (opt == "bobyqa") {
-            ## bobyqa gives a warning when automatically adjusting a tuning parameter
-            ## This is not worrying, so suppressing it.
+            oout_globe <- nloptr::nloptr(
+              x0 = ret$par,
+              eval_f = ifelse(data_type == "glike", ll_gl, ll_g),
+              lb = ret$lower,
+              ub = ret$upper,
+              x = x,
+              rule = ret$rule,
+              neg = TRUE,
+              opts = list(algorithm = optg, ftol_rel = 1e-04, local_opts = list(algorithm = "NLOPT_LN_BOBYQA", ftol_rel = 1e-04)))
+            ## sometimes, nloptr returns solutions just beyond bounds, weird.
+            if (any(oout_globe$solution > ret$upper)) {
+              oout_globe$solution[oout_globe$solution > ret$upper] <- ret$upper[oout_globe$solution > ret$upper]
+            }
+            if (any(oout_globe$solution < ret$lower)) {
+              oout_globe$solution[oout_globe$solution < ret$lower] <- ret$lower[oout_globe$solution < ret$lower]
+            }
+            ## minqa gives warnings when changing tuning parameters, which is not worrying.
             suppressWarnings(
               oout_bob <- minqa::bobyqa(
-                par = ret$par,
+                par = oout_globe$solution,
                 fn = ifelse(data_type == "glike", ll_gl, ll_g),
                 lower = ret$lower,
                 upper = ret$upper,
@@ -1531,8 +1544,17 @@ seg_lrt <- function(
               par = oout_bob$par
             )
           } else {
+            oout_globe <- nloptr::nloptr(
+              x0 = ret$par,
+              eval_f = ifelse(data_type == "glike", ll_gl, ll_g),
+              lb = ret$lower,
+              ub = ret$upper,
+              x = x,
+              rule = ret$rule,
+              neg = TRUE,
+              opts = list(algorithm = optg, ftol_rel = 1e-04, local_opts = list(algorithm = "NLOPT_LN_BOBYQA", ftol_rel = 1e-04)))
             oout <- stats::optim(
-              par = ret$par,
+              par = oout_globe$solution,
               fn = ifelse(data_type == "glike", ll_gl, ll_g),
               method = "L-BFGS-B",
               rule = ret$rule,
@@ -1779,10 +1801,12 @@ ll_ao <- function(par, q, x) {
 #' p2_2 <- glist$p2
 #' g_2 <- glist$g
 #'
+#' # registerDoParallel(cores = 2)
 #' future::plan(future::multisession, workers = 2)
 #' s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2)
 #' future::plan(future::sequential)
 #'
+#' # registerDoParallel(cores = 2)
 #' future::plan(future::multisession, workers = 2)
 #' s4 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = NULL, p2 = NULL)
 #' future::plan(future::sequential)
