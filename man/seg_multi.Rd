@@ -73,6 +73,7 @@ A data frame with the following elements:
 \item{\code{statistic}}{The likelihood ratio test statistic}
 \item{\code{p_value}}{The p-value of the likelihood ratio test.}
 \item{\code{df}}{The degrees of freedom of the test.}
+\item{\code{null_bic}}{The BIC of the null model (no segregation distortion).}
 \item{\code{df0}}{Number of parameters under null.}
 \item{\code{df1}}{Number of parameters under the alternative.}
 \item{\code{q0}}{The MLE of the genotype frequencies under the null.}
@@ -80,7 +81,7 @@ A data frame with the following elements:
 }
 }
 \description{
-This will run \code{\link{seg_lrt}()} across many loci.
+Runs \code{\link{seg_lrt}()} across many loci.
 }
 \section{Parallel Computation}{
 
@@ -96,6 +97,52 @@ just \code{future::plan(future::multisession, workers = nc)} where
 number of possible workers with \code{\link[future]{availableCores}()}.
 You then run \code{seg_multi()}, then shut down the workers with
 \code{future::plan(future::sequential)}.
+}
+
+\section{Null Model}{
+
+The gamete frequencies under the null model can be calculated via
+\code{\link{gamfreq}()}. The genotype frequencies, which are just
+a discrete linear convolution (\code{\link[stats]{convolve}()}) of the
+gamete frequencies, can be calculated via \code{\link{gf_freq}()}.
+
+The null model's gamete frequencies for true autopolyploids
+(\code{model = "auto"}) or
+true allopolyploids (\code{model = "allo"}) are given in the \code{\link{seg}} data frame
+that comes with this package. I only made that data frame go up to
+ploidy 20, but let me know if you need it for higher ploidies.
+
+The polyRAD folks test for full autopolyploid and full allopolyploid, so I
+included that as an option (\code{model = "auto_allo"}) since they're pretty smart.
+
+We can account for arbitrary levels of double reduction in autopolyploids
+(\code{model = "auto"}) using the gamete frequencies from
+Huang et al (2019).
+
+The null model for segmental allopolyploids (\code{model = "allo_pp"}) is the mixture model of
+the possible allopolyploid gamete frequencies. The autopolyploid model
+is a subset of this mixture model.
+
+In the above mixture model, we can account for double reduction for simplex
+loci (\code{model = "seg"}) by just slightly reducing the
+number of simplex offspring and increasing the number of duplex and
+nullplex offspring. That is, the frequencies for (nullplex, simplex, duplex)
+offspring goes from \code{(0.5, 0.5, 0)} to
+\code{(0.5 + b, 0.5 - 2 * b, b)}.
+
+\code{model = "seg"} is the most general, so it is the default. But you
+should use other models if you have more information on your species. E.g.
+if you know you have an autopolyploid, use either \code{model = "auto"}
+or \code{model = "auto_dr"}.
+}
+
+\section{Unidentified Parameters}{
+
+Do NOT interpret the estimated parameters in the \code{null$gam} list.
+These parameters are underidentified (I had to do some fancy
+spectral methods to account for this in the null distribution
+of the tests). Even though they are technically identified, you would
+need a massive data set to be able to estimate them accurately.
 }
 
 \examples{

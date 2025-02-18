@@ -1,13 +1,13 @@
 test_that("null simulations produce uniform p-values", {
   skip("not for unit testing")
-  p1_ploidy <- 4
-  p1 <- 2
-  p2_ploidy <- 4
-  p2 <- 2
+  p1_ploidy <- 6
+  p1 <- 0
+  p2_ploidy <- 6
+  p2 <- 4
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
-    p1_gamma = c(0.5, 0.5),
+    p1_gamma = 1,
     p1_beta = NULL,
     p1_alpha = NULL,
     p1_type = "mix",
@@ -17,9 +17,9 @@ test_that("null simulations produce uniform p-values", {
     p2_beta = NULL,
     p2_alpha = NULL,
     p2_type = "mix",
-    pi = 0.015)
+    pi = 0)
   niter <- 1000
-  nsamp <- 10000
+  nsamp <- 20
 
 
   pval_vec <- rep(NA_real_, times = niter)
@@ -45,9 +45,9 @@ test_that("null simulations produce uniform p-values", {
       outlier = TRUE,
       opt = "bobyqa",
       optg = "NLOPT_GN_MLSL_LDS",
-      ntry = 2)
+      chisq = FALSE)
     })
-    ## if (sout$p_value < 1e-40) stop("here")
+    # if (sout$p_value < 0.01) stop("here")
     pval_vec[[i]] <- sout$p_value
     df_vec[[i]] <- sout$df
     stat_vec[[i]] <- sout$stat

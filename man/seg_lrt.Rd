@@ -17,7 +17,8 @@ seg_lrt(
   ntry = 3,
   opt = c("bobyqa", "L-BFGS-B"),
   optg = c("NLOPT_GN_MLSL_LDS", "NLOPT_GN_ESCH", "NLOPT_GN_CRS2_LM", "NLOPT_GN_ISRES"),
-  df_tol = 0.001
+  df_tol = 0.001,
+  chisq = TRUE
 )
 }
 \arguments{
@@ -66,10 +67,110 @@ You probably do not want to touch this.}
 
 \item{df_tol}{Threshold for the rank of the Jacobian for df calculation.
 You probably do not want to touch this.}
+
+\item{chisq}{A logical. When using known genotypes, this flags to use
+the chi-squared test or the Likleihood Ratio Test. Default is \code{TRUE}
+for the chi-squared test.}
+}
+\value{
+A list with some or all of the following elements
+\describe{
+\item{\code{stat}}{The test statistic.}
+\item{\code{df}}{The degrees of freedom of the test.}
+\item{\code{p_value}}{The p-value of the test.}
+\item{\code{null_bic}}{The null model's BIC.}
+\item{\code{null}}{A list with estimates and information on the null model.
+\describe{
+\item{\code{l0_pp}}{Maximized likelihood under the null plus the parent log-likelihoods.}
+\item{\code{l0}}{Maximized likelihood under the null.}
+\item{\code{q0}}{Estimated genotype frequencies under the null.}
+\item{\code{df0}}{Estimated number of parameters under the null.}
+\item{\code{gam}}{A list of three lists with estimates of the model
+parameters. The third list contains the elements \code{outlier}
+which is \code{TRUE} if outliers were modeled, and \code{pi}
+the estimated outlier proportion. The first two lists contain
+information on each parent with the following elements:
+\describe{
+\item{\code{ploidy}}{The ploidy of the parent.}
+\item{\code{g}}{The (estimated) genotype of the parent.}
+\item{\code{alpha}}{The estimated double reduction rate(s). \code{alpha[i]} is the estimated probability that a gamete has \code{i} copies of identitcal by double reduction alleles.}
+\item{\code{beta}}{Double reduction's effect on simplex loci when \code{type = "mix"} and \code{add_dr = TRUE}.}
+\item{\code{gamma}}{The mixing proportions for the pairing configurations. The order is the same as in \code{\link{seg}}.}
+\item{\code{type}}{Either \code{"mix"} or \code{"polysomic"}}
+\item{\code{add_dr}}{Did we model double reduction at simplex loci when using \code{type = "mix"?}}
+}
+}
+}
+}
+\item{\code{alt}}{A list with estimates and information on the alternative model.
+\describe{
+\item{\code{l1}}{The maximized likelihood under the alternative.}
+\item{\code{q1}}{The estimated genotype frequencies under the alternative.}
+\item{\code{df1}}{The estimated number of parameters under the alternative.}
+}
+}
+}
 }
 \description{
-Test for segregation distortion in a polyploid F1 population.
+Provides a test for segregation distortion for an F1 population of polyploids
+under various models of meiosis. You can use this test for autoployploids that exhibit
+full polysomic inheritance, allopolyploids that exhibit full
+disomic inheritance, or segmental allopolyploids that exhibit
+partial preferential pairing. Double reduction is (optionally) fully accounted
+for in tetraploids, and (optionally) partially accounted for (only at simplex
+loci) for higher ploidies. Some maximum proportion of outliers can be
+specified (default at 3\%), and so this method can accommodate moderate
+levels of double reduction at non-simplex loci. Offspring genotypes can
+either be known, or genotype uncertainty can be represented through
+genotype likelihoods. Parent data may or may not be provided, at your
+option. Parent can have different ploidies, at your option.
 }
+\section{Null Model}{
+
+The gamete frequencies under the null model can be calculated via
+\code{\link{gamfreq}()}. The genotype frequencies, which are just
+a discrete linear convolution (\code{\link[stats]{convolve}()}) of the
+gamete frequencies, can be calculated via \code{\link{gf_freq}()}.
+
+The null model's gamete frequencies for true autopolyploids
+(\code{model = "auto"}) or
+true allopolyploids (\code{model = "allo"}) are given in the \code{\link{seg}} data frame
+that comes with this package. I only made that data frame go up to
+ploidy 20, but let me know if you need it for higher ploidies.
+
+The polyRAD folks test for full autopolyploid and full allopolyploid, so I
+included that as an option (\code{model = "auto_allo"}) since they're pretty smart.
+
+We can account for arbitrary levels of double reduction in autopolyploids
+(\code{model = "auto"}) using the gamete frequencies from
+Huang et al (2019).
+
+The null model for segmental allopolyploids (\code{model = "allo_pp"}) is the mixture model of
+the possible allopolyploid gamete frequencies. The autopolyploid model
+is a subset of this mixture model.
+
+In the above mixture model, we can account for double reduction for simplex
+loci (\code{model = "seg"}) by just slightly reducing the
+number of simplex offspring and increasing the number of duplex and
+nullplex offspring. That is, the frequencies for (nullplex, simplex, duplex)
+offspring goes from \code{(0.5, 0.5, 0)} to
+\code{(0.5 + b, 0.5 - 2 * b, b)}.
+
+\code{model = "seg"} is the most general, so it is the default. But you
+should use other models if you have more information on your species. E.g.
+if you know you have an autopolyploid, use either \code{model = "auto"}
+or \code{model = "auto_dr"}.
+}
+
+\section{Unidentified Parameters}{
+
+Do NOT interpret the estimated parameters in the \code{null$gam} list.
+These parameters are underidentified (I had to do some fancy
+spectral methods to account for this in the null distribution
+of the tests). Even though they are technically identified, you would
+need a massive data set to be able to estimate them accurately.
+}
+
 \examples{
 p1_ploidy <- 4
 p1 <- 1
@@ -94,17 +195,11 @@ seg_lrt(x = gl, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$
 seg_lrt(x = c(1L, 23L, 51L, 23L, 1L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 seg_lrt(x = c(0L, 39L, 115L, 42L, 3L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 
-model <- "seg"
-outlier <- TRUE
-ob <- 0.03
-db <- "ces"
-ntry <- 10
-df_tol <- 1e-3
-
 }
 \references{
 \itemize{
 \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
+\item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
 \item{Johnson S (2008). The NLopt nonlinear-optimization package. \url{https://github.com/stevengj/nlopt}.}
 \item{M. J. D. Powell (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
 }
