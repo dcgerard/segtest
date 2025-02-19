@@ -118,7 +118,7 @@ sout2 <- seg_lrt(x = gl, p1_ploidy = 6, p2_ploidy = 6, p1 = 2, p2 = 4)
 sout2$p_value
 ```
 
-My recommendation is to always use the genotype log-likelihoods with known parent genotypes (typically estimated via your genotyper). But `seg_lrt()` allows for both known offspring genotypes and for unknown parental genotypes, if that situation works best for you.
+My recommendation is to always use the genotype log-likelihoods. But `seg_lrt()` allows for known genotypes, if that situation works best for you.
 
 The default (`model = "seg"`) is to assume your organism is a segmental allopolyploids, and to account for possible double reduction at simplex loci. But you should absolutely use other models if you have more information on your organism:
 

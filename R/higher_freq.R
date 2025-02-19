@@ -1457,6 +1457,7 @@ seg_lrt <- function(
     stopifnot(ncol(x) == (p1_ploidy + p2_ploidy) / 2 + 1)
     data_type <- "glike"
     nind <- nrow(x)
+    ll_now <- ll_gl
   } else {
     stopifnot(length(x) == (p1_ploidy + p2_ploidy) / 2 + 1, x >= 0)
     data_type <- "gcount"
@@ -1464,6 +1465,7 @@ seg_lrt <- function(
       opt <- "L-BFGS-B" ## bobyqa doesn't work for this scenario
     }
     nind <- sum(x)
+    ll_now <- ll_g
   }
   ## Get p1 data type. p1_pos is possible dosages, p1 is genotype log-likelihoods
   if (is.null(p1)) {
@@ -1647,10 +1649,15 @@ seg_lrt <- function(
             ret$par[par_bad] <- stats::runif(n = sum(par_bad), min = ret$lower[par_bad], max = ret$upper[par_bad])
           }
 
-          if (length(ret$par) == 1) {
+          if (length(ret$par) == 0) {
+            oout <- list(
+              value = ll_now(par = NULL, rule = ret$rule, x = x, neg = FALSE),
+              par = NULL
+            )
+          } else if (length(ret$par) == 1) {
             oout <- stats::optim(
               par = ret$par,
-              fn = ifelse(data_type == "glike", ll_gl, ll_g),
+              fn = ll_now,
               method = "Brent",
               rule = ret$rule,
               x = x,
@@ -1660,7 +1667,7 @@ seg_lrt <- function(
           } else if (opt == "bobyqa") {
             oout_globe <- nloptr::nloptr(
               x0 = ret$par,
-              eval_f = ifelse(data_type == "glike", ll_gl, ll_g),
+              eval_f = ll_now,
               lb = ret$lower,
               ub = ret$upper,
               x = x,
@@ -1678,7 +1685,7 @@ seg_lrt <- function(
             suppressWarnings(
               oout_bob <- minqa::bobyqa(
                 par = oout_globe$solution,
-                fn = ifelse(data_type == "glike", ll_gl, ll_g),
+                fn = ll_now,
                 lower = ret$lower,
                 upper = ret$upper,
                 x = x,
@@ -1692,7 +1699,7 @@ seg_lrt <- function(
           } else {
             oout_globe <- nloptr::nloptr(
               x0 = ret$par,
-              eval_f = ifelse(data_type == "glike", ll_gl, ll_g),
+              eval_f = ll_now,
               lb = ret$lower,
               ub = ret$upper,
               x = x,
@@ -1701,7 +1708,7 @@ seg_lrt <- function(
               opts = list(algorithm = optg, ftol_rel = 1e-04, local_opts = list(algorithm = "NLOPT_LN_BOBYQA", ftol_rel = 1e-04)))
             oout <- stats::optim(
               par = oout_globe$solution,
-              fn = ifelse(data_type == "glike", ll_gl, ll_g),
+              fn = ll_now,
               method = "L-BFGS-B",
               rule = ret$rule,
               x = x,
