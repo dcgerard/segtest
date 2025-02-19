@@ -85,7 +85,7 @@ nextElem.arrayiter <- function(obj, ...) {
 }
 
 
-#' Converts multidog output to a format usable for multi_lrt()
+#' Converts multidog output to a format usable for seg_multi() and multi_lrt()
 #'
 #' @param mout The output of \code{\link[updog]{multidog}()}.
 #' @param type
@@ -97,10 +97,7 @@ nextElem.arrayiter <- function(obj, ...) {
 #' }
 #' @param p1 The first parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
 #' @param p2 The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
-#' @param ploidy The ploidy. Note that most methods in this package
-#'     (including those in \code{\link{multi_lrt}()}) assume that the ploidy
-#'     is 4. But we allow for arbitrary ploidy in this function since it
-#'     might be useful in the future.
+#' @param ploidy The ploidy.
 #'
 #' @return A list with the following elements
 #' \describe{
@@ -190,11 +187,9 @@ multidog_to_g <- function(
 #' Parallelized likelihood ratio test for segregation distortion.
 #'
 #' Uses the \code{future} package to implement parallelization support for
-#' the likelihood ratio tests for segregation distortion. Right now, this is
-#' only supported for tetraploids (allo, auto, or segmental). This function
-#' is only somewhat tested (the single-locus LRT functions in the "See Also"
-#' section are very well tested). So please send any bugs you notice to
-#' \url{https://github.com/dcgerard/segtest/issues}.
+#' the likelihood ratio tests for segregation distortion. This function
+#' only works for tetraploids, and cannot account for outliers. For
+#' higher ploidies and more functionalitiy, see \code{\link{seg_multi}()}.
 #'
 #' @section Parallel Computation:
 #'

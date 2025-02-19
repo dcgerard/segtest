@@ -2,7 +2,7 @@
 % Please edit documentation in R/multi.R
 \name{multidog_to_g}
 \alias{multidog_to_g}
-\title{Converts multidog output to a format usable for multi_lrt()}
+\title{Converts multidog output to a format usable for seg_multi() and multi_lrt()}
 \usage{
 multidog_to_g(
   mout,
@@ -26,10 +26,7 @@ multidog_to_g(
 
 \item{p2}{The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.}
 
-\item{ploidy}{The ploidy. Note that most methods in this package
-(including those in \code{\link{multi_lrt}()}) assume that the ploidy
-is 4. But we allow for arbitrary ploidy in this function since it
-might be useful in the future.}
+\item{ploidy}{The ploidy.}
 }
 \value{
 A list with the following elements
@@ -53,7 +50,7 @@ rows index the loci and the columns index the genotypes
 }
 }
 \description{
-Converts multidog output to a format usable for multi_lrt()
+Converts multidog output to a format usable for seg_multi() and multi_lrt()
 }
 \examples{
 multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")

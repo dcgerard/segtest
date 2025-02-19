@@ -31,3 +31,17 @@ test_that("Corner cases work", {
       g2 = g2,
       log_p = TRUE)
 })
+
+test_that("corner cases work for higher ploidies", {
+  expect_no_error(
+    seg_lrt(x = c(1, 0, 0, 0, 0), p1_ploidy = 4, p2_ploidy = 4)
+  )
+
+  expect_no_error(
+    seg_lrt(x = c(1, 0, 0, 1, 0), p1_ploidy = 4, p2_ploidy = 4)
+  )
+
+  expect_no_error(
+    seg_lrt(x = c(0, 1, 0, 1, 0, 0, 0), p1_ploidy = 6, p2_ploidy = 6)
+  )
+})

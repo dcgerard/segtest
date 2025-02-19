@@ -15,28 +15,44 @@ v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org
 coverage](https://codecov.io/gh/dcgerard/segtest/graph/badge.svg)](https://app.codecov.io/gh/dcgerard/segtest)
 <!-- badges: end -->
 
-This is a light version of the original package,
-[`menbayes`](https://github.com/dcgerard/menbayes), that only contains
-the likelihood ratio approaches. This is for easier maintenance and
-install. See the [`menbayes`](https://github.com/dcgerard/menbayes)
-package for the Bayesian tests.
+Provides a suite of tests for segregation distortion for F1 populations
+of polyploids under various models of meiosis. You can use these tests
+for autopolyploids that exhibit full polysomic inheritance,
+allopolyploids that exhibit full disomic inheritance, or segmental
+allopolyploids that exhibit partial preferential pairing. Double
+reduction is (optionally) fully accounted for in tetraploids, and
+(optionally) partially accounted for (only at simplex loci) for higher
+ploidies. Some maximum proportion of outliers can be specified, and so
+these methods can accommodate moderate levels of double reduction at
+non-simplex loci. Offspring genotypes can either be known, or genotype
+uncertainty can be represented through genotype likelihoods. Parent data
+may or may not be provided, at your option. Parents can have different
+(even) ploidies, at your option.
 
-Provides a suite of tests for segregation distortion in F1 polyploid
-populations (for now, just tetraploids). This is under different
-assumptions of meiosis. The main functions are:
+This package only contains likelihood ratio and chi-squared tests. See
+the [`menbayes`](https://github.com/dcgerard/menbayes) package for
+Bayesian tests for tetraploids.
 
-- `multi_lrt()`: Run any of the likelihood ratio tests for segregation
-  distortion in parallel across many SNPs.
+The main functions are:
+
+- `seg_multi()`: Run the likelihood ratio test for segregation
+  distortion in parallel at many loci.
 - `multidog_to_g`: Format the genotyping output from `updog::multidog()`
-  to be compatible withe input of `multi_lrt()`.
-- `lrt_men_g4()`: Likelihood ratio test for segregation distortion using
-  known genotypes.
-- `lrt_men_gl4()`: Likelihood ratio test for segregation distortion
-  using genotype likelihoods.
-- `offspring_gf_2()`: Offspring genotype frequencies under the two
-  parameter model of meiosis.
-- `offspring_gf_3()`: Offspring genotype frequencies under the three
-  parameter model of meiosis.
+  to be compatible withe input of `seg_multi()`.
+- `seg_lrt()`: Test for segregation distortion for any even ploidy.
+
+Older functions that are only applicable to tetraploids are:
+
+- `multi_lrt()`: Run any of the tetraploid likelihood ratio tests for
+  segregation distortion in parallel across many SNPs.
+- `lrt_men_g4()`: Tetraploid likelihood ratio test for segregation
+  distortion using known genotypes.
+- `lrt_men_gl4()`: Tetraploid likelihood ratio test for segregation
+  distortion using genotype likelihoods.
+- `offspring_gf_2()`: Tetraploid offspring genotype frequencies under
+  the two parameter model of meiosis.
+- `offspring_gf_3()`: Tetraploid offspring genotype frequencies under
+  the three parameter model of meiosis.
 - `simf1g()`: Simulate genotypes from an F1 population of tetraploids.
 - `simf1gl()`: Simulate genotype likelihoods from an F1 population of
   tetraploids.

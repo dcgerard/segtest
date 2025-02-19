@@ -1209,8 +1209,8 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' @title Test for segregation distortion in a polyploid F1 population.
 #'
 #' @description
-#' Provides a test for segregation distortion for an F1 population of polyploids
-#' under various models of meiosis. You can use this test for autoployploids that exhibit
+#' Provides tests for segregation distortion for an F1 population of polyploids
+#' under various models of meiosis. You can use this test for autopolyploids that exhibit
 #' full polysomic inheritance, allopolyploids that exhibit full
 #' disomic inheritance, or segmental allopolyploids that exhibit
 #' partial preferential pairing. Double reduction is (optionally) fully accounted
@@ -1220,7 +1220,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' levels of double reduction at non-simplex loci. Offspring genotypes can
 #' either be known, or genotype uncertainty can be represented through
 #' genotype likelihoods. Parent data may or may not be provided, at your
-#' option. Parent can have different ploidies, at your option.
+#' option. Parents can have different (even) ploidies, at your option.
 #'
 #' @section Null Model:
 #' The gamete frequencies under the null model can be calculated via
@@ -1235,7 +1235,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' ploidy 20, but let me know if you need it for higher ploidies.
 #'
 #' The polyRAD folks test for full autopolyploid and full allopolyploid, so I
-#' included that as an option (\code{model = "auto_allo"}) since they're pretty smart.
+#' included that as an option (\code{model = "auto_allo"}).
 #'
 #' We can account for arbitrary levels of double reduction in autopolyploids
 #' (\code{model = "auto"}) using the gamete frequencies from
@@ -1247,9 +1247,9 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'
 #' In the above mixture model, we can account for double reduction for simplex
 #' loci (\code{model = "seg"}) by just slightly reducing the
-#' number of simplex offspring and increasing the number of duplex and
-#' nullplex offspring. That is, the frequencies for (nullplex, simplex, duplex)
-#' offspring goes from \code{(0.5, 0.5, 0)} to
+#' number of simplex gametes and increasing the number of duplex and
+#' nullplex gametes That is, the frequencies for (nullplex, simplex, duplex)
+#' gametes goes from \code{(0.5, 0.5, 0)} to
 #' \code{(0.5 + b, 0.5 - 2 * b, b)}.
 #'
 #' \code{model = "seg"} is the most general, so it is the default. But you
@@ -1280,11 +1280,11 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'   }
 #' @param model One of six forms:
 #'   \describe{
-#'     \item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for both double reduction and preferential pairing.}
+#'     \item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for partial preferential pairing. It also accounts for double reduction at simplex loci.}
 #'     \item{\code{"auto"}}{Autopolyploid. Allows only for polysomic inheritance. No double reduction.}
 #'     \item{\code{"auto_dr"}}{Autopolyploid, allowing for the effects of double reduction.}
 #'     \item{\code{"allo"}}{Allopolyploid. Only complete disomic inheritance is explored.}
-#'     \item{\code{"allo_pp"}}{Allopolyploid, allowing for the effects of partial preferential pairing.}
+#'     \item{\code{"allo_pp"}}{Allopolyploid, allowing for the effects of partial preferential pairing. Though, autopolyploid (with complete bivalent pairing and no double reduction) is a special case of this model.}
 #'     \item{\code{"auto_allo"}}{Only complete disomic and complete polysomic inheritance is studied.}
 #'   }
 #' @param outlier A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?
@@ -1295,13 +1295,20 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'    for details.
 #' @param ntry The number of times to try the optimization.
 #'    You probably do not want to touch this.
-#' @param opt For local optimization, should we use bobyqa (Powell, 2009) or L-BFGS-B (Byrd et al, 1995)?
-#' @param optg Initial global optimization used to start local optimization. Methods are described in the nloptr package (Johnson, 2008).
-#' @param df_tol Threshold for the rank of the Jacobian for df calculation.
-#'    You probably do not want to touch this.
+#' @param opt For local optimization, should we use bobyqa (Powell, 2009) or L-BFGS-B (Byrd et al, 1995)? You probably do not want to touch this.
+#' @param optg Initial global optimization used to start local optimization. Methods are described in the \href{https://nlopt.readthedocs.io/en/latest/Citing_NLopt/}{\code{nloptr}} package (Johnson, 2008). You probably do not want to touch this. Possible values are:
+#'   \describe{
+#'     \item{\code{"NLOPT_GN_MLSL_LDS"}}{MLSL (Multi-Level Single-Linkage). Kucherenko and Sytsko (2005)}
+#'     \item{\code{"NLOPT_GN_ESCH"}}{ESCH (evolutionary algorithm). da Silva Santos et al. (2010)}
+#'     \item{\code{"NLOPT_GN_CRS2_LM"}}{Controlled Random Search (CRS) with local mutation. Kaelo and Ali (2006)}
+#'     \item{\code{"NLOPT_GN_ISRES"}}{ISRES (Improved Stochastic Ranking Evolution Strategy). Runarsson and Yao (2005)}
+#'   }
+#' @param df_tol Threshold for the rank of the Jacobian for the degrees of
+#'    freedom calculation. This accounts for underidentifiability in the
+#'    null model. You probably do not want to touch this.
 #' @param chisq A logical. When using known genotypes, this flags to use
-#'    the chi-squared test or the Likleihood Ratio Test. Default is \code{TRUE}
-#'    for the chi-squared test.
+#'    the chi-squared test or the Likelihood Ratio Test. Default is \code{FALSE}
+#'    for the likelihood ratio test.
 #'
 #' @return A list with some or all of the following elements
 #' \describe{
@@ -1312,22 +1319,22 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'   \item{\code{null}}{A list with estimates and information on the null model.
 #'   \describe{
 #'     \item{\code{l0_pp}}{Maximized likelihood under the null plus the parent log-likelihoods.}
-#'     \item{\code{l0}}{Maximized likelihood under the null.}
+#'     \item{\code{l0}}{Maximized likelihood under using estimated parent genotypes are known parent genotypes.}
 #'     \item{\code{q0}}{Estimated genotype frequencies under the null.}
 #'     \item{\code{df0}}{Estimated number of parameters under the null.}
 #'     \item{\code{gam}}{A list of three lists with estimates of the model
 #'       parameters. The third list contains the elements \code{outlier}
-#'       which is \code{TRUE} if outliers were modeled, and \code{pi}
-#'       the estimated outlier proportion. The first two lists contain
+#'       (which is \code{TRUE} if outliers were modeled) and \code{pi}
+#'       (the estimated outlier proportion). The first two lists contain
 #'       information on each parent with the following elements:
 #'         \describe{
 #'           \item{\code{ploidy}}{The ploidy of the parent.}
 #'           \item{\code{g}}{The (estimated) genotype of the parent.}
-#'           \item{\code{alpha}}{The estimated double reduction rate(s). \code{alpha[i]} is the estimated probability that a gamete has \code{i} copies of identitcal by double reduction alleles.}
+#'           \item{\code{alpha}}{The estimated double reduction rate(s). \code{alpha[i]} is the estimated probability that a gamete has \code{i} copies of identical by double reduction alleles.}
 #'           \item{\code{beta}}{Double reduction's effect on simplex loci when \code{type = "mix"} and \code{add_dr = TRUE}.}
 #'           \item{\code{gamma}}{The mixing proportions for the pairing configurations. The order is the same as in \code{\link{seg}}.}
 #'           \item{\code{type}}{Either \code{"mix"} or \code{"polysomic"}}
-#'           \item{\code{add_dr}}{Did we model double reduction at simplex loci when using \code{type = "mix"?}}
+#'           \item{\code{add_dr}}{Did we model double reduction at simplex loci when using \code{type = "mix"} (\code{TRUE}) or not (\code{FALSE})?}
 #'         }
 #'       }
 #'     }
@@ -1346,9 +1353,13 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' @references
 #' \itemize{
 #'   \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
+#'   \item{da Silva Santos, C. H., Goncalves, M. S., & Hernandez-Figueroa, H. E. (2010). Designing novel photonic devices by bio-inspired computing. IEEE Photonics Technology Letters, 22(15), 1177-1179.}
 #'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
 #'   \item{Johnson S (2008). The NLopt nonlinear-optimization package. \url{https://github.com/stevengj/nlopt}.}
-#'   \item{M. J. D. Powell (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
+#'   \item{Kaelo, P., & Ali, M. M. (2006). Some variants of the controlled random search algorithm for global optimization. Journal of optimization theory and applications, 130, 253-264.}
+#'   \item{Kucherenko, S., & Sytsko, Y. (2005). Application of deterministic low-discrepancy sequences in global optimization. Computational Optimization and Applications, 30, 297-318.}
+#'   \item{Powell, M. J. D. (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
+#'   \item{Runarsson, T. P., & Yao, X. (2005). Search biases in constrained evolutionary optimization. IEEE Transactions on Systems, Man, and Cybernetics, Part C (Applications and Reviews), 35(2), 233-243.}
 #' }
 #'
 #' @examples
@@ -1445,6 +1456,9 @@ seg_lrt <- function(
   ## check outlier inputs
   stopifnot(length(outlier) == 1, is.logical(outlier))
   stopifnot(length(ob) == 1, ob >= 0, ob <= 1)
+  if (ob < pkg_env$TOL_small) {
+    outlier <- FALSE
+  }
 
   ## Set up gam
   gam <- list()
@@ -1831,10 +1845,14 @@ ll_ao <- function(par, q, x) {
   return(ll)
 }
 
-#' Parallelized likelihood ratio test for segregation distortion for
+#' @title Parallelized likelihood ratio test for segregation distortion for
 #' arbitrary (even) ploidies.
 #'
-#' Runs \code{\link{seg_lrt}()} across many loci.
+#' @description
+#' Uses the future package to implement parallelization support for
+#' the likelihood ratio tests for segregation distortion. Details of
+#' this test are provided in the \code{\link{seg_lrt}()} function's
+#' documentation.
 #'
 #' @inheritSection seg_lrt Null Model
 #'
@@ -1889,7 +1907,7 @@ ll_ao <- function(par, q, x) {
 #'
 #' @seealso
 #' - [seg_lrt()] Single locus LRT for segregation distortion.
-#' - [gamfreq()] Gamete frequencies under various models of meiosos
+#' - [gamfreq()] Gamete frequencies under various models of meiosis
 #' - [gf_freq()] F1 genotype frequencies under various models of meiosis.
 #' - [multidog_to_g()] Converts the output of `updog::multidog()` into something that you can input into `seg_multi()`.
 #'

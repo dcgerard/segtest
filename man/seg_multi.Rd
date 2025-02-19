@@ -44,11 +44,11 @@ seg_multi(
 
 \item{model}{One of six forms:
 \describe{
-\item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for both double reduction and preferential pairing.}
+\item{\code{"seg"}}{Segmental allopolyploid. Allows for arbitrary levels of polysomic and disomic inheritance. This can account for partial preferential pairing. It also accounts for double reduction at simplex loci.}
 \item{\code{"auto"}}{Autopolyploid. Allows only for polysomic inheritance. No double reduction.}
 \item{\code{"auto_dr"}}{Autopolyploid, allowing for the effects of double reduction.}
 \item{\code{"allo"}}{Allopolyploid. Only complete disomic inheritance is explored.}
-\item{\code{"allo_pp"}}{Allopolyploid, allowing for the effects of partial preferential pairing.}
+\item{\code{"allo_pp"}}{Allopolyploid, allowing for the effects of partial preferential pairing. Though, autopolyploid (with complete bivalent pairing and no double reduction) is a special case of this model.}
 \item{\code{"auto_allo"}}{Only complete disomic and complete polysomic inheritance is studied.}
 }}
 
@@ -64,8 +64,9 @@ for details.}
 \item{ntry}{The number of times to try the optimization.
 You probably do not want to touch this.}
 
-\item{df_tol}{Threshold for the rank of the Jacobian for df calculation.
-You probably do not want to touch this.}
+\item{df_tol}{Threshold for the rank of the Jacobian for the degrees of
+freedom calculation. This accounts for underidentifiability in the
+null model. You probably do not want to touch this.}
 }
 \value{
 A data frame with the following elements:
@@ -81,7 +82,10 @@ A data frame with the following elements:
 }
 }
 \description{
-Runs \code{\link{seg_lrt}()} across many loci.
+Uses the future package to implement parallelization support for
+the likelihood ratio tests for segregation distortion. Details of
+this test are provided in the \code{\link{seg_lrt}()} function's
+documentation.
 }
 \section{Parallel Computation}{
 
@@ -113,7 +117,7 @@ that comes with this package. I only made that data frame go up to
 ploidy 20, but let me know if you need it for higher ploidies.
 
 The polyRAD folks test for full autopolyploid and full allopolyploid, so I
-included that as an option (\code{model = "auto_allo"}) since they're pretty smart.
+included that as an option (\code{model = "auto_allo"}).
 
 We can account for arbitrary levels of double reduction in autopolyploids
 (\code{model = "auto"}) using the gamete frequencies from
@@ -125,9 +129,9 @@ is a subset of this mixture model.
 
 In the above mixture model, we can account for double reduction for simplex
 loci (\code{model = "seg"}) by just slightly reducing the
-number of simplex offspring and increasing the number of duplex and
-nullplex offspring. That is, the frequencies for (nullplex, simplex, duplex)
-offspring goes from \code{(0.5, 0.5, 0)} to
+number of simplex gametes and increasing the number of duplex and
+nullplex gametes That is, the frequencies for (nullplex, simplex, duplex)
+gametes goes from \code{(0.5, 0.5, 0)} to
 \code{(0.5 + b, 0.5 - 2 * b, b)}.
 
 \code{model = "seg"} is the most general, so it is the default. But you
@@ -176,7 +180,7 @@ future::plan(future::sequential)
 \seealso{
 \itemize{
 \item \code{\link[=seg_lrt]{seg_lrt()}} Single locus LRT for segregation distortion.
-\item \code{\link[=gamfreq]{gamfreq()}} Gamete frequencies under various models of meiosos
+\item \code{\link[=gamfreq]{gamfreq()}} Gamete frequencies under various models of meiosis
 \item \code{\link[=gf_freq]{gf_freq()}} F1 genotype frequencies under various models of meiosis.
 \item \code{\link[=multidog_to_g]{multidog_to_g()}} Converts the output of \code{updog::multidog()} into something that you can input into \code{seg_multi()}.
 }
