@@ -194,7 +194,6 @@ polymapr_package_gl <- function(gl, g1, g2) {
     F1 = paste0("F", seq_len(n))
   )
 
-  TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
   p_invalid <- stats::pbinom(q = (1 - cout$checked_F1$frqInvalid_bestParentfit[[1]]) * n,
                              size = n,
                              prob = 1 - seg_invalidrate)
@@ -347,6 +346,3 @@ polymapr_model_to_prop <- function(mod, ploidy) {
   fq <- fq / sum(fq)
   return(fq)
 }
-
-
-

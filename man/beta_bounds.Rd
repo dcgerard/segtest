@@ -13,18 +13,31 @@ beta_bounds(ploidy, model = c("ces", "prcs"))
 or pure random chromatid segregation \code{"prcs"})  (Haldane, 1930). See also
 Huang et al. (2019).}
 }
+\value{
+The upper bound on beta.
+}
 \description{
+The frequency of (nullplex, simplex, duplex) gametes is
+(.5 + beta, .5 - 2 * beta, beta). This function returns the upper
+bound on beta under two models.
+}
+\details{
 Returns the upper bound on the probability of a gamete with a genotype of
 2 when the parent has a genotype of 1. This is based on two models.
 The upper bound from complete equational separation is higher than
 the upper bound from the pure random chromatid segregation. See
 Huang et al (2019) for a description of these models.
 }
+\examples{
+beta_bounds(4)
+beta_bounds(6)
+beta_bounds(8)
+beta_bounds(10)
+
+}
 \references{
 \itemize{
-\item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372.}
 \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
-\item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78.}
 }
 }
 \author{

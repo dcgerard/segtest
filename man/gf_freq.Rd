@@ -32,6 +32,10 @@ gf_freq(
 
 \item{nudge}{Zeros go to nudge}
 }
+\value{
+A vector of genotype frequencies. Element \code{i} is the probability
+and offspring has genotype \code{i - 1}.
+}
 \description{
 Genotype frequencies of an F1 population under a generalized model.
 }

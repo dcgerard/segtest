@@ -19,3 +19,19 @@ The number of disomic inheritance patterns for a given ploidy and a given
 parental dosage. See also \code{\link{seg}} for the list of all possible
 disomic inheritance patterns for even ploidies up to 20.
 }
+\examples{
+n_pp_mix(g = 0, ploidy = 4)
+n_pp_mix(g = 1, ploidy = 4)
+n_pp_mix(g = 2, ploidy = 4)
+n_pp_mix(g = 3, ploidy = 4)
+n_pp_mix(g = 4, ploidy = 4)
+
+n_pp_mix(g = 0, ploidy = 6)
+n_pp_mix(g = 1, ploidy = 6)
+n_pp_mix(g = 2, ploidy = 6)
+n_pp_mix(g = 3, ploidy = 6)
+n_pp_mix(g = 4, ploidy = 6)
+n_pp_mix(g = 5, ploidy = 6)
+n_pp_mix(g = 6, ploidy = 6)
+
+}

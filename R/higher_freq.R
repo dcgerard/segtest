@@ -93,6 +93,12 @@ convolve_2 <- function(p1, p2, nudge = sqrt(.Machine$double.eps)) {
 #'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78.}
 #' }
 #'
+#' @examples
+#' drbounds(4)
+#' drbounds(6)
+#' drbounds(8)
+#' drbounds(10)
+#'
 #' @author David Gerard
 #'
 #' @export
@@ -126,22 +132,31 @@ drbounds <- function (ploidy, model = c("ces", "prcs")) {
 
 #' Bounds on the distortion at simplex loci caused by double reduction.
 #'
+#' The frequency of (nullplex, simplex, duplex) gametes is
+#' (.5 + beta, .5 - 2 * beta, beta). This function returns the upper
+#' bound on beta under two models.
+#'
 #' Returns the upper bound on the probability of a gamete with a genotype of
 #' 2 when the parent has a genotype of 1. This is based on two models.
 #' The upper bound from complete equational separation is higher than
 #' the upper bound from the pure random chromatid segregation. See
 #' Huang et al (2019) for a description of these models.
 #'
+#' @return The upper bound on beta.
 #'
 #' @inheritParams drbounds
 #'
 #' @author David Gerard
 #'
+#' @examples
+#' beta_bounds(4)
+#' beta_bounds(6)
+#' beta_bounds(8)
+#' beta_bounds(10)
+#'
 #' @references
 #' \itemize{
-#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372.}
 #'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
-#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78.}
 #' }
 #'
 #' @export
@@ -383,6 +398,21 @@ pp_seg_pats <- function(ploidy) {
 #'
 #' @return The number of mixture components.
 #'
+#' @examples
+#' n_pp_mix(g = 0, ploidy = 4)
+#' n_pp_mix(g = 1, ploidy = 4)
+#' n_pp_mix(g = 2, ploidy = 4)
+#' n_pp_mix(g = 3, ploidy = 4)
+#' n_pp_mix(g = 4, ploidy = 4)
+#'
+#' n_pp_mix(g = 0, ploidy = 6)
+#' n_pp_mix(g = 1, ploidy = 6)
+#' n_pp_mix(g = 2, ploidy = 6)
+#' n_pp_mix(g = 3, ploidy = 6)
+#' n_pp_mix(g = 4, ploidy = 6)
+#' n_pp_mix(g = 5, ploidy = 6)
+#' n_pp_mix(g = 6, ploidy = 6)
+#'
 #' @export
 n_pp_mix <- function(g, ploidy) {
   ifelse(g >= ploidy / 2, ploidy / 2 - ceiling(g / 2) + 1, floor(g / 2) + 1)
@@ -500,6 +530,9 @@ gamfreq_seg <- function(gamma, g, ploidy, alpha) {
 #'    only in simplex markers (where it matters the most, and where
 #'    preferential pairing does not operate).
 #'
+#' @return The vector of gamete frequencies. Element \code{i} is the
+#'     probability a gamete has genotype \code{i - 1}.
+#'
 #' @references
 #' \itemize{
 #'   \item{Gerard, D. (2023). Double reduction estimation and equilibrium tests in natural autopolyploid populations. \emph{Biometrics}, 79(3), 2143-2156.}
@@ -616,6 +649,9 @@ gamfreq <- function(
 #' @author David Gerard
 #'
 #' @seealso \code{\link{gamfreq}()}.
+#'
+#' @return A vector of genotype frequencies. Element \code{i} is the probability
+#'     and offspring has genotype \code{i - 1}.
 #'
 #' @export
 #'

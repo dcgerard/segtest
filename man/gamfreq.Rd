@@ -41,6 +41,10 @@ But if \code{type = "mix"} then we will incorporate double reduction
 only in simplex markers (where it matters the most, and where
 preferential pairing does not operate).}
 }
+\value{
+The vector of gamete frequencies. Element \code{i} is the
+probability a gamete has genotype \code{i - 1}.
+}
 \description{
 Returns the gamete frequencies for autopolyploids, allopolyploids,
 and segmental allopolyploids, accounting for the effects of double

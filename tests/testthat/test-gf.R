@@ -1,17 +1,16 @@
 test_that("old and new gf are the same", {
-
   for (g1 in 0:4) {
     for (g2 in 0:4) {
       gf1 <- gf_freq(
         p1_g = g1,
-        p1_ploidy = ploidy,
+        p1_ploidy = 4,
         p1_gamma = NULL,
         p1_alpha = 0,
         p1_beta = NULL,
         p1_type = "polysomic",
         p1_add_dr = FALSE,
         p2_g = g2,
-        p2_ploidy = ploidy,
+        p2_ploidy = 4,
         p2_gamma = NULL,
         p2_alpha = 0,
         p2_beta = NULL,

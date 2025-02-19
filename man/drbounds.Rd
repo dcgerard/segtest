@@ -25,6 +25,13 @@ formulas in Huang et al. (2019). There are two upper bounds provided.
 The upper bound from complete equational separation is higher than
 the upper bound from the pure random chromatid segregation.
 }
+\examples{
+drbounds(4)
+drbounds(6)
+drbounds(8)
+drbounds(10)
+
+}
 \references{
 \itemize{
 \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372.}
