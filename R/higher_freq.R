@@ -1390,7 +1390,7 @@ seg_lrt <- function(
     opt = c("bobyqa", "L-BFGS-B"),
     optg = c("NLOPT_GN_MLSL_LDS", "NLOPT_GN_ESCH", "NLOPT_GN_CRS2_LM", "NLOPT_GN_ISRES"),
     df_tol = 1e-3,
-    chisq = TRUE) {
+    chisq = FALSE) {
 
   ## Check input ----------
   opt <- match.arg(opt)

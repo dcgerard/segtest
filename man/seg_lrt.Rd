@@ -18,7 +18,7 @@ seg_lrt(
   opt = c("bobyqa", "L-BFGS-B"),
   optg = c("NLOPT_GN_MLSL_LDS", "NLOPT_GN_ESCH", "NLOPT_GN_CRS2_LM", "NLOPT_GN_ISRES"),
   df_tol = 0.001,
-  chisq = TRUE
+  chisq = FALSE
 )
 }
 \arguments{
