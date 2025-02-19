@@ -15,7 +15,7 @@ seg_multi(
   outlier = TRUE,
   ob = 0.03,
   db = c("ces", "prcs"),
-  ntry = 10,
+  ntry = 3,
   df_tol = 0.001
 )
 }
