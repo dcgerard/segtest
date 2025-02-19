@@ -40,6 +40,12 @@ The main functions are:
 - `multidog_to_g`: Format the genotyping output from `updog::multidog()`
   to be compatible withe input of `seg_multi()`.
 - `seg_lrt()`: Test for segregation distortion for any even ploidy.
+- `gamfreq()`: Gamete frequencies.
+- `gf_freq()`: Genotype frequencies of an F1 population of polyploids.
+- `drbounds()`: Upper bounds on the double reduction rate(s) based on
+  two different extreme models of meiosis.
+- `simgl()`: Simulate genotype log-likelihoods given a vector of
+  genotype counts.
 
 Older functions that are only applicable to tetraploids are:
 

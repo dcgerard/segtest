@@ -611,6 +611,7 @@ gamfreq <- function(
 #' @param p1_g,p1_ploidy,p1_gamma,p1_alpha,p1_beta,p1_type,p1_add_dr The first parent's version of the parameters in \code{\link{gamfreq}()}.
 #' @param p2_g,p2_ploidy,p2_gamma,p2_alpha,p2_beta,p2_type,p2_add_dr The second parent's version of the parameters in \code{\link{gamfreq}()}.
 #' @param pi The proportion of outliers.
+#' @param nudge Zeros go to nudge
 #'
 #' @author David Gerard
 #'
@@ -645,7 +646,8 @@ gf_freq <- function(
     p2_beta = NULL,
     p2_type = c("mix", "polysomic"),
     p2_add_dr = TRUE,
-    pi = 0) {
+    pi = 0,
+    nudge = sqrt(.Machine$double.eps)) {
   TOL <- pkg_env$TOL_small
   p1_type <- match.arg(p1_type)
   p2_type <- match.arg(p2_type)
@@ -665,7 +667,7 @@ gf_freq <- function(
     beta = p2_beta,
     type = p2_type,
     add_dr = p2_add_dr)
-  q <- convolve_2(p1 = p1, p2 = p2)
+  q <- convolve_2(p1 = p1, p2 = p2, nudge = nudge)
   q <- q * (1 - pi) + pi / length(q)
   return(q)
 }

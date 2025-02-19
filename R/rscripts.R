@@ -402,7 +402,7 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   return(gcount)
 }
 
-#' Simulate genotype likelihoods from genotype counts
+#' Simulate genotype (log) likelihoods from genotype counts
 #'
 #' Provide a vector of genotype counts and this will return a matrix of
 #' genotype log-likelihoods.
@@ -419,7 +419,6 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #' @examples
 #' set.seed(1)
 #' simgl(nvec = c(1, 2, 1, 1, 3))
-#'
 #'
 #' @export
 simgl <- function(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01) {

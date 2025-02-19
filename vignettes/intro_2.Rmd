@@ -1,0 +1,21 @@
+---
+title: "Introduction to segtest Version 2.0"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro_2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(segtest)
+```
+
+

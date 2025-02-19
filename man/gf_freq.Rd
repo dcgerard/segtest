@@ -19,7 +19,8 @@ gf_freq(
   p2_beta = NULL,
   p2_type = c("mix", "polysomic"),
   p2_add_dr = TRUE,
-  pi = 0
+  pi = 0,
+  nudge = sqrt(.Machine$double.eps)
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ gf_freq(
 \item{p2_g, p2_ploidy, p2_gamma, p2_alpha, p2_beta, p2_type, p2_add_dr}{The second parent's version of the parameters in \code{\link{gamfreq}()}.}
 
 \item{pi}{The proportion of outliers.}
+
+\item{nudge}{Zeros go to nudge}
 }
 \description{
 Genotype frequencies of an F1 population under a generalized model.

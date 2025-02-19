@@ -2,7 +2,7 @@
 % Please edit documentation in R/rscripts.R
 \name{simgl}
 \alias{simgl}
-\title{Simulate genotype likelihoods from genotype counts}
+\title{Simulate genotype (log) likelihoods from genotype counts}
 \usage{
 simgl(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01)
 }
@@ -29,7 +29,6 @@ genotype log-likelihoods.
 \examples{
 set.seed(1)
 simgl(nvec = c(1, 2, 1, 1, 3))
-
 
 }
 \author{
