@@ -60,12 +60,10 @@ polymapr_test <- function(x, g1 = NULL, g2 = NULL, type = c("segtest", "polymapR
   }
 
   dat <- NULL
-  if (length(x) == 5) {
-    dat <- "known"
-  } else if (ncol(x) == 5) {
+  if (is.matrix(s)) {
     dat <- "gl"
   } else {
-    stop("x needs to either have length 5 or be a matrix with 5 columns.")
+    dat <- "known"
   }
 
   if (dat == "known" && type == "segtest") {
