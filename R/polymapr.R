@@ -60,7 +60,7 @@ polymapr_test <- function(x, g1 = NULL, g2 = NULL, type = c("segtest", "polymapR
   }
 
   dat <- NULL
-  if (is.matrix(s)) {
+  if (is.matrix(x)) {
     dat <- "gl"
   } else {
     dat <- "known"
