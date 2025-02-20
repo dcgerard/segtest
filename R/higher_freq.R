@@ -1276,18 +1276,18 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' included that as an option (\code{model = "auto_allo"}).
 #'
 #' We can account for arbitrary levels of double reduction in autopolyploids
-#' (\code{model = "auto"}) using the gamete frequencies from
+#' (\code{model = "auto_dr"}) using the gamete frequencies from
 #' Huang et al (2019).
 #'
 #' The null model for segmental allopolyploids (\code{model = "allo_pp"}) is the mixture model of
 #' the possible allopolyploid gamete frequencies. The autopolyploid model
-#' is a subset of this mixture model.
+#' (without double reduction) is a subset of this mixture model.
 #'
 #' In the above mixture model, we can account for double reduction for simplex
 #' loci (\code{model = "seg"}) by just slightly reducing the
 #' number of simplex gametes and increasing the number of duplex and
-#' nullplex gametes That is, the frequencies for (nullplex, simplex, duplex)
-#' gametes goes from \code{(0.5, 0.5, 0)} to
+#' nullplex gametes. That is, the frequencies for (nullplex, simplex, duplex)
+#' gametes go from \code{(0.5, 0.5, 0)} to
 #' \code{(0.5 + b, 0.5 - 2 * b, b)}.
 #'
 #' \code{model = "seg"} is the most general, so it is the default. But you
@@ -1915,7 +1915,12 @@ ll_ao <- function(par, q, x) {
 #' \code{nc} is the number of workers you want. You can find the maximum
 #' number of possible workers with \code{\link[future]{availableCores}()}.
 #' You then run \code{seg_multi()}, then shut down the workers with
-#' \code{future::plan(future::sequential)}.
+#' \code{future::plan(future::sequential)}. The pseudo code is
+#' \preformatted{
+#'   future::plan(future::multisession, workers = nc)
+#'   seg_multi()
+#'   future::plan(future::sequential)
+#' }
 #'
 #' @param g One of two inputs
 #'   \itemize{
@@ -1942,13 +1947,19 @@ ll_ao <- function(par, q, x) {
 #' \describe{
 #'   \item{\code{statistic}}{The likelihood ratio test statistic}
 #'   \item{\code{p_value}}{The p-value of the likelihood ratio test.}
-#'   \item{\code{df}}{The degrees of freedom of the test.}
+#'   \item{\code{df}}{The (estimated) degrees of freedom of the test.}
 #'   \item{\code{null_bic}}{The BIC of the null model (no segregation distortion).}
-#'   \item{\code{df0}}{Number of parameters under null.}
-#'   \item{\code{df1}}{Number of parameters under the alternative.}
+#'   \item{\code{df0}}{The (estimated) number of parameters under null.}
+#'   \item{\code{df1}}{The (estimated) number of parameters under the alternative.}
+#'   \item{\code{p1}}{The (estimated) genotype of parent 1.}
+#'   \item{\code{p2}}{The (estimated) genotype of parent 2.}
 #'   \item{\code{q0}}{The MLE of the genotype frequencies under the null.}
 #'   \item{\code{q1}}{The MLE of the genotype frequencies under the alternative.}
 #' }
+#' Note that since this data frame contains the list-columns \code{q0} and
+#' \code{q1}, you cannot use \code{\link[utils]{write.csv}()} to save it.
+#' You have to either remove those columns first or use something
+#' like \code{\link[base]{saveRDS}()}
 #'
 #' @seealso
 #' - [seg_lrt()] Single locus LRT for segregation distortion.
@@ -1964,23 +1975,23 @@ ll_ao <- function(par, q, x) {
 #' p2_1 <- glist$p2
 #' g_1 <- glist$g
 #' s1 <- seg_multi(g = g_1, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_1, p2 = p2_1)
+#' s1[, c("snp", "p_value")]
+#'
+#' ## Put NULL if you have absolutely no information on the parents
 #' s2 <- seg_multi(g = g_1, p1_ploidy = 4, p2_ploidy = 4, p1 = NULL, p2 = NULL)
+#' s2[, c("snp", "p_value")]
 #'
 #' ## Using genotype likelihoods (typically a good idea)
+#' ## Also demonstrate parallelization through future package.
 #' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
 #' p1_2 <- glist$p1
 #' p2_2 <- glist$p2
 #' g_2 <- glist$g
 #'
-#' # registerDoParallel(cores = 2)
 #' future::plan(future::multisession, workers = 2)
 #' s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2)
 #' future::plan(future::sequential)
-#'
-#' # registerDoParallel(cores = 2)
-#' future::plan(future::multisession, workers = 2)
-#' s4 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = NULL, p2 = NULL)
-#' future::plan(future::sequential)
+#' s3[, c("snp", "p_value")]
 #' }
 #'
 #' @export
@@ -2066,8 +2077,10 @@ seg_multi <- function(
         row_now <- as.data.frame(
           c(
             lout[c("stat", "df", "p_value", "null_bic")],
-            lout$alt["df1"],
-            lout$null["df0"]
+            df0 = lout$null$df0,
+            df1 = lout$alt$df1,
+            p1 = lout$null$gam[[1]]$g,
+            p2 = lout$null$gam[[2]]$g
           )
         )
         row_now$q0 <- vector(mode = "list", length = 1)

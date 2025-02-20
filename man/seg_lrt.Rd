@@ -149,18 +149,18 @@ The polyRAD folks test for full autopolyploid and full allopolyploid, so I
 included that as an option (\code{model = "auto_allo"}).
 
 We can account for arbitrary levels of double reduction in autopolyploids
-(\code{model = "auto"}) using the gamete frequencies from
+(\code{model = "auto_dr"}) using the gamete frequencies from
 Huang et al (2019).
 
 The null model for segmental allopolyploids (\code{model = "allo_pp"}) is the mixture model of
 the possible allopolyploid gamete frequencies. The autopolyploid model
-is a subset of this mixture model.
+(without double reduction) is a subset of this mixture model.
 
 In the above mixture model, we can account for double reduction for simplex
 loci (\code{model = "seg"}) by just slightly reducing the
 number of simplex gametes and increasing the number of duplex and
-nullplex gametes That is, the frequencies for (nullplex, simplex, duplex)
-gametes goes from \code{(0.5, 0.5, 0)} to
+nullplex gametes. That is, the frequencies for (nullplex, simplex, duplex)
+gametes go from \code{(0.5, 0.5, 0)} to
 \code{(0.5 + b, 0.5 - 2 * b, b)}.
 
 \code{model = "seg"} is the most general, so it is the default. But you
