@@ -1358,7 +1358,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'   \item{\code{outprob}}{Outlier probabilities. Only returned in \code{ret_out = TRUE}.
 #'     \itemize{
 #'       \item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
-#'       \item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+#'       \item{If using genotype log-likelihoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
 #'       }
 #'     These outlier probabilities are only valid if the null of no segregation is true.
 #'    }
@@ -1972,7 +1972,7 @@ ll_ao <- function(par, q, x) {
 #'   \item{\code{outprob}}{Outlier probabilities. Only returned in \code{ret_out = TRUE}.
 #'     \itemize{
 #'       \item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
-#'       \item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+#'       \item{If using genotype log-likelihoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
 #'       }
 #'     These outlier probabilities are only valid if the null of no segregation is true.
 #'    }
@@ -2141,7 +2141,7 @@ seg_multi <- function(
 #' @return A numeric vector.
 #' \itemize{
 #'   \item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
-#'   \item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+#'   \item{If using genotype log-likelihoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
 #' }
 #'
 #' @author David Gerard

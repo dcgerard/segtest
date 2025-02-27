@@ -38,14 +38,14 @@ The main functions are:
 
 `gamfreq()` will generate gamete frequencies under different models of meiosis. `gf_freq()` will generate genotype frequencies under the same models by convolving the output from `gamfreq()`. We focus here on `gamfreq()` since `gf_freq()` has the same models, but specified for each parent.
 
-For autopolyploids, specify `type = "polysomic"` and, optionally, the amound of double reduction via `alpha`. `alpha` is a vector of length `floor(ploidy / 4)` where element `i` is the probability a gamete has genotype `i`. The upper bounds for `alpha` can be found via `drbounds()`. E.g., for a parental octoploid with genotype 4 with no and moderate levels of double reduction:
+For autopolyploids, specify `type = "polysomic"` and, optionally, the amount of double reduction via `alpha`. `alpha` is a vector of length `floor(ploidy / 4)` where element `i` is the probability a gamete has genotype `i`. The upper bounds for `alpha` can be found via `drbounds()`. E.g., for a parental octoploid with genotype 4 with no and moderate levels of double reduction:
 ```{r}
 drbounds(ploidy = 8) ## DR bounds
 gamfreq(g = 4, ploidy = 8, type = "polysomic") ## no DR
 gamfreq(g = 4, ploidy = 8, alpha = c(0.1, 0.01), type = "polysomic") ## Some DR
 ```
 
-For allopolyploids, the possible gamete frequencies can be found in `seg`. E.g., for a prental octoploid with genotype 4, the possible gamete frequencies are
+For allopolyploids, the possible gamete frequencies can be found in `seg`. E.g., for a parental octoploid with genotype 4, the possible gamete frequencies are
 ```{r}
 seg[seg$ploidy == 8 & seg$g == 4 & seg$mode %in% c("disomic", "both"), "p"]
 ```
@@ -129,7 +129,7 @@ The default (`model = "seg"`) is to assume your organism is a segmental allopoly
 - `"auto_dr"`: Pure autopolyploid with possible multivalent pairing (some double reduction).
 - `"auto_allo"`: Same null hypothesis as in polymapR.
 
-We allow for some non-valid genotypes via the `ob` argument. This is the upperbound on the proportion of outliers. By default, this is set to 0.03. You can set this to `0` (or set `outlier = FALSE`) if you want any outliers to indicate segregation distortion.
+We allow for some non-valid genotypes via the `ob` argument. This is the upper bound on the proportion of outliers. By default, this is set to 0.03. You can set this to `0` (or set `outlier = FALSE`) if you want any outliers to indicate segregation distortion.
 
 Make sure that the log-likelihoods are base e. If they are base 10, you'll get the wrong p-value:
 ```{r}
