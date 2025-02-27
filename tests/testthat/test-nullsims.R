@@ -3,7 +3,7 @@ test_that("null simulations produce uniform p-values", {
   p1_ploidy <- 6
   p1 <- 0
   p2_ploidy <- 6
-  p2 <- 4
+  p2 <- 2
   q <- gf_freq(
     p1_g = p1,
     p1_ploidy = p1_ploidy,
@@ -17,10 +17,9 @@ test_that("null simulations produce uniform p-values", {
     p2_beta = NULL,
     p2_alpha = NULL,
     p2_type = "mix",
-    pi = 0)
-  niter <- 1000
-  nsamp <- 20
-
+    pi = 0.03)
+  niter <- 200
+  nsamp <- 200
 
   pval_vec <- rep(NA_real_, times = niter)
   df_vec <- rep(NA_real_, times = niter)
@@ -53,12 +52,34 @@ test_that("null simulations produce uniform p-values", {
     stat_vec[[i]] <- sout$stat
     df1_vec[[i]] <- sout$alt$df1
     df0_vec[[i]] <- sout$null$df0
-    pi_vec[[i]] <- sout$null$gam[[3]]$pi
+    ## pi_vec[[i]] <- sout$null$gam[[3]]$pi
   }
 
   plot(
     x = ppoints(n = sum(!is.na(pval_vec))),
     y = sort(pval_vec[!is.na(pval_vec)]),
+    xlab = "Theoretical",
+    ylab = "Sample")
+  abline(a = 0, b = 1, lty = 2, col = 2)
+
+  ## Ideal circumstances is we know q
+  pvec_chisq <- replicate(n = 1000, expr = {
+    nvec <- c(stats::rmultinom(n = 1, size = nsamp, prob = q))
+    suppressWarnings(
+      stats::chisq.test(x = nvec, p = q)$p.value
+    )
+  })
+  plot(
+    x = ppoints(n = length(pvec_chisq)),
+    y = sort(pvec_chisq),
+    xlab = "Theoretical",
+    ylab = "Sample")
+  abline(a = 0, b = 1, lty = 2, col = 2)
+
+  ## Train my eye
+  plot(
+    x = ppoints(n = niter),
+    y = sort(stats::runif(niter)),
     xlab = "Theoretical",
     ylab = "Sample")
   abline(a = 0, b = 1, lty = 2, col = 2)

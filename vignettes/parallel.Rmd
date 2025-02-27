@@ -65,7 +65,8 @@ mout1 <- seg_multi(
   p1 = o2$p1,
   p2 = o2$p2, 
   p1_ploidy = 4, 
-  p2_ploidy = 4)
+  p2_ploidy = 4,
+  ret_out = TRUE)
 future::plan(future::sequential())
 ```
 
@@ -104,7 +105,14 @@ o1$g["2_20070837", ]
 o1$p1["2_20070837"]
 o1$p2["2_20070837"]
 ```
-So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2. Including `outlier = TRUE` previously made it so that we would ignore this discrepancy (up to a point). 
+So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2. Including `outlier = TRUE` previously made it so that we would ignore this discrepancy (up to a point). You can get the posterior probability that an individual is an outlier if you set `ret_out = TRUE` (which I previously did).
+
+```{r}
+graphics::plot(
+  mout1$outprob[mout1$snp == "2_20070837"][[1]], 
+  ylim = c(0, 1),
+  ylab = "Outlier Probability")
+```
 
 # `multi_lrt()`
 

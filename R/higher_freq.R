@@ -1326,6 +1326,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'     \item{\code{"auto_allo"}}{Only complete disomic and complete polysomic inheritance is studied.}
 #'   }
 #' @param outlier A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?
+#' @param ret_out A logical. Should we return the probability that each individual is an outlier (\code{TRUE}) or not (\code{FALSE})?
 #' @param ob The default upper bound on the outlier proportion.
 #' @param db Should we use the complete equational segregation model (\code{"ces"}) or
 #'    the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
@@ -1354,6 +1355,13 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'   \item{\code{df}}{The degrees of freedom of the test.}
 #'   \item{\code{p_value}}{The p-value of the test.}
 #'   \item{\code{null_bic}}{The null model's BIC.}
+#'   \item{\code{outprob}}{Outlier probabilities. Only returned in \code{ret_out = TRUE}.
+#'     \itemize{
+#'       \item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
+#'       \item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+#'       }
+#'     These outlier probabilities are only valid if the null of no segregation is true.
+#'    }
 #'   \item{\code{null}}{A list with estimates and information on the null model.
 #'   \describe{
 #'     \item{\code{l0_pp}}{Maximized likelihood under the null plus the parent log-likelihoods.}
@@ -1401,6 +1409,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' }
 #'
 #' @examples
+#' set.seed(1)
 #' p1_ploidy <- 4
 #' p1 <- 1
 #' p2_ploidy <- 8
@@ -1420,10 +1429,6 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' seg_lrt(x = nvec, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$p_value
 #' seg_lrt(x = gl, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$p_value
 #'
-#'
-#' seg_lrt(x = c(1L, 23L, 51L, 23L, 1L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
-#' seg_lrt(x = c(0L, 39L, 115L, 42L, 3L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
-#'
 #' @export
 seg_lrt <- function(
     x,
@@ -1433,6 +1438,7 @@ seg_lrt <- function(
     p2 = NULL,
     model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
+    ret_out = FALSE,
     ob = 0.03,
     db = c("ces", "prcs"),
     ntry = 3,
@@ -1449,6 +1455,8 @@ seg_lrt <- function(
   db <- match.arg(db)
   stopifnot(ntry > 0, length(ntry) == 1)
   stopifnot(df_tol >= 0, length(df_tol) == 1)
+  stopifnot(is.logical(chisq), length(chisq) == 1)
+  stopifnot(is.logical(ret_out), length(ret_out) == 1)
   stopifnot(
     p1_ploidy %% 2 == 0, p1_ploidy > 1,
     p2_ploidy %% 2 == 0, p2_ploidy > 1)
@@ -1789,6 +1797,7 @@ seg_lrt <- function(
   # alt_best$df1 <- length(alt_best$q1) - 1
   alt_best$df1 <- length(alt_best$q1) - sum((alt_best$q1 < pkg_env$TOL_big) & (null_best$q0 < pkg_env$TOL_big)) - 1
 
+  ## chi-sauared test option
   if (chisq && data_type == "gcount") {
     ecounts <- null_best$q0 * sum(x)
     which_nonzero <- null_best$q0 > pkg_env$TOL_big
@@ -1806,6 +1815,11 @@ seg_lrt <- function(
     null_bic = -2 * null_best$l0 + null_best$df0 * log(nind)
   )
   ret$p_value <- stats::pchisq(q = ret$stat, df = ret$df, lower.tail = FALSE)
+
+  ## add outliers
+  if (ret_out) {
+    ret$outprob <- outprob(g = x, gam = null_best$gam)
+  }
 
   return(ret)
 }
@@ -1955,6 +1969,13 @@ ll_ao <- function(par, q, x) {
 #'   \item{\code{p2}}{The (estimated) genotype of parent 2.}
 #'   \item{\code{q0}}{The MLE of the genotype frequencies under the null.}
 #'   \item{\code{q1}}{The MLE of the genotype frequencies under the alternative.}
+#'   \item{\code{outprob}}{Outlier probabilities. Only returned in \code{ret_out = TRUE}.
+#'     \itemize{
+#'       \item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
+#'       \item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+#'       }
+#'     These outlier probabilities are only valid if the null of no segregation is true.
+#'    }
 #' }
 #' Note that since this data frame contains the list-columns \code{q0} and
 #' \code{q1}, you cannot use \code{\link[utils]{write.csv}()} to save it.
@@ -1989,9 +2010,12 @@ ll_ao <- function(par, q, x) {
 #' g_2 <- glist$g
 #'
 #' future::plan(future::multisession, workers = 2)
-#' s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2)
+#' s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2, ret_out = TRUE)
 #' future::plan(future::sequential)
 #' s3[, c("snp", "p_value")]
+#'
+#' ## Outlier probabilities are returned if `ret_out = TRUE`
+#' graphics::plot(s3$outprob[[6]], ylim = c(0, 1))
 #' }
 #'
 #' @export
@@ -2003,6 +2027,7 @@ seg_multi <- function(
     p2 = NULL,
     model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
+    ret_out = FALSE,
     ob = 0.03,
     db = c("ces", "prcs"),
     ntry = 3,
@@ -2047,7 +2072,8 @@ seg_multi <- function(
   i <- NULL
   ret <- foreach::foreach(
     i = seq_len(nloc),
-    .combine = rbind
+    .combine = rbind,
+    .export = c("g", "p1", "p2", "ret_out", "seg_lrt")
     ) %dorng% {
       if (type == "glp") {
         g_now <- g[i, , ]
@@ -2073,7 +2099,8 @@ seg_multi <- function(
           ob = ob,
           db = db,
           ntry = ntry,
-          df_tol = df_tol)
+          df_tol = df_tol,
+          ret_out = ret_out)
         row_now <- as.data.frame(
           c(
             lout[c("stat", "df", "p_value", "null_bic")],
@@ -2087,6 +2114,10 @@ seg_multi <- function(
         row_now$q0[[1]] <- lout$null[["q0"]]
         row_now$q1 <- vector(mode = "list", length = 1)
         row_now$q1[[1]] <- lout$alt[["q1"]]
+        if (ret_out) {
+          row_now$outprob <- vector(mode = "list", length = 1)
+          row_now$outprob[[1]] <- lout$outprob
+        }
         row_now
     }
   ret$snp <- dimnames(g)[[1]]
@@ -2094,6 +2125,74 @@ seg_multi <- function(
 
   attr(ret, "rng") <- NULL
   attr(ret, "doRNG_version") <- NULL
+
+  return(ret)
+}
+
+#' Calculate outlier probability based on the fit from \code{\link{seg_lrt}()}
+#'
+#' @param g One of two inputs
+#'   \itemize{
+#'     \item{A matrix of genotype counts. The rows index the loci and the columns index the genotypes.}
+#'     \item{An array of genotype log-likelihoods. The rows index the loci, the columns index the individuals, and the slices index the genotypes. Log-likelihoods are base e (natural log).}
+#'   }
+#' @param gam The \code{null$gam} output from \code{\link{seg_lrt}()}.
+#'
+#' @return A numeric vector.
+#' \itemize{
+#'   \item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
+#'   \item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+#' }
+#'
+#' @author David Gerard
+#'
+#' @noRd
+#'
+#' @examples
+#' set.seed(1)
+#' g <- c(5, 5, 0, 0, 1)
+#' gl <- simgl(g)
+#' sout1 <- seg_lrt(x = g, p1_ploidy = 4, p2_ploidy = 4, p1 = 1, p2 = 0)
+#' sout2 <- seg_lrt(x = gl, p1_ploidy = 4, p2_ploidy = 4, p1 = 1, p2 = 0)
+#' outprob(g = g, gam = sout1$null$gam)
+#' outprob(g = gl, gam = sout2$null$gam)
+#'
+outprob <- function(g, gam) {
+  if (is.matrix(g)) {
+    data_type <- "glike"
+  } else {
+    data_type <- "gcount"
+  }
+
+  if (!gam[[3]]$outlier) {
+    if (data_type == "glike") {
+      ret <- rep(x = 0, times = nrow(g))
+      names(ret) <- rownames(g)
+      return(ret)
+    } else if (data_type == "gcount") {
+      ret <- rep(x = 0, times = length(g))
+      names(ret) <- 0:(length(g) - 1)
+      return(ret)
+    }
+  }
+
+  ## Get null model
+  pi <- gam[[3]]$pi
+  p1 <- do.call(what = gamfreq, args = gam[[1]])
+  p2 <- do.call(what = gamfreq, args = gam[[2]])
+  q <- convolve_2(p1 = p1, p2 = p2, nudge =0)
+
+  if (data_type == "glike") {
+    f1_1mpi <- apply(X = g + log(q)[col(g)], MARGIN = 1, FUN = log_sum_exp) + log(1 - pi)
+    f0_pi <- apply(X = g + log(1 / length(q)), MARGIN = 1, FUN = log_sum_exp) + log(pi)
+    ret <- exp(f0_pi - mapply(FUN = log_sum_exp_2, x = f0_pi, y = f1_1mpi))
+    names(ret) <- names(g)
+  } else if (data_type == "gcount") {
+    ret <- (pi / length(q)) / (pi / length(q) + (1 - pi) * q)
+    names(ret) <- 0:(length(q) - 1)
+  } else {
+    stop("outprob: blah")
+  }
 
   return(ret)
 }

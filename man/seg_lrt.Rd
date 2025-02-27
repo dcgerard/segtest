@@ -12,6 +12,7 @@ seg_lrt(
   p2 = NULL,
   model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
   outlier = TRUE,
+  ret_out = FALSE,
   ob = 0.03,
   db = c("ces", "prcs"),
   ntry = 3,
@@ -51,6 +52,8 @@ The genotype log-likelihoods should be base e (natural log).}
 
 \item{outlier}{A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?}
 
+\item{ret_out}{A logical. Should we return the probability that each individual is an outlier (\code{TRUE}) or not (\code{FALSE})?}
+
 \item{ob}{The default upper bound on the outlier proportion.}
 
 \item{db}{Should we use the complete equational segregation model (\code{"ces"}) or
@@ -86,6 +89,13 @@ A list with some or all of the following elements
 \item{\code{df}}{The degrees of freedom of the test.}
 \item{\code{p_value}}{The p-value of the test.}
 \item{\code{null_bic}}{The null model's BIC.}
+\item{\code{outprob}}{Outlier probabilities. Only returned in \code{ret_out = TRUE}.
+\itemize{
+\item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
+\item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+}
+These outlier probabilities are only valid if the null of no segregation is true.
+}
 \item{\code{null}}{A list with estimates and information on the null model.
 \describe{
 \item{\code{l0_pp}}{Maximized likelihood under the null plus the parent log-likelihoods.}
@@ -179,6 +189,7 @@ need a massive data set to be able to estimate them accurately.
 }
 
 \examples{
+set.seed(1)
 p1_ploidy <- 4
 p1 <- 1
 p2_ploidy <- 8
@@ -197,10 +208,6 @@ nvec <- c(stats::rmultinom(n = 1, size = 200, prob = q))
 gl <- simgl(nvec = nvec)
 seg_lrt(x = nvec, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$p_value
 seg_lrt(x = gl, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$p_value
-
-
-seg_lrt(x = c(1L, 23L, 51L, 23L, 1L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
-seg_lrt(x = c(0L, 39L, 115L, 42L, 3L, 1L, 0L), p1_ploidy = 4, p2_ploidy = 8, p1 = 2, p2 = 2)$p_value
 
 }
 \references{

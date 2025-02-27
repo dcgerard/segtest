@@ -13,6 +13,7 @@ seg_multi(
   p2 = NULL,
   model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
   outlier = TRUE,
+  ret_out = FALSE,
   ob = 0.03,
   db = c("ces", "prcs"),
   ntry = 3,
@@ -54,6 +55,8 @@ seg_multi(
 
 \item{outlier}{A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?}
 
+\item{ret_out}{A logical. Should we return the probability that each individual is an outlier (\code{TRUE}) or not (\code{FALSE})?}
+
 \item{ob}{The default upper bound on the outlier proportion.}
 
 \item{db}{Should we use the complete equational segregation model (\code{"ces"}) or
@@ -81,6 +84,13 @@ A data frame with the following elements:
 \item{\code{p2}}{The (estimated) genotype of parent 2.}
 \item{\code{q0}}{The MLE of the genotype frequencies under the null.}
 \item{\code{q1}}{The MLE of the genotype frequencies under the alternative.}
+\item{\code{outprob}}{Outlier probabilities. Only returned in \code{ret_out = TRUE}.
+\itemize{
+\item{If using genotype counts, element \code{i} is the probability that an individual \emph{with genotype} \code{i-1} is an outlier. So the return vector has length ploidy plus 1.}
+\item{If using genotype log-likelihdoods, element \code{i} is the probability that individual \code{i} is an outlier. So the return vector has the same length as the number of individuals.}
+}
+These outlier probabilities are only valid if the null of no segregation is true.
+}
 }
 Note that since this data frame contains the list-columns \code{q0} and
 \code{q1}, you cannot use \code{\link[utils]{write.csv}()} to save it.
@@ -182,9 +192,12 @@ p2_2 <- glist$p2
 g_2 <- glist$g
 
 future::plan(future::multisession, workers = 2)
-s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2)
+s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2, ret_out = TRUE)
 future::plan(future::sequential)
 s3[, c("snp", "p_value")]
+
+## Outlier probabilities are returned if `ret_out = TRUE`
+graphics::plot(s3$outprob[[6]], ylim = c(0, 1))
 }
 
 }
