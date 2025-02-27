@@ -2,7 +2,7 @@
 title: "Introduction to segtest Version 1.0"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to segtest version 1.0}
+  %\VignetteIndexEntry{Introduction to segtest Version 1.0}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

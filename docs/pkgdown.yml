@@ -1,10 +1,11 @@
-pandoc: '3.2'
+pandoc: 3.6.3
 pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
-  intro: intro.html
+  intro_1: intro_1.html
+  intro_2: intro_2.html
   parallel: parallel.html
-last_built: 2025-01-16T16:28Z
+last_built: 2025-02-27T18:20Z
 urls:
   reference: https://dcgerard.github.io/segtest/reference
   article: https://dcgerard.github.io/segtest/articles

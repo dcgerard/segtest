@@ -11,7 +11,7 @@ Provides tests for segregation distortion in F1 polyploid populations under diff
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/dcgerard/segtest}
+  \item \url{https://dcgerard.github.io/segtest/}
   \item Report bugs at \url{https://github.com/dcgerard/segtest/issues}
 }
 

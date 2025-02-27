@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">segtest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,9 +18,11 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Introduction to segtest</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro_1.html">Introduction to segtest Version 1.0</a></li>
+    <li><a class="dropdown-item" href="../articles/intro_2.html">Introduction to segtest Version 2.0</a></li>
     <li><a class="dropdown-item" href="../articles/parallel.html">Parallel Testing</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/dcgerard/segtest/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -48,16 +50,28 @@
 
       <dl><dt>
 
-          <code><a href="chisq_g4.html">chisq_g4()</a></code>
+          <code><a href="beta_bounds.html">beta_bounds()</a></code>
+
+        </dt>
+        <dd>Bounds on the distortion at simplex loci caused by double reduction.</dd>
+      </dl><dl><dt>
+
+          <code><a href="chisq_g.html">chisq_g()</a></code> <code><a href="chisq_g.html">chisq_g4()</a></code>
 
         </dt>
         <dd>Chi Square test when genotypes are known</dd>
       </dl><dl><dt>
 
-          <code><a href="chisq_gl4.html">chisq_gl4()</a></code>
+          <code><a href="chisq_gl.html">chisq_gl()</a></code> <code><a href="chisq_gl.html">chisq_gl4()</a></code>
 
         </dt>
         <dd>Chi-Sq for GL</dd>
+      </dl><dl><dt>
+
+          <code><a href="drbounds.html">drbounds()</a></code>
+
+        </dt>
+        <dd>Upper bounds on double reduction rates.</dd>
       </dl><dl><dt>
 
           <code><a href="em_li.html">em_li()</a></code>
@@ -66,10 +80,22 @@
         <dd>EM algorithm from Li (2011)</dd>
       </dl><dl><dt>
 
+          <code><a href="gamfreq.html">gamfreq()</a></code>
+
+        </dt>
+        <dd>Gamete frequencies under a generalized model</dd>
+      </dl><dl><dt>
+
           <code><a href="gcount_to_gvec.html">gcount_to_gvec()</a></code>
 
         </dt>
         <dd>Converts genotype counts to genotype vectors.</dd>
+      </dl><dl><dt>
+
+          <code><a href="gf_freq.html">gf_freq()</a></code>
+
+        </dt>
+        <dd>Genotype frequencies of an F1 population under a generalized model.</dd>
       </dl><dl><dt>
 
           <code><a href="gvec_to_gcount.html">gvec_to_gcount()</a></code>
@@ -141,7 +167,13 @@
           <code><a href="multidog_to_g.html">multidog_to_g()</a></code>
 
         </dt>
-        <dd>Converts multidog output to a format usable for multi_lrt()</dd>
+        <dd>Converts multidog output to a format usable for seg_multi() and multi_lrt()</dd>
+      </dl><dl><dt>
+
+          <code><a href="n_pp_mix.html">n_pp_mix()</a></code>
+
+        </dt>
+        <dd>Number of mixture components</dd>
       </dl><dl><dt>
 
           <code><a href="nextElem.arrayiter.html">nextElem(<i>&lt;arrayiter&gt;</i>)</a></code>
@@ -198,6 +230,24 @@
         <dd>Tetraploid gamete frequencies of gametes when one parent's genotype is known</dd>
       </dl><dl><dt>
 
+          <code><a href="seg.html">seg</a></code>
+
+        </dt>
+        <dd>Disomic and polysomic segregation patterns</dd>
+      </dl><dl><dt>
+
+          <code><a href="seg_lrt.html">seg_lrt()</a></code>
+
+        </dt>
+        <dd>Test for segregation distortion in a polyploid F1 population.</dd>
+      </dl><dl><dt>
+
+          <code><a href="seg_multi.html">seg_multi()</a></code>
+
+        </dt>
+        <dd>Parallelized likelihood ratio test for segregation distortion for arbitrary (even) ploidies.</dd>
+      </dl><dl><dt>
+
           <code><a href="simf1g.html">simf1g()</a></code>
 
         </dt>
@@ -213,7 +263,7 @@
           <code><a href="simgl.html">simgl()</a></code>
 
         </dt>
-        <dd>Simulate genotype likelihoods from genotype counts</dd>
+        <dd>Simulate genotype (log) likelihoods from genotype counts</dd>
       </dl><dl><dt>
 
           <code><a href="three_to_two.html">three_to_two()</a></code>

@@ -107,7 +107,7 @@ o1$p2["2_20070837"]
 ```
 So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2. Including `outlier = TRUE` previously made it so that we would ignore this discrepancy (up to a point). You can get the posterior probability that an individual is an outlier if you set `ret_out = TRUE` (which I previously did).
 
-```{r}
+```{r, fig.alt="Scatterplot of SNP index (x-axis) by outlier probability (y-axis)."}
 graphics::plot(
   mout1$outprob[mout1$snp == "2_20070837"][[1]], 
   ylim = c(0, 1),
@@ -127,7 +127,7 @@ mout3 <- multi_lrt(
 future::plan(future::sequential())
 ```
 It's a little faster, but it cannot account for outliers, so it will mostly be the same as setting `outlier = FALSE`. 
-```{r}
+```{r, fig.alt="Scatterplot of p-values from seg_lrt() (x-axis) by multi_lrt() (y-axis)."}
 plot(
   mout2$p_value,
   mout3$p_value,
