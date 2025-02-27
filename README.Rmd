@@ -81,4 +81,4 @@ Gerard D, Thakkar M, & Ferrão LFV (2025). "Tests for segregation distortion in 
 
 ## Acknowledgments
 
-This material is based upon work supported by the National Science Foundation under Grant No. 2132247.
+Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247.

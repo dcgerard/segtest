@@ -107,5 +107,5 @@ Genetics*, *138*(30), p. 1–13.
 
 ## Acknowledgments
 
-This material is based upon work supported by the National Science
-Foundation under Grant No. 2132247.
+Part of this material is based upon work supported by the National
+Science Foundation under Grant No. 2132247.

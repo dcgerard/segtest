@@ -8,5 +8,3 @@
 * `beta_bounds()`: Two different upper bounds on double reduction adjustment for simplex loci.
 * `n_pp_mix()`: Number of mixing components in the pairing configuration model for partial preferential pairing.
 * Added a `NEWS.md` file to track changes to the package.
-
-
