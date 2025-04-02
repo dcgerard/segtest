@@ -2058,11 +2058,9 @@ seg_multi <- function(
     }
     nloc <- dim(g)[[1]]
     nind <- dim(g)[[2]]
-    stopifnot(dim(g)[[3]] == 5)
   } else if (length(dim(g)) == 2) {
     type <- "g"
     nloc <- nrow(g)
-    stopifnot(ncol(g) == 5)
   }
 
   ## Register doFuture  -------------------------------------------------------
