@@ -1466,6 +1466,13 @@ seg_lrt <- function(
     data_type <- "glike"
     nind <- nrow(x)
     ll_now <- ll_gl
+    if (any(is.na(x))) {
+      narow <- apply(x, 1, function(y) all(is.na(y)))
+      x[narow, ] <- 0
+      if (any(is.na(x))) {
+        stop("seg_lrt(): There are some individuals with some (but not all) genotype likelihoods missing. For an individual, only all or none can be missing.")
+      }
+    }
   } else {
     stopifnot(length(x) == (p1_ploidy + p2_ploidy) / 2 + 1, x >= 0)
     data_type <- "gcount"

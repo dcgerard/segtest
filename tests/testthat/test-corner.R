@@ -45,3 +45,17 @@ test_that("corner cases work for higher ploidies", {
     seg_lrt(x = c(0, 1, 0, 1, 0, 0, 0), p1_ploidy = 6, p2_ploidy = 6)
   )
 })
+
+
+test_that("new corner case works", {
+  load("./fpop.RData")
+  ploidy <- 6
+  p1geno <- fpop$par$p1geno
+  p2geno <- fpop$par$p2geno
+  gl <- fpop$genologlike
+  sout <- seg_lrt(x = gl, p1_ploidy = ploidy, p2_ploidy = ploidy, p1 = p1geno, p2 = p2geno)
+  expect_true(!is.na(sout$p_value))
+})
+
+
+
