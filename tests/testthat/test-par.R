@@ -2,7 +2,7 @@ test_that("par_to_gf works", {
   rule <- list(
     list(ploidy = 4, g = 0, type = "mix"),
     list(ploidy = 8, g = 8, type = "polysomic"),
-    list(outlier = FALSE)
+    list(outlier = FALSE, null_allele = FALSE)
     )
   par <- c()
   expect_equal(par_to_gf(par = par, rule = rule), c(0, 0, 0, 0, 1, 0, 0), tolerance = 1e-3)
@@ -10,7 +10,7 @@ test_that("par_to_gf works", {
   rule <- list(
     list(ploidy = 4, g = 2, type = "mix"),
     list(ploidy = 8, g = 8, type = "polysomic"),
-    list(outlier = FALSE)
+    list(outlier = FALSE, null_allele = FALSE)
     )
   par <- c(-5)
   expect_no_error(par_to_gf(par = par, rule = rule))
@@ -21,7 +21,7 @@ test_that("par_to_gam and gam_to_par are inverses", {
   rule <- list(
     list(ploidy = 4, g = 2, type = "mix"),
     list(ploidy = 8, g = 6, type = "polysomic"),
-    list(outlier = TRUE)
+    list(outlier = TRUE, null_allele = FALSE)
     )
   par <- c(-2, 0.1, 0.05, 0.03)
 
@@ -32,7 +32,7 @@ test_that("par_to_gam and gam_to_par are inverses", {
   rule <- list(
     list(ploidy = 4, g = 1, type = "mix_dr"),
     list(ploidy = 8, g = 0, type = "polysomic"),
-    list(outlier = TRUE)
+    list(outlier = TRUE, null_allele = FALSE)
     )
   par <- c(0.1, 0.2)
 
@@ -43,7 +43,7 @@ test_that("par_to_gam and gam_to_par are inverses", {
   rule <- list(
     list(ploidy = 12, g = 6, type = "mix"),
     list(ploidy = 12, g = 6, type = "polysomic"),
-    list(outlier = TRUE)
+    list(outlier = TRUE, null_allele = FALSE)
     )
   par <- c(-2, -1, 2, 0.1, 0.05, 0.01, 0.2)
 
@@ -62,13 +62,13 @@ test_that("fixed parameterizations work", {
   rule <- list(
     list(ploidy = 12, g = 6, type = "mix", gamma = c(0.1, 0.5, 0.2, 0.2)),
     list(ploidy = 12, g = 6, type = "polysomic"),
-    list(outlier = TRUE)
+    list(outlier = TRUE, null_allele = FALSE)
     )
   par <- c(0.1, 0.05, 0.01, 0.2)
   fix_list <- list(
     list(alpha = FALSE, gamma = TRUE, beta = FALSE),
     list(alpha = FALSE, gamma = FALSE, beta = FALSE),
-    list(pi = FALSE)
+    list(pi = FALSE, na_a = FALSE, na_b = FALSE)
   )
   expect_equal(par_to_gam(par = par, rule = rule)[[1]]$gamma, c(0.1, 0.5, 0.2, 0.2))
   ret <- gam_to_par(gam = par_to_gam(par = par, rule = rule), fix_list = fix_list, ob = 0.03)
@@ -81,13 +81,13 @@ test_that("fixed parameterizations work", {
   rule <- list(
     list(ploidy = 12, g = 6, type = "mix"),
     list(ploidy = 12, g = 6, type = "polysomic", alpha = c(0.2, 0.1, 0.05)),
-    list(outlier = TRUE)
+    list(outlier = TRUE, null_allele = FALSE)
     )
   par <- c(-2, -1, 2, 0.2)
   fix_list <- list(
     list(alpha = FALSE, gamma = FALSE, beta = FALSE),
     list(alpha = TRUE, gamma = FALSE, beta = FALSE),
-    list(pi = FALSE)
+    list(pi = FALSE, na_a = FALSE, na_b = FALSE)
   )
   expect_equal(par_to_gam(par = par, rule = rule)[[2]]$alpha, c(0.2, 0.1, 0.05))
 
@@ -101,13 +101,13 @@ test_that("fixed parameterizations work", {
   rule <- list(
     list(ploidy = 12, g = 6, type = "mix"),
     list(ploidy = 12, g = 6, type = "polysomic"),
-    list(outlier = TRUE, pi = 0.5)
+    list(outlier = TRUE, null_allele = FALSE, pi = 0.5)
     )
   par <- c(1, 2, 1, -2, -1, 2)
   fix_list <- list(
     list(alpha = FALSE, gamma = FALSE, beta = FALSE),
     list(alpha = FALSE, gamma = FALSE, beta = FALSE),
-    list(pi = TRUE)
+    list(pi = TRUE, na_a = FALSE, na_b = FALSE)
   )
   expect_equal(par_to_gam(par = par, rule = rule)[[3]]$pi, 0.5)
 

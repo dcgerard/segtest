@@ -20,6 +20,8 @@ gf_freq(
   p2_type = c("mix", "polysomic"),
   p2_add_dr = TRUE,
   pi = 0,
+  na_a = 0,
+  na_b = 0,
   nudge = sqrt(.Machine$double.eps)
 )
 }
@@ -29,6 +31,10 @@ gf_freq(
 \item{p2_g, p2_ploidy, p2_gamma, p2_alpha, p2_beta, p2_type, p2_add_dr}{The second parent's version of the parameters in \code{\link{gamfreq}()}.}
 
 \item{pi}{The proportion of outliers.}
+
+\item{na_a}{The proportion of outlier individuals with dosage of 0 (null alleles).}
+
+\item{na_b}{The proportion of outlier individuals with dosage of ploidy (null alleles).}
 
 \item{nudge}{Zeros go to nudge}
 }

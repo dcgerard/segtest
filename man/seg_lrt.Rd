@@ -12,8 +12,11 @@ seg_lrt(
   p2 = NULL,
   model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
   outlier = TRUE,
+  null_allele = FALSE,
   ret_out = FALSE,
   ob = 0.03,
+  nab1 = 0.05,
+  nab2 = 0.05,
   db = c("ces", "prcs"),
   ntry = 3,
   opt = c("bobyqa", "L-BFGS-B"),
@@ -52,9 +55,15 @@ The genotype log-likelihoods should be base e (natural log).}
 
 \item{outlier}{A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?}
 
+\item{null_allele}{A logical. Should we allow for null alleles (\code{TRUE}) or not (\code{FALSE})?}
+
 \item{ret_out}{A logical. Should we return the probability that each individual is an outlier (\code{TRUE}) or not (\code{FALSE})?}
 
 \item{ob}{The default upper bound on the outlier proportion.}
+
+\item{nab1}{The default upper bound on the proportion of null alleles leading to genotypes of 0.}
+
+\item{nab2}{The default upper bound on the proportion of null alleles leading to genotypes of ploidy.}
 
 \item{db}{Should we use the complete equational segregation model (\code{"ces"}) or
 the pure random chromatid segregation model (\code{"prcs"}) to determine the upper

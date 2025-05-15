@@ -1,3 +1,6 @@
+## TODO: optimization when model = "allo" or "auto_allo" and null_allele = TRUE in seg_lrt().
+## TODO: outprob() does not work with null alleles yet
+
 ## Tolerance global variables
 pkg_env <- new.env()
 pkg_env$TOL_small <- sqrt(.Machine$double.eps) ## for everything but df calculations.
@@ -645,6 +648,8 @@ gamfreq <- function(
 #' @param p2_g,p2_ploidy,p2_gamma,p2_alpha,p2_beta,p2_type,p2_add_dr The second parent's version of the parameters in \code{\link{gamfreq}()}.
 #' @param pi The proportion of outliers.
 #' @param nudge Zeros go to nudge
+#' @param na_a The proportion of outlier individuals with dosage of 0 (null alleles).
+#' @param na_b The proportion of outlier individuals with dosage of ploidy (null alleles).
 #'
 #' @author David Gerard
 #'
@@ -683,7 +688,10 @@ gf_freq <- function(
     p2_type = c("mix", "polysomic"),
     p2_add_dr = TRUE,
     pi = 0,
+    na_a = 0,
+    na_b = 0,
     nudge = sqrt(.Machine$double.eps)) {
+  stopifnot(pi + na_a + na_b <= 1)
   TOL <- pkg_env$TOL_small
   p1_type <- match.arg(p1_type)
   p2_type <- match.arg(p2_type)
@@ -704,7 +712,10 @@ gf_freq <- function(
     type = p2_type,
     add_dr = p2_add_dr)
   q <- convolve_2(p1 = p1, p2 = p2, nudge = nudge)
-  q <- q * (1 - pi) + pi / length(q)
+  q <- q * (1 - pi - na_a - na_b) +
+    pi / length(q) +
+    na_a * c(1, rep(0, length(q) - 1)) +
+    na_b * c(rep(0, length(q) - 1), 1)
   return(q)
 }
 
@@ -717,7 +728,7 @@ gf_freq <- function(
 #'
 #' @param rule A list of length three. The first element gives the model
 #'     of parent 1. The second element gives the model of parent 2.
-#'     The third element is a logiical on whether we add an outlier or now.
+#'     The third element is a logical on whether we add an outlier or not.
 #'     The first two lists have elements
 #'     \describe {
 #'       \item{ploidy}{The parent's ploidy.}
@@ -730,7 +741,10 @@ gf_freq <- function(
 #'     The third list has the following elements
 #'     \describe{
 #'       \item{outlier}{A logical on whether to include and outlier.}
+#'       \item{null_allele}{A logical on whether to include a null allele.}
 #'       \item{pi}{The fixed value of pi (not from par).}
+#'       \item{na_a}{The fixed proportion of null alleles 0.}
+#'       \item{na_b}{The fixed proportion of null alleles ploidy.}
 #'     }
 #' @param par A vector of parameters to be converted based on rule.
 #'    \itemize{
@@ -755,9 +769,13 @@ gf_freq <- function(
 #'       parameters.
 #'       }
 #'    \item{
-#'       If \code{outlier = TRUE}, then the outlier proportion is the last
-#'       element of \code{par}
+#'       If \code{outlier = TRUE}, then the outlier proportion is after the
+#'       parent parameters.
 #'       }
+#'    \item{
+#'      If \code{null_allele = TRUE}, then the null allele proportions
+#'      are after everything else. First \code{na_a} then \code{na_b}.
+#'      }
 #'    }
 #' @param gamma_type If \code{gamma_type = "real"}, then it assumes that the
 #'    gamma values are transformed on the real line. Otherwise, it assumes
@@ -765,12 +783,15 @@ gf_freq <- function(
 #'
 #' @return A list of length 3. The first contains the parameters from
 #'     gamfreq() for parent 1, the second contains the parameters from
-#'     gamfreq of parent 2. The third contains the outlier proportion.
+#'     gamfreq of parent 2. The third contains the outlier and null allele proportions.
 #'     These parameters in the parent lists are \code{ploidy}, \code{g}, \code{gamma},
 #'     \code{beta}, \code{alpha}, \code{type}, and \code{add_dr}.
 #'     See \code{\link{gamfreq}()} for details on these parameters. The third
 #'     is a list with elements \code{outlier} (a logical on whether
-#'     outliers are modeled) and \code{pi} (the outlier proportion).
+#'     outliers are modeled), \code{null_allele} (a logical on whether
+#'     null alleles are modeld), \code{pi} (the outlier proportion),
+#'     \code{na_a} (the 0 dosage null allele proportion), and \code{na_b}
+#'     (the ploidy dosage null allele proportion).
 #'
 #' @author David Gerard
 #'
@@ -778,15 +799,23 @@ gf_freq <- function(
 #' rule <- list(
 #'   list(ploidy = 4, g = 2, type = "mix"),
 #'   list(ploidy = 8, g = 4, type = "polysomic"),
-#'   list(outlier = TRUE)
+#'   list(outlier = TRUE, null_allele = FALSE)
 #'   )
 #' par <- c(-2, 0.1, 0.2, 0.03)
 #' par_to_gam(par = par, rule = rule)
 #'
 #' rule <- list(
+#'   list(ploidy = 4, g = 2, type = "mix"),
+#'   list(ploidy = 8, g = 4, type = "polysomic"),
+#'   list(outlier = TRUE, null_allele = TRUE)
+#'   )
+#' par <- c(-2, 0.1, 0.2, 0.03, 0.1, 0.01)
+#' par_to_gam(par = par, rule = rule)
+#'
+#' rule <- list(
 #'   list(ploidy = 4, g = 0, type = "mix"),
 #'   list(ploidy = 8, g = 1, type = "mix"),
-#'   list(outlier = TRUE)
+#'   list(outlier = TRUE, null_allele = FALSE)
 #'   )
 #' par <- c(0.1)
 #' par_to_gam(par = par, rule = rule)
@@ -813,7 +842,10 @@ par_to_gam <- function(par, rule, gamma_type = c("real", "simplex")) {
     add_dr = NULL)
   gam[[3]] <- list(
     outlier = rule[[3]]$outlier,
-    pi = rule[[3]]$pi
+    null_allele = rule[[3]]$null_allele,
+    pi = rule[[3]]$pi,
+    na_a = rule[[3]]$na_a,
+    na_b = rule[[3]]$na_b
   )
 
   ## Do parent 1 ----
@@ -922,6 +954,22 @@ par_to_gam <- function(par, rule, gamma_type = c("real", "simplex")) {
     }
   }
 
+  if (rule[[3]]$null_allele) {
+    if (is.null(rule[[3]]$na_a)) {
+      gam[[3]]$na_a <- par[[cindex]]
+      cindex <- cindex + 1
+    } else {
+      gam[[3]]$na_a <- rule[[3]]$na_a
+    }
+
+    if (is.null(rule[[3]]$na_b)) {
+      gam[[3]]$na_b <- par[[cindex]]
+      cindex <- cindex + 1
+    } else {
+      gam[[3]]$na_b <- rule[[3]]$na_b
+    }
+  }
+
   return(gam)
 }
 
@@ -959,8 +1007,21 @@ par_to_gf <- function(par, rule, nudge = sqrt(.Machine$double.eps), gamma_type =
   p1 <- do.call(what = gamfreq, args = gampar[[1]])
   p2 <- do.call(what = gamfreq, args = gampar[[2]])
   q <- convolve_2(p1 = p1, p2 = p2, nudge = nudge)
-  if (gampar[[3]]$outlier) {
+  if (gampar[[3]]$outlier & !gampar[[3]]$null_allele) {
     q <- q * (1 - gampar[[3]]$pi) + gampar[[3]]$pi / length(q)
+  } else if (!gampar[[3]]$outlier & gampar[[3]]$null_allele) {
+    stopifnot(gampar[[3]]$na_a + gampar[[3]]$na_b <= 1)
+    q <- q * (1 - gampar[[3]]$na_a - gampar[[3]]$na_b) +
+      gampar[[3]]$na_a * c(1, rep(0, length(q) - 1)) +
+      gampar[[3]]$na_b * c(rep(0, length(q) - 1), 1)
+  } else if (gampar[[3]]$outlier & gampar[[3]]$null_allele) {
+    stopifnot(gampar[[3]]$pi + gampar[[3]]$na_a + gampar[[3]]$na_b <= 1)
+    q <- q * (1 - gampar[[3]]$pi - gampar[[3]]$na_a - gampar[[3]]$na_b) +
+      gampar[[3]]$pi / length(q) +
+      gampar[[3]]$na_a * c(1, rep(0, length(q) - 1)) +
+      gampar[[3]]$na_b * c(rep(0, length(q) - 1), 1)
+  } else {
+    ## no outliers, no null alleles, so do nothing
   }
   return(q)
 }
@@ -970,7 +1031,8 @@ par_to_gf <- function(par, rule, nudge = sqrt(.Machine$double.eps), gamma_type =
 #'
 #' @param gam A list of length 3. The first contains the parameters from
 #'     gamfreq() for parent 1, the second contains the parameters from
-#'     gamfreq() of parent 2. The third contains the outlier proportion.
+#'     gamfreq() of parent 2. The third contains the outlier and null
+#'     allele proportions.
 #'     The parameters in the parent lists are
 #'     \describe{
 #'       \item{\code{ploidy}}{Ploidy of the parent}
@@ -984,20 +1046,24 @@ par_to_gf <- function(par, rule, nudge = sqrt(.Machine$double.eps), gamma_type =
 #'     The third list contains the following elements
 #'     \describe{
 #'       \item{\code{outlier}}{A logical. Should we account for outliers?}
+#'       \item{\code{null_allele}}{A logical. Should we account for null alleles?}
 #'       \item{\code{pi}}{The outlier proportion.}
+#'       \item{na_a}{The fixed proportion of null alleles 0.}
+#'       \item{na_b}{The fixed proportion of null alleles ploidy.}
 #'     }
 #' @param fix_list A list of length three, determining which elements are fixed
 #'    (not part of \code{par}). They are all logicals. Each list element corresponds
 #'    to a list element in \code{gam}. E.g. \code{fix_list[[1]]$alpha = TRUE}
 #'    would mean that \code{gam[[1]]$alpha} is fixed (not part of \code{par}).
-#'    This can be NULL if not elements are fixed.
+#'    This can be NULL if no elements are fixed.
 #' @param db Bound on double reduction rate(s). Should we use the CES or the
 #'    PRCS model for the upper bounds of the double reduction rate.
 #' @param ob Upper bound on the outlier proportion.
+#' @param na_a_bound Upper bound on \code{na_a}
+#' @param na_b_bound Upper bound on \code{na_b}
 #' @param gamma_type If \code{gamma_type = "real"}, then it assumes that the
 #'    gamma values are transformed on the real line. Otherwise, it assumes
 #'    the gamma values are on the simplex.
-#'
 #'
 #' @return A list of length 4, containing \code{par}, \code{rule},
 #'     \code{lower}, and \code{upper}. See \code{\link{par_to_gam}()}
@@ -1031,7 +1097,10 @@ par_to_gf <- function(par, rule, nudge = sqrt(.Machine$double.eps), gamma_type =
 #'   add_dr = FALSE)
 #' gam[[3]] <- list(
 #'   outlier = TRUE,
-#'   pi = 0.03
+#'   null_allele = TRUE,
+#'   pi = 0.03,
+#'   na_a = 0.01,
+#'   na_b = 0.05
 #' )
 #' gam_to_par(gam)
 gam_to_par <- function(
@@ -1039,6 +1108,8 @@ gam_to_par <- function(
     fix_list = NULL,
     db = c("ces", "prcs"),
     ob = 0.03,
+    na_a_bound = 0.05,
+    na_b_bound = 0.05,
     gamma_type = c("real", "simplex")) {
   ret <- list()
   ret$par <- c()
@@ -1061,7 +1132,8 @@ gam_to_par <- function(
     type = NULL
   )
   ret$rule[[3]] <- list(
-    outlier = NULL
+    outlier = NULL,
+    null_allele = NULL
   )
 
   if (is.null(fix_list)) {
@@ -1077,7 +1149,9 @@ gam_to_par <- function(
         gamma = FALSE
       ),
       list(
-        pi = FALSE
+        pi = FALSE,
+        na_a = FALSE,
+        na_b = FALSE
       )
     )
   }
@@ -1203,6 +1277,32 @@ gam_to_par <- function(
     ret$rule[[3]]$outlier <- FALSE
   }
 
+  if (gam[[3]]$null_allele) {
+    if (!fix_list[[3]]$na_a) {
+      stopifnot(length(gam[[3]]$na_a) == 1)
+      ret$par <- c(ret$par, gam[[3]]$na_a)
+      ret$lower <- c(ret$lower, TOL)
+      ret$upper <- c(ret$upper, na_a_bound)
+      ret$name <- c(ret$name, "na_a")
+    } else {
+      ret$rule[[3]]$na_a <- gam[[3]]$na_a
+    }
+
+    if (!fix_list[[3]]$na_b) {
+      stopifnot(length(gam[[3]]$na_b) == 1)
+      ret$par <- c(ret$par, gam[[3]]$na_b)
+      ret$lower <- c(ret$lower, TOL)
+      ret$upper <- c(ret$upper, na_b_bound)
+      ret$name <- c(ret$name, "na_b")
+    } else {
+      ret$rule[[3]]$na_b <- gam[[3]]$na_b
+    }
+
+    ret$rule[[3]]$null_allele <- TRUE
+  } else {
+    ret$rule[[3]]$null_allele <- FALSE
+  }
+
   return(ret)
 }
 
@@ -1326,8 +1426,11 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'     \item{\code{"auto_allo"}}{Only complete disomic and complete polysomic inheritance is studied.}
 #'   }
 #' @param outlier A logical. Should we allow for outliers (\code{TRUE}) or not (\code{FALSE})?
+#' @param null_allele A logical. Should we allow for null alleles (\code{TRUE}) or not (\code{FALSE})?
 #' @param ret_out A logical. Should we return the probability that each individual is an outlier (\code{TRUE}) or not (\code{FALSE})?
 #' @param ob The default upper bound on the outlier proportion.
+#' @param nab1 The default upper bound on the proportion of null alleles leading to genotypes of 0.
+#' @param nab2 The default upper bound on the proportion of null alleles leading to genotypes of ploidy.
 #' @param db Should we use the complete equational segregation model (\code{"ces"}) or
 #'    the pure random chromatid segregation model (\code{"prcs"}) to determine the upper
 #'    bound(s) on the double reduction rate(s). See \code{\link{drbounds}()}
@@ -1438,8 +1541,11 @@ seg_lrt <- function(
     p2 = NULL,
     model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
+    null_allele = FALSE,
     ret_out = FALSE,
     ob = 0.03,
+    nab1 = 0.05,
+    nab2 = 0.05,
     db = c("ces", "prcs"),
     ntry = 3,
     opt = c("bobyqa", "L-BFGS-B"),
@@ -1515,6 +1621,23 @@ seg_lrt <- function(
     outlier <- FALSE
   }
 
+  ## Check null allele inputs
+  stopifnot(length(null_allele) == 1, is.logical(null_allele))
+  stopifnot(length(nab1) == 1, nab1 >= 0, nab1 <= 1)
+  stopifnot(length(nab2) == 1, nab2 >= 0, nab2 <= 1)
+  stopifnot(nab1 + nab2 <= 1)
+  if (nab1 < pkg_env$TOL_small && nab2 < pkg_env$TOL_small) {
+    null_allele <- FALSE
+  }
+
+  if (outlier && null_allele) {
+    stopifnot(ob + nab1 + nab2 <= 1)
+  }
+
+  if (null_allele && ret_out) {
+    stop("ret_out = TRUE not supported when null_allele = TRUE at this time")
+  }
+
   ## Set up gam
   gam <- list()
   gam[[1]] <- list(
@@ -1535,7 +1658,10 @@ seg_lrt <- function(
     add_dr = NULL)
   gam[[3]] <- list(
     outlier = outlier,
-    pi = NULL
+    null_allele = null_allele,
+    pi = NULL,
+    na_a = NULL,
+    na_b = NULL
   )
   if (model == "seg") {
     gam[[1]]$type <- "mix"
@@ -1587,7 +1713,9 @@ seg_lrt <- function(
         gamma = FALSE
       ),
       list(
-        pi = FALSE
+        pi = FALSE,
+        na_a = FALSE,
+        na_b = FALSE
       )
     )
 
@@ -1656,7 +1784,18 @@ seg_lrt <- function(
             gam[[3]]$pi <- stats::runif(n = 1, min = 0, max = ob)
           }
 
-          ret <- gam_to_par(gam = gam, fix_list = fix_list, db = db, ob = ob)
+          if (gam[[3]]$null_allele) {
+            gam[[3]]$na_a <- stats::runif(n = 1, min = 0, max = nab1)
+            gam[[3]]$na_b <- stats::runif(n = 1, min = 0, max = nab2)
+          }
+
+          ret <- gam_to_par(
+            gam = gam,
+            fix_list = fix_list,
+            db = db,
+            ob = ob,
+            na_a_bound = nab1,
+            na_b_bound = nab2)
 
           ## account edge case where gamma is simulated to start beyond bounds
           par_bad <- (ret$par < ret$lower) | (ret$par > ret$upper)
@@ -1737,7 +1876,14 @@ seg_lrt <- function(
             null_best$l0 <- oout$value
             null_best$q0 <- par_to_gf(par = oout$par, rule = ret$rule) ## ML genotype frequency
             null_best$gam <- par_to_gam(par = oout$par, rule = ret$rule) ## MLE's
-            null_best$df0 <- gam_to_df(gam = null_best$gam, fix_list = fix_list, db = db, ob = ob, df_tol = df_tol)
+            null_best$df0 <- gam_to_df(
+              gam = null_best$gam,
+              fix_list = fix_list,
+              db = db,
+              ob = ob,
+              nab1 = nab1,
+              nab2 = nab2,
+              df_tol = df_tol)
           }
           if (length(ret$par) <= 1) {
             ## Brent is awesome.
@@ -1763,12 +1909,12 @@ seg_lrt <- function(
           for (j in seq_along(p2_list)) {
             p2_freq <- p2_list[[j]]
             zyg_freq <- convolve_2(p1 = p1_freq, p2 = p2_freq)
-            if (!outlier) {
+            if (!outlier && !null_allele) {
               oout <- list()
               oout$value <- ll_ao(par = 0, q = zyg_freq, x = x)
               oout$q0 <- zyg_freq
               oout$df0 <- 0
-            } else {
+            } else if (outlier && !null_allele) {
               oout <- stats::optim(
                 par = ob / 2,
                 fn = ll_ao,
@@ -1784,6 +1930,9 @@ seg_lrt <- function(
               } else {
                 oout$df0 <- 0
               }
+            } else {
+              ## TODO: Here is where optmization needs work
+              stop("null alleles are not supported for allo and auto_allo at this time")
             }
             ## see if we have a new best
             if (oout$value + p1[[p1_geno + 1]] + p2[[p2_geno + 1]] > null_best$l0_pp) {
@@ -1843,7 +1992,7 @@ seg_lrt <- function(
 #' @author David Gerard
 #'
 #' @noRd
-gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03, df_tol = 1e-3) {
+gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03, nab1 = 0.05, nab2 = 0.05, df_tol = 1e-3) {
   db <- match.arg(db)
   TOL <- pkg_env$TOL_big
   if (is.null(fix_list)) {
@@ -1859,12 +2008,14 @@ gam_to_df <- function(gam, fix_list = NULL, db = c("ces", "prcs"), ob = 0.03, df
         gamma = FALSE
       ),
       list(
-        pi = FALSE
+        pi = FALSE,
+        na_a = FALSE,
+        na_b = FALSE
       )
     )
   }
 
-  ret <- gam_to_par(gam = gam, fix_list = fix_list, db = db, ob = ob, gamma_type = "simplex")
+  ret <- gam_to_par(gam = gam, fix_list = fix_list, db = db, ob = ob, na_a_bound = nab1, na_b_bound = nab2, gamma_type = "simplex")
   onbound <- (ret$par < ret$lower + TOL) | (ret$par > ret$upper - TOL)
   if (sum(!onbound) == 0) {
     return(0)
@@ -2049,8 +2200,11 @@ seg_multi <- function(
     p2 = NULL,
     model = c("seg", "auto", "auto_dr", "allo", "allo_pp", "auto_allo"),
     outlier = TRUE,
+    null_allele = FALSE,
     ret_out = FALSE,
     ob = 0.03,
+    nab1 = 0.05,
+    nab2 = 0.05,
     db = c("ces", "prcs"),
     ntry = 3,
     df_tol = 1e-3) {
@@ -2116,7 +2270,10 @@ seg_multi <- function(
           p2 = p2_now,
           model = model,
           outlier = outlier,
+          null_allele = null_allele,
           ob = ob,
+          nab1 = nab1,
+          nab2 = nab2,
           db = db,
           ntry = ntry,
           df_tol = df_tol,
@@ -2184,7 +2341,7 @@ outprob <- function(g, gam) {
     data_type <- "gcount"
   }
 
-  if (!gam[[3]]$outlier) {
+  if (!gam[[3]]$outlier && !gam[[3]]$null_allele) {
     if (data_type == "glike") {
       ret <- rep(x = 0, times = nrow(g))
       names(ret) <- rownames(g)
@@ -2198,10 +2355,13 @@ outprob <- function(g, gam) {
 
   ## Get null model
   pi <- gam[[3]]$pi
+  na_a <- gam[[3]]$na_a
+  na_b <- gam[[3]]$na_b
   p1 <- do.call(what = gamfreq, args = gam[[1]])
   p2 <- do.call(what = gamfreq, args = gam[[2]])
-  q <- convolve_2(p1 = p1, p2 = p2, nudge =0)
+  q <- convolve_2(p1 = p1, p2 = p2, nudge = 0)
 
+  ## TODO: incorporate null alleles in these calculations here
   if (data_type == "glike") {
     f1_1mpi <- apply(X = g + log(q)[col(g)], MARGIN = 1, FUN = log_sum_exp) + log(1 - pi)
     f0_pi <- apply(X = g + log(1 / length(q)), MARGIN = 1, FUN = log_sum_exp) + log(pi)
