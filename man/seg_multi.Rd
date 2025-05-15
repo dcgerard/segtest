@@ -173,11 +173,21 @@ need a massive data set to be able to estimate them accurately.
 \examples{
 \donttest{
 ## Assuming genotypes are known (typically a bad idea)
-glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+glist <- multidog_to_g(
+  mout = ufit,
+  ploidy = 4,
+  type = "all_g",
+  p1 = "indigocrisp",
+  p2 = "sweetcrisp")
 p1_1 <- glist$p1
 p2_1 <- glist$p2
 g_1 <- glist$g
-s1 <- seg_multi(g = g_1, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_1, p2 = p2_1)
+s1 <- seg_multi(
+  g = g_1,
+  p1_ploidy = 4,
+  p2_ploidy = 4,
+  p1 = p1_1,
+  p2 = p2_1)
 s1[, c("snp", "p_value")]
 
 ## Put NULL if you have absolutely no information on the parents
@@ -186,7 +196,12 @@ s2[, c("snp", "p_value")]
 
 ## Using genotype likelihoods (typically a good idea)
 ## Also demonstrate parallelization through future package.
-glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+glist <- multidog_to_g(
+  mout = ufit,
+  ploidy = 4,
+  type = "all_gl",
+  p1 = "indigocrisp",
+  p2 = "sweetcrisp")
 p1_2 <- glist$p1
 p2_2 <- glist$p2
 g_2 <- glist$g

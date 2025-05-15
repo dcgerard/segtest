@@ -13,7 +13,12 @@
 #' with nextElem to iterate over one index of an array.
 #'
 #' @examples
-#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' g <- iterators::iter(glist$g, by = 3)
 #' head(iterators::nextElem(g))
 #' head(iterators::nextElem(g))
@@ -48,7 +53,12 @@ iter.array <- function(obj, by = 1, recycle = FALSE, ...) {
 #' @seealso [iter.array()]
 #'
 #' @examples
-#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' g <- iterators::iter(glist$g, by = 3)
 #' head(iterators::nextElem(g))
 #' head(iterators::nextElem(g))
@@ -88,6 +98,7 @@ nextElem.arrayiter <- function(obj, ...) {
 #' Converts multidog output to a format usable for seg_multi() and multi_lrt()
 #'
 #' @param mout The output of \code{\link[updog]{multidog}()}.
+#' @param ploidy The ploidy.
 #' @param type
 #' \describe{
 #'   \item{\code{"off_gl"}}{Genotype likelihoods of offspring but not parents. This is the typical choice if you used the "f1" or "f1pp" options when genotyping.}
@@ -97,7 +108,6 @@ nextElem.arrayiter <- function(obj, ...) {
 #' }
 #' @param p1 The first parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
 #' @param p2 The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
-#' @param ploidy The ploidy.
 #'
 #' @return A list with the following elements
 #' \describe{
@@ -122,21 +132,31 @@ nextElem.arrayiter <- function(obj, ...) {
 #' @author David Gerard
 #'
 #' @examples
-#' multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' multidog_to_g(mout = ufit2, type = "off_g")
-#' multidog_to_g(mout = ufit2, type = "off_gl")
-#' multidog_to_g(mout = ufit3, type = "off_g")
-#' multidog_to_g(mout = ufit3, type = "off_gl")
+#' multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_g",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
+#' multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
+#' multidog_to_g(mout = ufit2, ploidy = 4, type = "off_g")
+#' multidog_to_g(mout = ufit2, ploidy = 4, type = "off_gl")
+#' multidog_to_g(mout = ufit3, ploidy = 4, type = "off_g")
+#' multidog_to_g(mout = ufit3, ploidy = 4, type = "off_gl")
 #'
 #'
 #' @export
 multidog_to_g <- function(
     mout,
+    ploidy,
     type = c("off_gl", "all_gl", "all_g", "off_g"),
     p1 = NULL,
-    p2 = NULL,
-    ploidy = 4) {
+    p2 = NULL) {
   type <- match.arg(type)
 
   if (type == "off_gl") {
@@ -243,14 +263,24 @@ multidog_to_g <- function(
 #' @examples
 #' \donttest{
 #' ## Assuming genotypes are known (typically a bad idea)
-#' glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_g",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' p1_1 <- glist$p1
 #' p2_1 <- glist$p2
 #' g_1 <- glist$g
 #' multi_lrt(g = g_1, p1 = p1_1, p2 = p2_1)
 #'
 #' ## Using genotype likelihoods (typically a good idea)
-#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' p1_2 <- glist$p1
 #' p2_2 <- glist$p2
 #' g_2 <- glist$g

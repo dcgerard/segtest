@@ -6,14 +6,16 @@
 \usage{
 multidog_to_g(
   mout,
+  ploidy,
   type = c("off_gl", "all_gl", "all_g", "off_g"),
   p1 = NULL,
-  p2 = NULL,
-  ploidy = 4
+  p2 = NULL
 )
 }
 \arguments{
 \item{mout}{The output of \code{\link[updog]{multidog}()}.}
+
+\item{ploidy}{The ploidy.}
 
 \item{type}{\describe{
 \item{\code{"off_gl"}}{Genotype likelihoods of offspring but not parents. This is the typical choice if you used the "f1" or "f1pp" options when genotyping.}
@@ -25,8 +27,6 @@ multidog_to_g(
 \item{p1}{The first parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.}
 
 \item{p2}{The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.}
-
-\item{ploidy}{The ploidy.}
 }
 \value{
 A list with the following elements
@@ -53,12 +53,22 @@ rows index the loci and the columns index the genotypes
 Converts multidog output to a format usable for seg_multi() and multi_lrt()
 }
 \examples{
-multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-multidog_to_g(mout = ufit2, type = "off_g")
-multidog_to_g(mout = ufit2, type = "off_gl")
-multidog_to_g(mout = ufit3, type = "off_g")
-multidog_to_g(mout = ufit3, type = "off_gl")
+multidog_to_g(
+  mout = ufit,
+  ploidy = 4,
+  type = "all_g",
+  p1 = "indigocrisp",
+  p2 = "sweetcrisp")
+multidog_to_g(
+  mout = ufit,
+  ploidy = 4,
+  type = "all_gl",
+  p1 = "indigocrisp",
+  p2 = "sweetcrisp")
+multidog_to_g(mout = ufit2, ploidy = 4, type = "off_g")
+multidog_to_g(mout = ufit2, ploidy = 4, type = "off_gl")
+multidog_to_g(mout = ufit3, ploidy = 4, type = "off_g")
+multidog_to_g(mout = ufit3, ploidy = 4, type = "off_gl")
 
 
 }

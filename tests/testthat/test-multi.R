@@ -1,7 +1,7 @@
 test_that("multi_lrt gives same stuff as lrt funs", {
   i <- 3
   ## Assuming genotypes are known (typically bad idea)
-  glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+  glist <- multidog_to_g(mout = ufit, ploidy = 4, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
   p1_1 <- glist$p1
   p2_1 <- glist$p2
   g_1 <- glist$g
@@ -10,7 +10,7 @@ test_that("multi_lrt gives same stuff as lrt funs", {
   expect_equal(mout$p_value[[i]], uout[["p_value"]])
 
   ## Using genotype likelihoods (typically good idea)
-  glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+  glist <- multidog_to_g(mout = ufit, ploidy = 4, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
   p1_2 <- glist$p1
   p2_2 <- glist$p2
   g_2 <- glist$g
@@ -32,7 +32,7 @@ test_that("multi_lrt gives same stuff as lrt funs", {
 test_that("seg_multi() gives same stuff as seg_lrt()", {
   set.seed(1)
   i <- 5
-  glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+  glist <- multidog_to_g(mout = ufit, ploidy = 4, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
   p1_1 <- glist$p1
   p2_1 <- glist$p2
   g_1 <- glist$g

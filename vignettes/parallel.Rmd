@@ -36,17 +36,17 @@ You can convert this genotyping output to what `seg_multi()` expects using `mult
 If you did *not* use the `f1pp` or `f1` models, use ether the `all_gl` (to run tests using genotype log-likelihoods) or `all_g` (to run tests assuming genotypes are known) options, and you must specify the ID's of the parents.
 
 ```{r}
-o1 <- multidog_to_g(ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-o2 <- multidog_to_g(ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+o1 <- multidog_to_g(ufit, ploidy = 4, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+o2 <- multidog_to_g(ufit, ploidy = 4, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
 ```
 
 If you *did* use the `f1pp` or `f1` models, use either the `off_gl` (to run tests using genotype log-likelihoods) or `off_g` (to run tests assuming genotypes are known) options.
 
 ```{r}
-o3 <- multidog_to_g(ufit2, type = "off_g")
-o4 <- multidog_to_g(ufit2, type = "off_gl")
-o5 <- multidog_to_g(ufit3, type = "off_g")
-o6 <- multidog_to_g(ufit3, type = "off_gl")
+o3 <- multidog_to_g(ufit2, ploidy = 4, type = "off_g")
+o4 <- multidog_to_g(ufit2, ploidy = 4, type = "off_gl")
+o5 <- multidog_to_g(ufit3, ploidy = 4, type = "off_g")
+o6 <- multidog_to_g(ufit3, ploidy = 4, type = "off_gl")
 ```
 
 We would recommend *always* using genotype log-likelihoods. But the option is there for known genotypes.
