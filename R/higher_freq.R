@@ -1553,6 +1553,10 @@ seg_lrt <- function(
     df_tol = 1e-3,
     chisq = FALSE) {
 
+  if (null_allele) {
+    warning("null_allele = TRUE is experimental.\nPlease report any bugs you notice at:\nhttps://github.com/dcgerard/segtest/issues")
+  }
+
   ## Check input ----------
   opt <- match.arg(opt)
   optg <- match.arg(optg) ## "NLOPT_GN_DIRECT_L" works bad
@@ -2208,6 +2212,10 @@ seg_multi <- function(
     db = c("ces", "prcs"),
     ntry = 3,
     df_tol = 1e-3) {
+
+  if (null_allele) {
+    warning("null_allele = TRUE is experimental.\nPlease report any bugs you notice at:\nhttps://github.com/dcgerard/segtest/issues")
+  }
 
   model <- match.arg(model)
   db <- match.arg(db)
