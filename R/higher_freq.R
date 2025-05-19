@@ -1935,7 +1935,7 @@ seg_lrt <- function(
                 oout$df0 <- 0
               }
             } else {
-              ## TODO: Here is where optmization needs work
+              ## TODO: Here is where optimization needs work
               stop("null alleles are not supported for allo and auto_allo at this time")
             }
             ## see if we have a new best
