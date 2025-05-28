@@ -104,3 +104,24 @@ test_that("Get uniform distribution under null with multi_lrt()", {
   graphics::abline(a = 0, b = 1)
 
 })
+
+
+test_that("multidog_to_g works with S1 data", {
+  load("./s1dat.RData")
+  ## uout_s1_1 fit with model s1 but no parent given
+  ## uout_s1_2 fit with model s1 but a parent was provided
+  ## uout_s1_3 fit with model norm, parent id is Xushu18
+
+  expect_no_error(
+    {
+      multidog_to_g(mout = uout_s1_1, ploidy = 6, type = "off_g")
+      multidog_to_g(mout = uout_s1_1, ploidy = 6, type = "off_gl")
+      multidog_to_g(mout = uout_s1_2, ploidy = 6, type = "off_g")
+      multidog_to_g(mout = uout_s1_2, ploidy = 6, type = "off_gl")
+      multidog_to_g(mout = uout_s1_3, ploidy = 6, type = "all_g", p1 = "Xushu18")
+      multidog_to_g(mout = uout_s1_3, ploidy = 6, type = "all_gl", p1 = "Xushu18")
+    })
+})
+
+
+
