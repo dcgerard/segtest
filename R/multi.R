@@ -174,6 +174,9 @@ multidog_to_g <- function(
     } else if (!is.null(mout$snpdf$pgeno)) {
       p1_geno <- mout$snpdf$pgeno
       p2_geno <- NULL
+    } else if (!is.null(mout$snpdf$ell1)) {
+      p1_geno <- mout$snpdf$ell1
+      p2_geno <- NULL
     } else {
       stop("mout was not fit using either the 'f1', 'f1pp', 's1', or 's1pp' models")
     }
@@ -200,6 +203,9 @@ multidog_to_g <- function(
       p2_geno <- mout$snpdf$ell2
     } else if (!is.null(mout$snpdf$pgeno)) {
       p1_geno <- mout$snpdf$pgeno
+      p2_geno <- NULL
+    } else if (!is.null(mout$snpdf$ell1)) {
+      p1_geno <- mout$snpdf$ell1
       p2_geno <- NULL
     } else {
       stop("mout was not fit using either the 'f1', 'f1pp', 's1', or 's1pp' models")

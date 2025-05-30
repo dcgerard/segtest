@@ -124,4 +124,41 @@ test_that("multidog_to_g works with S1 data", {
 })
 
 
+test_that("multidog_to_g works with ploidy = 4 for any model", {
+  load("./all4_dat.RData")
+
+  expect_no_error(
+    {
+      multidog_to_g(ufit_s1, ploidy = 4, type = "off_g")
+      multidog_to_g(ufit_s1, ploidy = 4, type = "off_gl")
+      multidog_to_g(ufit_s1pp, ploidy = 4, type = "off_g")
+      multidog_to_g(ufit_s1pp, ploidy = 4, type = "off_gl")
+      multidog_to_g(ufit_f1, ploidy = 4, type = "off_g")
+      multidog_to_g(ufit_f1, ploidy = 4, type = "off_gl")
+      multidog_to_g(ufit_f1pp, ploidy = 4, type = "off_g")
+      multidog_to_g(ufit_f1pp, ploidy = 4, type = "off_gl")
+      multidog_to_g(ufit_norm, ploidy = 4, type = "all_g", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_norm, ploidy = 4, type = "all_g", p1 = "sweetcrisp")
+      multidog_to_g(ufit_norm, ploidy = 4, type = "all_gl", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_norm, ploidy = 4, type = "all_gl", p1 = "sweetcrisp")
+      multidog_to_g(ufit_hw, ploidy = 4, type = "all_g", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_hw, ploidy = 4, type = "all_g", p1 = "sweetcrisp")
+      multidog_to_g(ufit_hw, ploidy = 4, type = "all_gl", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_hw, ploidy = 4, type = "all_gl", p1 = "sweetcrisp")
+      multidog_to_g(ufit_bb, ploidy = 4, type = "all_g", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_bb, ploidy = 4, type = "all_g", p1 = "sweetcrisp")
+      multidog_to_g(ufit_bb, ploidy = 4, type = "all_gl", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_bb, ploidy = 4, type = "all_gl", p1 = "sweetcrisp")
+      multidog_to_g(ufit_flex, ploidy = 4, type = "all_g", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_flex, ploidy = 4, type = "all_g", p1 = "sweetcrisp")
+      multidog_to_g(ufit_flex, ploidy = 4, type = "all_gl", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_flex, ploidy = 4, type = "all_gl", p1 = "sweetcrisp")
+      multidog_to_g(ufit_uniform, ploidy = 4, type = "all_g", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_uniform, ploidy = 4, type = "all_g", p1 = "sweetcrisp")
+      multidog_to_g(ufit_uniform, ploidy = 4, type = "all_gl", p1 = "sweetcrisp", p2 = "indigocrisp")
+      multidog_to_g(ufit_uniform, ploidy = 4, type = "all_gl", p1 = "sweetcrisp")
+    })
+
+})
+
 
