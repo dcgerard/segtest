@@ -9,7 +9,6 @@ tibble(col = col) |>
 
 usethis::use_data(segtypes, overwrite = TRUE, internal = TRUE)
 
-
 ## code to prepare `seg` dataset goes here
 slist <- list()
 for (i in 1:10) {
@@ -35,7 +34,3 @@ for (i in 1:10) {
 
 seg <- do.call(what = rbind, args = slist)
 usethis::use_data(seg)
-
-
-
-

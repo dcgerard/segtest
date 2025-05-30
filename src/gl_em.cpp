@@ -130,6 +130,7 @@ arma::vec em_li(const arma::mat &B, int itermax = 100, double eps = 1e-5) {
   int K = B.n_cols - 1;
   int n = B.n_rows;
   double valinit = -std::log((double)K + 1);
+  double TOL = std::sqrt(DBL_EPSILON);
 
   arma::vec lpivec(K + 1, arma::fill::value(valinit));
 
@@ -156,7 +157,7 @@ arma::vec em_li(const arma::mat &B, int itermax = 100, double eps = 1e-5) {
 
     lpivec = lw - log_sum_exp(lw);
     llnew = llike_li(B, lpivec);
-    if (llnew < llold) {
+    if (llnew + TOL < llold) {
       Rcpp::stop("log-likelihood not increasing");
     }
 

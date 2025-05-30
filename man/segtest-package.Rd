@@ -26,6 +26,7 @@ Authors:
 
 Other contributors:
 \itemize{
+  \item Guilherme da Silva Pereira \email{guilherme.ambrosano@usp.br} (\href{https://orcid.org/0000-0002-7106-8630}{ORCID}) [contributor]
   \item NSF DBI 2132247 (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247) [funder]
 }
 
