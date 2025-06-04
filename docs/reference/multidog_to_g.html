@@ -47,10 +47,10 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">multidog_to_g</span><span class="op">(</span></span>
 <span>  <span class="va">mout</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"off_gl"</span>, <span class="st">"all_gl"</span>, <span class="st">"all_g"</span>, <span class="st">"off_g"</span><span class="op">)</span>,</span>
+<span>  <span class="va">ploidy</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"off_gl"</span>, <span class="st">"all_gl"</span>, <span class="st">"off_g"</span>, <span class="st">"all_g"</span><span class="op">)</span>,</span>
 <span>  p1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  p2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ploidy <span class="op">=</span> <span class="fl">4</span></span>
+<span>  p2 <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -62,33 +62,33 @@
 <dd><p>The output of <code><a href="https://rdrr.io/pkg/updog/man/multidog.html" class="external-link">multidog</a>()</code>.</p></dd>
 
 
+<dt id="arg-ploidy">ploidy<a class="anchor" aria-label="anchor" href="#arg-ploidy"></a></dt>
+<dd><p>The ploidy.</p></dd>
+
+
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><dl><dt><code>"off_gl"</code></dt>
-<dd><p>Genotype likelihoods of offspring but not parents. This is the typical choice if you used the "f1" or "f1pp" options when genotyping.</p></dd>
+<dd><p>Genotype likelihoods of offspring but not parents. This is the typical choice if you used the "f1", "f1pp", "s1", or "s1pp" options when genotyping.</p></dd>
 
 <dt><code>"all_gl"</code></dt>
-<dd><p>Genotype likelihoods of offspring and parents. This is only done if you did <em>not</em> use the "f1" or "f1pp" options when genotyping. If this is the case, then you need to specify which individuals are the parents.</p></dd>
+<dd><p>Genotype likelihoods of offspring and parents. This is only done if you did <em>not</em> use the "f1", "f1pp", "s1", or "s1pp" options when genotyping. If this is the case, then you need to specify which individuals are the parents.</p></dd>
 
 <dt><code>"off_g"</code></dt>
-<dd><p>Genotypes, assuming that they are known. You used the "f1" or "f1pp" option when genotyping.</p></dd>
+<dd><p>Genotypes, assuming that they are known. You used the "f1", "f1pp", "s1", or "s1pp" option when genotyping.</p></dd>
 
 <dt><code>"all_g"</code></dt>
-<dd><p>Genotypes, assuming that they are known. You did <em>not</em> use the "f1" or "f1pp" option when genotyping. If this is the case, then you need to specify which individuals are the parents</p></dd>
-.
+<dd><p>Genotypes, assuming that they are known. You did <em>not</em> use the "f1", "f1pp", "s1", or "s1pp" option when genotyping. If this is the case, then you need to specify which individuals are the parents.</p></dd>
+
 
 </dl></dd>
 
 
 <dt id="arg-p-">p1<a class="anchor" aria-label="anchor" href="#arg-p-"></a></dt>
-<dd><p>The first parent name if using <code>type = "all_gl"</code> or <code>type = "all_g"</code>.</p></dd>
+<dd><p>The first (or only) parent name if using <code>type = "all_gl"</code> or <code>type = "all_g"</code>.</p></dd>
 
 
 <dt id="arg-p-">p2<a class="anchor" aria-label="anchor" href="#arg-p-"></a></dt>
-<dd><p>The second parent name if using <code>type = "all_gl"</code> or <code>type = "all_g"</code>.</p></dd>
-
-
-<dt id="arg-ploidy">ploidy<a class="anchor" aria-label="anchor" href="#arg-ploidy"></a></dt>
-<dd><p>The ploidy.</p></dd>
+<dd><p>The second parent name if using <code>type = "all_gl"</code> or <code>type = "all_g"</code>. Omit if you used the "s1" or "s1pp" models when genotyping.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -113,7 +113,12 @@ rows index the loci and the columns index the genotypes
 (<code>type = "off_gl"</code>, <code>type = "all_g"</code> or <code>type = "off_g"</code>).
 Or a matrix of genotype (natural) log-likelihoods where the
 rows index the loci and the columns index the genotypes
-(<code>type = "all_gl"</code>).</p></dd>
+(<code>type = "all_gl"</code>).
+This will be <code>NULL</code> if you (i) used <code>"s1"</code> or
+<code>"s1pp"</code> models in updog and used either
+<code>type = "off_g"</code> or <code>type = "off_gl"</code> or
+(ii) used <code>type = "all_g"</code> or <code>type = "all_gl"</code>
+and only specified <code>p1</code> but not <code>p2</code>.</p></dd>
 
 
 </dl></div>
@@ -124,7 +129,12 @@ rows index the loci and the columns index the genotypes
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit</span>, type <span class="op">=</span> <span class="st">"all_g"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  mout <span class="op">=</span> <span class="va">ufit</span>,</span></span>
+<span class="r-in"><span>  ploidy <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"all_g"</span>,</span></span>
+<span class="r-in"><span>  p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>,</span></span>
+<span class="r-in"><span>  p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               0   1   2   3   4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1_44673475   22 106 100  12   0</span>
@@ -150,7 +160,12 @@ rows index the loci and the columns index the genotypes
 <span class="r-out co"><span class="r-pr">#&gt;</span>  2_40108108  4_37820371  6_30619745   6_4350249 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           3           0           1           1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit</span>, type <span class="op">=</span> <span class="st">"all_gl"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  mout <span class="op">=</span> <span class="va">ufit</span>,</span></span>
+<span class="r-in"><span>  ploidy <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"all_gl"</span>,</span></span>
+<span class="r-in"><span>  p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>,</span></span>
+<span class="r-in"><span>  p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , variable = logL_0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -4996,7 +5011,7 @@ rows index the loci and the columns index the genotypes
 <span class="r-out co"><span class="r-pr">#&gt;</span>   6_30619745   -35.73527733  -2.667238 -13.137709  -45.839813 -150.7957462</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   6_4350249    -40.24157564  -2.808757 -13.659528  -49.992251 -166.7285679</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit2</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit2</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               0   1   2   3   4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1_44673475   22 103 102  13   0</span>
@@ -5016,7 +5031,7 @@ rows index the loci and the columns index the genotypes
 <span class="r-out co"><span class="r-pr">#&gt;</span> $p2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2 0 0 4 1 2 3 0 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit2</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit2</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , variable = logL_0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -9840,7 +9855,7 @@ rows index the loci and the columns index the genotypes
 <span class="r-out co"><span class="r-pr">#&gt;</span> $p2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2 0 0 4 1 2 3 0 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit3</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit3</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               0   1   2   3   4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1_44673475   22 103 102  13   0</span>
@@ -9860,7 +9875,7 @@ rows index the loci and the columns index the genotypes
 <span class="r-out co"><span class="r-pr">#&gt;</span> $p2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2 0 0 4 1 2 3 0 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit3</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">multidog_to_g</span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit3</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> , , variable = logL_0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -14697,7 +14712,7 @@ rows index the loci and the columns index the genotypes
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

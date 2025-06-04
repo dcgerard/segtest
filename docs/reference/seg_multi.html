@@ -274,11 +274,21 @@ need a massive data set to be able to estimate them accurately.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co">## Assuming genotypes are known (typically a bad idea)</span></span></span>
-<span class="r-in"><span><span class="va">glist</span> <span class="op">&lt;-</span> <span class="fu"><a href="multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit</span>, type <span class="op">=</span> <span class="st">"all_g"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">glist</span> <span class="op">&lt;-</span> <span class="fu"><a href="multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  mout <span class="op">=</span> <span class="va">ufit</span>,</span></span>
+<span class="r-in"><span>  ploidy <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"all_g"</span>,</span></span>
+<span class="r-in"><span>  p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>,</span></span>
+<span class="r-in"><span>  p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">p1_1</span> <span class="op">&lt;-</span> <span class="va">glist</span><span class="op">$</span><span class="va">p1</span></span></span>
 <span class="r-in"><span><span class="va">p2_1</span> <span class="op">&lt;-</span> <span class="va">glist</span><span class="op">$</span><span class="va">p2</span></span></span>
 <span class="r-in"><span><span class="va">g_1</span> <span class="op">&lt;-</span> <span class="va">glist</span><span class="op">$</span><span class="va">g</span></span></span>
-<span class="r-in"><span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu">seg_multi</span><span class="op">(</span>g <span class="op">=</span> <span class="va">g_1</span>, p1_ploidy <span class="op">=</span> <span class="fl">4</span>, p2_ploidy <span class="op">=</span> <span class="fl">4</span>, p1 <span class="op">=</span> <span class="va">p1_1</span>, p2 <span class="op">=</span> <span class="va">p2_1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu">seg_multi</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  g <span class="op">=</span> <span class="va">g_1</span>,</span></span>
+<span class="r-in"><span>  p1_ploidy <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  p2_ploidy <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  p1 <span class="op">=</span> <span class="va">p1_1</span>,</span></span>
+<span class="r-in"><span>  p2 <span class="op">=</span> <span class="va">p2_1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s1</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"snp"</span>, <span class="st">"p_value"</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            snp     p_value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   1_44673475 0.205984263</span>
@@ -309,7 +319,12 @@ need a massive data set to be able to estimate them accurately.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Using genotype likelihoods (typically a good idea)</span></span></span>
 <span class="r-in"><span><span class="co">## Also demonstrate parallelization through future package.</span></span></span>
-<span class="r-in"><span><span class="va">glist</span> <span class="op">&lt;-</span> <span class="fu"><a href="multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span>mout <span class="op">=</span> <span class="va">ufit</span>, type <span class="op">=</span> <span class="st">"all_gl"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">glist</span> <span class="op">&lt;-</span> <span class="fu"><a href="multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  mout <span class="op">=</span> <span class="va">ufit</span>,</span></span>
+<span class="r-in"><span>  ploidy <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"all_gl"</span>,</span></span>
+<span class="r-in"><span>  p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>,</span></span>
+<span class="r-in"><span>  p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">p1_2</span> <span class="op">&lt;-</span> <span class="va">glist</span><span class="op">$</span><span class="va">p1</span></span></span>
 <span class="r-in"><span><span class="va">p2_2</span> <span class="op">&lt;-</span> <span class="va">glist</span><span class="op">$</span><span class="va">p2</span></span></span>
 <span class="r-in"><span><span class="va">g_2</span> <span class="op">&lt;-</span> <span class="va">glist</span><span class="op">$</span><span class="va">g</span></span></span>
@@ -346,7 +361,7 @@ need a massive data set to be able to estimate them accurately.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

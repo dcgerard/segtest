@@ -99,17 +99,17 @@ models, use ether the <code>all_gl</code> (to run tests using genotype
 log-likelihoods) or <code>all_g</code> (to run tests assuming genotypes
 are known) options, and you must specify the ID’s of the parents.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">o1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit</span>, type <span class="op">=</span> <span class="st">"all_g"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span>
-<span><span class="va">o2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit</span>, type <span class="op">=</span> <span class="st">"all_gl"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">o1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"all_g"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span>
+<span><span class="va">o2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"all_gl"</span>, p1 <span class="op">=</span> <span class="st">"indigocrisp"</span>, p2 <span class="op">=</span> <span class="st">"sweetcrisp"</span><span class="op">)</span></span></code></pre></div>
 <p>If you <em>did</em> use the <code>f1pp</code> or <code>f1</code>
 models, use either the <code>off_gl</code> (to run tests using genotype
 log-likelihoods) or <code>off_g</code> (to run tests assuming genotypes
 are known) options.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">o3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit2</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span>
-<span><span class="va">o4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit2</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span>
-<span><span class="va">o5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit3</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span>
-<span><span class="va">o6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit3</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">o3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit2</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span>
+<span><span class="va">o4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit2</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span>
+<span><span class="va">o5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit3</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_g"</span><span class="op">)</span></span>
+<span><span class="va">o6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multidog_to_g.html">multidog_to_g</a></span><span class="op">(</span><span class="va">ufit3</span>, ploidy <span class="op">=</span> <span class="fl">4</span>, type <span class="op">=</span> <span class="st">"off_gl"</span><span class="op">)</span></span></code></pre></div>
 <p>We would recommend <em>always</em> using genotype log-likelihoods.
 But the option is there for known genotypes.</p>
 <p>Parallelization support is provided through the future package. You
@@ -259,7 +259,7 @@ time, but the new way is a little better.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
