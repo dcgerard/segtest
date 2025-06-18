@@ -134,6 +134,10 @@ argument. You can get the maximum number of workers via
 <span>  p1_ploidy <span class="op">=</span> <span class="fl">4</span>, </span>
 <span>  p2_ploidy <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  ret_out <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The output is a data frame. The most important parts of this are the
 <code>snp</code> and <code>p_value</code> columns.</p>
@@ -174,6 +178,10 @@ segregation distortion</p>
 <span>  p1_ploidy <span class="op">=</span> <span class="fl">4</span>, </span>
 <span>  p2_ploidy <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  outlier <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mout2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"snp"</span>, <span class="st">"p_value"</span><span class="op">)</span><span class="op">]</span></span>
@@ -226,6 +234,10 @@ for tetraploids. You can still use it instead of
 <span>  p1 <span class="op">=</span> <span class="va">o2</span><span class="op">$</span><span class="va">p1</span>, </span>
 <span>  p2 <span class="op">=</span> <span class="va">o2</span><span class="op">$</span><span class="va">p2</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
+<span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>It’s a little faster, but it cannot account for outliers, so it will
 mostly be the same as setting <code>outlier = FALSE</code>.</p>

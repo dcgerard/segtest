@@ -63,8 +63,7 @@ Older functions that are only applicable to tetraploids are:
 - `simf1gl()`: Simulate genotype likelihoods from an F1 population of
   tetraploids.
 
-We also provide some functions from competing methods, which we do not
-recommend using:
+We also provide some functions from “competing” methods:
 
 - `polymapr_test()`: Test from `polymapR`.
 - `chisq_g4()`: Chi-squared test (not accounting for double reduction
@@ -72,7 +71,8 @@ recommend using:
 - `chisq_gl4()`: Chi-squared test (not accounting for double reduction
   and preferential pairing) using genotype likelihoods.
 
-Details of these methods may be found in Gerard et al. (2025).
+Details of these methods may be found in Gerard et al. (2025a) and
+Gerard et al. (2025b).
 
 ## Installation
 
@@ -100,10 +100,14 @@ By contributing to this project, you agree to abide by its terms.
 
 ## References
 
-Gerard D, Thakkar M, & Ferrão LFV (2025). “Tests for segregation
+Gerard D, Thakkar M, & Ferrão LFV (2025a). “Tests for segregation
 distortion in tetraploid F1 populations.” *Theoretical and Applied
 Genetics*, *138*(30), p. 1–13.
 [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
+
+Gerard D, Ambrosano GB, Pereira GdS, & Garcia AAF (2025b). “Tests for
+segregation distortion in higher ploidy F1 populations.” *Unpublished
+Manuscript*.
 
 ## Acknowledgments
 
