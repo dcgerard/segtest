@@ -113,6 +113,7 @@ test_that("corner cases", {
   if (!requireNamespace("polymapR", quietly = TRUE)) {
     skip("polymapR not installed")
   }
+  set.seed(1)
 
   xmat <- structure(c(4L, 8L, 8L, 9L, 7L, 18L, 8L, 7L, 10L, 1L, 0L, 0L,
 0L, 1L, 1L, 2L, 3L, 4L, 4L, 5L, 3L, 5L, 2L, 6L, 4L, 5L, 3L, 2L,
@@ -154,5 +155,11 @@ test_that("corner cases", {
     expect_equal(mout - pout, 0, tolerance = 10^-3)
   }
 
+  ## on last i
+  gl <- simgl(nvec = x)
+  pl <- t(apply(X = gl, MARGIN = 1, FUN = \(x) exp(x - log_sum_exp(x))))
+  mout <- polymapr_test(x = pl, g1 = g1, g2 = g2, type = "segtest")$p_value
+  pout <- polymapr_test(x = pl, g1 = g1, g2 = g2, type = "polymapR")$p_value
+  expect_equal(mout - pout, 0, tolerance = 10^-3)
 })
 

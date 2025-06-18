@@ -15,34 +15,55 @@ v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org
 coverage](https://codecov.io/gh/dcgerard/segtest/graph/badge.svg)](https://app.codecov.io/gh/dcgerard/segtest)
 <!-- badges: end -->
 
-This is a light version of the original package,
-[`menbayes`](https://github.com/dcgerard/menbayes), that only contains
-the likelihood ratio approaches. This is for easier maintenance and
-install. See the [`menbayes`](https://github.com/dcgerard/menbayes)
-package for the Bayesian tests.
+Provides a suite of tests for segregation distortion for F1 populations
+of polyploids under various models of meiosis. You can use these tests
+for autopolyploids that exhibit full polysomic inheritance,
+allopolyploids that exhibit full disomic inheritance, or segmental
+allopolyploids that exhibit partial preferential pairing. Double
+reduction is (optionally) fully accounted for in tetraploids, and
+(optionally) partially accounted for (only at simplex loci) for higher
+ploidies. Some maximum proportion of outliers can be specified, and so
+these methods can accommodate moderate levels of double reduction at
+non-simplex loci. Offspring genotypes can either be known, or genotype
+uncertainty can be represented through genotype likelihoods. Parent data
+may or may not be provided, at your option. Parents can have different
+(even) ploidies, at your option.
 
-Provides a suite of tests for segregation distortion in F1 polyploid
-populations (for now, just tetraploids). This is under different
-assumptions of meiosis. The main functions are:
+This package only contains likelihood ratio and chi-squared tests. See
+the [`menbayes`](https://github.com/dcgerard/menbayes) package for
+Bayesian tests for tetraploids.
 
-- `multi_lrt()`: Run any of the likelihood ratio tests for segregation
-  distortion in parallel across many SNPs.
+The main functions are:
+
+- `seg_multi()`: Run the likelihood ratio test for segregation
+  distortion in parallel at many loci.
 - `multidog_to_g`: Format the genotyping output from `updog::multidog()`
-  to be compatible withe input of `multi_lrt()`.
-- `lrt_men_g4()`: Likelihood ratio test for segregation distortion using
-  known genotypes.
-- `lrt_men_gl4()`: Likelihood ratio test for segregation distortion
-  using genotype likelihoods.
-- `offspring_gf_2()`: Offspring genotype frequencies under the two
-  parameter model of meiosis.
-- `offspring_gf_3()`: Offspring genotype frequencies under the three
-  parameter model of meiosis.
+  to be compatible withe input of `seg_multi()`.
+- `seg_lrt()`: Test for segregation distortion for any even ploidy.
+- `gamfreq()`: Gamete frequencies.
+- `gf_freq()`: Genotype frequencies of an F1 population of polyploids.
+- `drbounds()`: Upper bounds on the double reduction rate(s) based on
+  two different extreme models of meiosis.
+- `simgl()`: Simulate genotype log-likelihoods given a vector of
+  genotype counts.
+
+Older functions that are only applicable to tetraploids are:
+
+- `multi_lrt()`: Run any of the tetraploid likelihood ratio tests for
+  segregation distortion in parallel across many SNPs.
+- `lrt_men_g4()`: Tetraploid likelihood ratio test for segregation
+  distortion using known genotypes.
+- `lrt_men_gl4()`: Tetraploid likelihood ratio test for segregation
+  distortion using genotype likelihoods.
+- `offspring_gf_2()`: Tetraploid offspring genotype frequencies under
+  the two parameter model of meiosis.
+- `offspring_gf_3()`: Tetraploid offspring genotype frequencies under
+  the three parameter model of meiosis.
 - `simf1g()`: Simulate genotypes from an F1 population of tetraploids.
 - `simf1gl()`: Simulate genotype likelihoods from an F1 population of
   tetraploids.
 
-We also provide some functions from competing methods, which we do not
-recommend using:
+We also provide some functions from “competing” methods:
 
 - `polymapr_test()`: Test from `polymapR`.
 - `chisq_g4()`: Chi-squared test (not accounting for double reduction
@@ -50,7 +71,8 @@ recommend using:
 - `chisq_gl4()`: Chi-squared test (not accounting for double reduction
   and preferential pairing) using genotype likelihoods.
 
-Details of these methods may be found in Gerard et al. (2025).
+Details of these methods may be found in Gerard et al. (2025a) and
+Gerard et al. (2025b).
 
 ## Installation
 
@@ -78,12 +100,16 @@ By contributing to this project, you agree to abide by its terms.
 
 ## References
 
-Gerard D, Thakkar M, & Ferrão LFV (2025). “Tests for segregation
+Gerard D, Thakkar M, & Ferrão LFV (2025a). “Tests for segregation
 distortion in tetraploid F1 populations.” *Theoretical and Applied
 Genetics*, *138*(30), p. 1–13.
 [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
 
+Gerard D, Ambrosano GB, Pereira GdS, & Garcia AAF (2025b). “Tests for
+segregation distortion in higher ploidy F1 populations.” *Unpublished
+Manuscript*.
+
 ## Acknowledgments
 
-This material is based upon work supported by the National Science
-Foundation under Grant No. 2132247.
+Part of this material is based upon work supported by the National
+Science Foundation under Grant No. 2132247.

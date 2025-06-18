@@ -12,7 +12,6 @@
 #' given parent genotypes, choosing the largest p-value. When
 #' \code{type = "polymapR"}, we return what they use via their heuristics.
 #'
-#'
 #' @param x Either a vector of genotype counts, or a matrix of genotype
 #'     posteriors where the rows index the individuals and the columns
 #'     index the genotypes.
@@ -26,9 +25,9 @@
 #' @return A list with the following elements:
 #' \describe{
 #'  \item{p_value}{The p-value of the test.}
-#'  \item{bestfit}{The best fit model, using the same notation as in
-#'      \code{\link[polymapR]{checkF1}()}.}
+#'  \item{bestfit}{The genotype frequencies of the best fit model.}
 #'  \item{frq_invalid}{The frequency of invalid genotypes.}
+#'  \item{p_invalid}{The p-value of the invalid proportion.}
 #' }
 #'
 #' @seealso \code{\link[polymapR]{checkF1}()}.
@@ -38,7 +37,7 @@
 #' g2 <- 1
 #' x <- c(4, 16, 0, 0, 0)
 #' polymapr_test(x = x, g1 = g1, g2 = g2, type = "segtest")
-#'
+#' polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
 #'
 #'
 #' @author David Gerard
@@ -61,12 +60,10 @@ polymapr_test <- function(x, g1 = NULL, g2 = NULL, type = c("segtest", "polymapR
   }
 
   dat <- NULL
-  if (length(x) == 5) {
-    dat <- "known"
-  } else if (ncol(x) == 5) {
+  if (is.matrix(x)) {
     dat <- "gl"
   } else {
-    stop("x needs to either have length 5 or be a matrix with 5 columns.")
+    dat <- "known"
   }
 
   if (dat == "known" && type == "segtest") {
@@ -131,13 +128,14 @@ polymapR_package_g <- function(x, g1, g2) {
     ploidy = ploidy)
 
   TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
-  p_invalid <- stats::pbinom(q = (1 - cout$checked_F1$frqInvalid_bestParentfit[[1]]) * n,
-                             size = n,
-                             prob = 1 - seg_invalidrate)
+  p_invalid <- stats::pbinom(
+    q = (1 - cout$checked_F1$frqInvalid_bestParentfit[[1]]) * n,
+    size = n,
+    prob = 1 - seg_invalidrate)
 
   ret <- list(
     p_value = cout$checked_F1$Pvalue_bestParentfit[[1]],
-    bestfit = as.character(cout$checked_F1$bestParentfit[[1]]),
+    bestfit = polymapr_model_to_prop(mod = as.character(cout$checked_F1$bestParentfit[[1]]), ploidy = ploidy),
     frq_invalid = cout$checked_F1$frqInvalid_bestParentfit[[1]],
     p_invalid = p_invalid
   )
@@ -159,7 +157,7 @@ polymapR_package_g <- function(x, g1, g2) {
 #'
 #' @noRd
 polymapr_package_gl <- function(gl, g1, g2) {
-  stopifnot(ncol(gl) == 5)
+  ploidy <- ncol(gl) - 1
   stopifnot(abs(rowSums(gl) - 1) < sqrt(.Machine$double.eps))
   seg_invalidrate <- 0.03
 
@@ -168,10 +166,10 @@ polymapr_package_gl <- function(gl, g1, g2) {
   ## need to repeat parent info to force polymapR to use it
   gl <- rbind(
     gl,
-    (0:4 == g1) * 1,
-    (0:4 == g1) * 1,
-    (0:4 == g2) * 1,
-    (0:4 == g2) * 1
+    (0:ploidy == g1) * 1,
+    (0:ploidy == g1) * 1,
+    (0:ploidy == g2) * 1,
+    (0:ploidy == g2) * 1
   )
 
   gp_df <- as.data.frame(gl)
@@ -187,21 +185,20 @@ polymapr_package_gl <- function(gl, g1, g2) {
     probgeno_df = gp_df,
     parent1 = c("P11", "P12"),
     parent2 = c("P21", "P22"),
-    ploidy = 4,
+    ploidy = ploidy,
     polysomic = TRUE,
     disomic = TRUE,
     mixed = TRUE,
     F1 = paste0("F", seq_len(n))
   )
 
-  TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
   p_invalid <- stats::pbinom(q = (1 - cout$checked_F1$frqInvalid_bestParentfit[[1]]) * n,
                              size = n,
                              prob = 1 - seg_invalidrate)
 
   ret <- list(
     p_value = cout$checked_F1$Pvalue_bestParentfit[[1]],
-    bestfit = as.character(cout$checked_F1$bestParentfit[[1]]),
+    bestfit = polymapr_model_to_prop(mod = as.character(cout$checked_F1$bestParentfit[[1]]), ploidy = ploidy),
     frq_invalid = cout$checked_F1$frqInvalid_bestParentfit[[1]],
     p_invalid = p_invalid
   )
@@ -209,7 +206,7 @@ polymapr_package_gl <- function(gl, g1, g2) {
   return(ret)
 }
 
-#' test for segregation distortion, approximating polymapR procedure
+#' Test for segregation distortion, approximating polymapR procedure
 #'
 #' @inheritParams polymapR
 #' @param seg_invalidrate If there is only one class possible, the p-value
@@ -220,9 +217,9 @@ polymapr_package_gl <- function(gl, g1, g2) {
 #'
 #' @noRd
 polymapr_approx_g <- function(x, g1 = NULL, g2 = NULL, seg_invalidrate = 0.03) {
-  ploidy <- 4
+  ploidy <- length(x) - 1
   n <- sum(x)
-  stopifnot(length(x) == 5, x >= 0)
+  stopifnot(ploidy %% 2 == 0, x >= 0)
   if (!is.null(g1)) {
     stopifnot(g1 >= 0, g1 <= ploidy)
   }
@@ -230,44 +227,53 @@ polymapr_approx_g <- function(x, g1 = NULL, g2 = NULL, seg_invalidrate = 0.03) {
     stopifnot(g2 >= 0, g2 <= ploidy)
   }
 
+  if (is.null(g1)) {
+    p1_pos <- 0:ploidy
+  } else {
+    p1_pos <- g1
+  }
+  if (is.null(g2)) {
+    p2_pos <- 0:ploidy
+  } else {
+    p2_pos <- g2
+  }
+
   TOL <- sqrt(.Machine$double.eps)
   pval <- 0
   p_invalid <- 0
-  bi <- NULL
+  q_best <- NULL
   frq_invalid <- NULL
-  for (i in seq_len(nrow(segtypes))) {
-    if (!is.null(g1) && !is.null(g2)) {
-      is_p <- any((segtypes$pardosage[[i]][, 1] == g1) &
-                    (segtypes$pardosage[[i]][, 2] == g2))
-    } else if (!is.null(g1)) {
-      is_p <- any((segtypes$pardosage[[i]][, 1] == g1))
-    } else if (!is.null(g2)) {
-      is_p <- any((segtypes$pardosage[[i]][, 2] == g2))
-    } else {
-      is_p <- TRUE
-    }
-    if (is_p) {
-      fq <- segtypes$freq[[i]]
-      not_0 <- fq > sqrt(.Machine$double.eps)
-      if (any(x[not_0] != 0)) {
-        if (sum(not_0) == 1) {
-          chout <- list(p.value = 1)
-        } else {
-          suppressWarnings(
-            chout <- stats::chisq.test(x = x[not_0], p = fq[not_0])
-          )
-        }
-        chout$frq_invalid <- sum(x[!not_0])
-        chout$p_invalid <- stats::pbinom(q = n - chout$frq_invalid,
-                                         size = n,
-                                         prob = 1 - seg_invalidrate)
+  for (p1_geno in p1_pos) {
+    p1_list <- segtest::seg[segtest::seg$ploidy == ploidy & segtest::seg$g == p1_geno, ]$p
+    for (i in seq_along(p1_list)) {
+      for (p2_geno in p2_pos) {
+        p2_list <- segtest::seg[segtest::seg$ploidy == ploidy & segtest::seg$g == p2_geno, ]$p
+        for (j in seq_along(p2_list)) {
+          fq <- convolve_2(p1 = p1_list[[i]], p2 = p2_list[[j]], nudge = 0)
+          not_0 <- fq > sqrt(.Machine$double.eps)
+          if (any(x[not_0] != 0)) {
+            if (sum(not_0) == 1) {
+              chout <- list(p.value = 1)
+            } else {
+              suppressWarnings( ## small sample size warning
+                chout <- stats::chisq.test(x = x[not_0], p = fq[not_0])
+              )
+            }
+            chout$frq_invalid <- sum(x[!not_0])
+            chout$p_invalid <- stats::pbinom(
+              q = n - chout$frq_invalid,
+              size = n,
+              prob = 1 - seg_invalidrate
+              )
 
-        ## weird criterion
-        if (pval * p_invalid < chout$p.value * chout$p_invalid) {
-          pval <- chout$p.value
-          bi <- i
-          frq_invalid <- chout$frq_invalid
-          p_invalid <- chout$p_invalid
+            ## weird criterion
+            if (pval * p_invalid < chout$p.value * chout$p_invalid) {
+              pval <- chout$p.value
+              frq_invalid <- chout$frq_invalid
+              q_best <- fq
+              p_invalid <- chout$p_invalid
+            }
+          }
         }
       }
     }
@@ -275,7 +281,7 @@ polymapr_approx_g <- function(x, g1 = NULL, g2 = NULL, seg_invalidrate = 0.03) {
 
   ret <- list(
     p_value = pval,
-    best_fit = segtypes$mod[[bi]],
+    best_fit = q_best,
     frq_invalid = frq_invalid,
     p_invalid = p_invalid
   )
@@ -289,11 +295,11 @@ polymapr_approx_g <- function(x, g1 = NULL, g2 = NULL, seg_invalidrate = 0.03) {
 #'
 #' @noRd
 polymapr_approx_gl <- function(gl, g1, g2, seg_invalidrate = 0.03) {
-  stopifnot(ncol(gl) == 5)
+  ploidy <- ncol(gl) - 1
   stopifnot(abs(rowSums(gl) - 1) < sqrt(.Machine$double.eps))
   x <- colSums(gl)
   ## remove low counts and renormalize to sum to number of individuals
-  proba_correct <- 0.05 * nrow(gl) / (4 + 1)
+  proba_correct <- 0.05 * nrow(gl) / (ploidy + 1)
   x[x < proba_correct] <- 0
   x <- (x/sum(x)) * nrow(gl)
   ## now just run it things like genotypes are known
@@ -303,4 +309,38 @@ polymapr_approx_gl <- function(gl, g1, g2, seg_invalidrate = 0.03) {
     g2 = g2,
     seg_invalidrate = seg_invalidrate)
   return(ret)
+}
+
+#' Convert polymapR's model shorthand to actual genotype frequencies
+#'
+#' @param mod Model of the form something like 121_2 which corrsponds to
+#'    segregation ratios of 1 to 2 to 1 starting at genotype 2.
+#' @param ploidy Ploidy of the offspring.
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' polymapr_model_to_prop(mod = "BZB_1", ploidy = 4)
+#' q <- c(0, 11, 35, 11, 0)
+#' q / sum(q)
+#'
+#' polymapr_model_to_prop(mod = "1412_0", ploidy = 4)
+#' q <- c(1, 4, 1, 2, 0)
+#' q / sum(q)
+#'
+#'
+#' @noRd
+polymapr_model_to_prop <- function(mod, ploidy) {
+  sout <- strsplit(mod, split = "")[[1]]
+  letvec <- match(x = sout, table = LETTERS)
+  if (any(!is.na(letvec))) {
+    sout[!is.na(letvec)] <- (10:35)[letvec[!is.na(letvec)]]
+  }
+  un <- which(sout == "_")
+  rat <- as.numeric(sout[1:(un - 1)])
+  st <- as.numeric(sout[(un + 1):length(sout)])
+  fq <- rep(0, times = ploidy + 1)
+  fq[(st + 1):(st + length(rat))] <- rat
+  fq <- fq / sum(fq)
+  return(fq)
 }

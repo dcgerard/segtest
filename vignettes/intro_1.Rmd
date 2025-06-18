@@ -1,8 +1,8 @@
 ---
-title: "Introduction to segtest"
+title: "Introduction to segtest Version 1.0"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to segtest}
+  %\VignetteIndexEntry{Introduction to segtest Version 1.0}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(segtest)
 ```
+
+This is the introduction to Version 1.0 of segtest. This version was only applicable to tetraploids. Version 2.0 is applicable to any even ploidy level.
 
 The `segtest` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). Details of these methods may be found in Gerard et al. (2025). The main functions are:
 

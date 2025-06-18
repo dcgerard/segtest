@@ -19,7 +19,12 @@ This is applied to an \code{arrayiter} object to obtain the next sub-array
 along one of the dimensions.
 }
 \examples{
-glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+glist <- multidog_to_g(
+  mout = ufit,
+  ploidy = 4,
+  type = "all_gl",
+  p1 = "indigocrisp",
+  p2 = "sweetcrisp")
 g <- iterators::iter(glist$g, by = 3)
 head(iterators::nextElem(g))
 head(iterators::nextElem(g))

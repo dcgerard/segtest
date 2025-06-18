@@ -23,3 +23,26 @@
 
 #' @rdname ufit
 "ufit3"
+
+#' Disomic and polysomic segregation patterns
+#'
+#' Gamete frequencies for all possible disomic and polysomic segregation
+#' patterns for even ploidies 2 through 20. If you need higher ploidy levels,
+#' let me know and I'll update it (it's very easy).
+#'
+#' @format A data frame with the following columns
+#' \describe{
+#'   \item{\code{ploidy}}{The ploidy of the parent.}
+#'   \item{\code{g}}{The genotype of the parent.}
+#'   \item{\code{m}}{The pairing configuration given disomic inheritance. See Gerard et al (2018).}
+#'   \item{\code{p}}{The gamete frequencies. Element \code{p[[i]]} is the probability a gamete will have dosage \code{i-1}.}
+#'   \item{\code{mode}}{Whether the inheritance pattern that leads to these gamete frequencies is \code{"disomic"}, \code{"polysomic"}, or \code{"both"}.}
+#' }
+#'
+#' @references
+#' \itemize{
+#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. Genetics, 210(3), 789-807.}
+#' }
+#'
+#' @author David Gerard
+"seg"

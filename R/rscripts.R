@@ -322,20 +322,33 @@ po_gl <- function(genovec, ploidy, p1_geno = NULL, p2_geno = NULL, rd = 10, seq 
     p2rd <- NULL
   }
 
-  fout <- updog::flexdog_full(refvec = refvec,
-                              sizevec = sizevec,
-                              ploidy = ploidy,
-                              model = "f1pp",
-                              seq = seq,
-                              bias = bias,
-                              od = od,
-                              update_bias = FALSE,
-                              update_seq = FALSE,
-                              update_od = FALSE,
-                              p1ref = p1ref,
-                              p1size = p1rd,
-                              p2ref = p2ref,
-                              p2size = p2rd)
+  if (!is.null(p1_geno) && !is.null(p2_geno)) {
+    fout <- updog::flexdog_full(refvec = refvec,
+                                sizevec = sizevec,
+                                ploidy = ploidy,
+                                model = "f1pp",
+                                seq = seq,
+                                bias = bias,
+                                od = od,
+                                update_bias = FALSE,
+                                update_seq = FALSE,
+                                update_od = FALSE,
+                                p1ref = p1ref,
+                                p1size = p1rd,
+                                p2ref = p2ref,
+                                p2size = p2rd)
+  } else {
+    fout <- updog::flexdog_full(refvec = refvec,
+                                sizevec = sizevec,
+                                ploidy = ploidy,
+                                model = "norm",
+                                seq = seq,
+                                bias = bias,
+                                od = od,
+                                update_bias = FALSE,
+                                update_seq = FALSE,
+                                update_od = FALSE)
+  }
 
   return(fout)
 }
@@ -389,7 +402,7 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   return(gcount)
 }
 
-#' Simulate genotype likelihoods from genotype counts
+#' Simulate genotype (log) likelihoods from genotype counts
 #'
 #' Provide a vector of genotype counts and this will return a matrix of
 #' genotype log-likelihoods.
@@ -406,7 +419,6 @@ simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #' @examples
 #' set.seed(1)
 #' simgl(nvec = c(1, 2, 1, 1, 3))
-#'
 #'
 #' @export
 simgl <- function(nvec, rd = 10, seq = 0.01, bias = 1, od = 0.01) {

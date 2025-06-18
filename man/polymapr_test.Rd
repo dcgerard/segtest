@@ -24,9 +24,9 @@ polymapR needs to be installed for \code{type = "polymapR"}.}
 A list with the following elements:
 \describe{
 \item{p_value}{The p-value of the test.}
-\item{bestfit}{The best fit model, using the same notation as in
-\code{\link[polymapR]{checkF1}()}.}
+\item{bestfit}{The genotype frequencies of the best fit model.}
 \item{frq_invalid}{The frequency of invalid genotypes.}
+\item{p_invalid}{The p-value of the invalid proportion.}
 }
 }
 \description{
@@ -44,7 +44,7 @@ g1 <- 0
 g2 <- 1
 x <- c(4, 16, 0, 0, 0)
 polymapr_test(x = x, g1 = g1, g2 = g2, type = "segtest")
-
+polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
 
 
 }

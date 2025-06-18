@@ -31,3 +31,31 @@ test_that("Corner cases work", {
       g2 = g2,
       log_p = TRUE)
 })
+
+test_that("corner cases work for higher ploidies", {
+  expect_no_error(
+    seg_lrt(x = c(1, 0, 0, 0, 0), p1_ploidy = 4, p2_ploidy = 4)
+  )
+
+  expect_no_error(
+    seg_lrt(x = c(1, 0, 0, 1, 0), p1_ploidy = 4, p2_ploidy = 4)
+  )
+
+  expect_no_error(
+    seg_lrt(x = c(0, 1, 0, 1, 0, 0, 0), p1_ploidy = 6, p2_ploidy = 6)
+  )
+})
+
+
+test_that("new corner case works", {
+  load("./fpop.RData")
+  ploidy <- 6
+  p1geno <- fpop$par$p1geno
+  p2geno <- fpop$par$p2geno
+  gl <- fpop$genologlike
+  sout <- seg_lrt(x = gl, p1_ploidy = ploidy, p2_ploidy = ploidy, p1 = p1geno, p2 = p2geno)
+  expect_true(!is.na(sout$p_value))
+})
+
+
+

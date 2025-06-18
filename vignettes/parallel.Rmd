@@ -12,13 +12,18 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+set.seed(1)
 ```
 
 ```{r setup}
 library(segtest)
 ```
 
+# Introduction
+
 We provide a walk-through of how to run tests for segregation distortion at many loci in parallel.
+
+# Analysis
 
 Data sets `ufit`, `ufit2`, and `ufit3` contain the genotyping output of `updog::multidog()` using three different models.
 
@@ -26,58 +31,143 @@ Data sets `ufit`, `ufit2`, and `ufit3` contain the genotyping output of `updog::
 - `ufit2`: Uses the `f1pp` model, specifying the parents.
 - `ufit3`: Uses the `f1` model, specifying the parents.
 
-You can convert this genotyping output to what `multi_lrt()` expects using `multidog_to_g()`.
+You can convert this genotyping output to what `seg_multi()` expects using `multidog_to_g()`.
 
 If you did *not* use the `f1pp` or `f1` models, use ether the `all_gl` (to run tests using genotype log-likelihoods) or `all_g` (to run tests assuming genotypes are known) options, and you must specify the ID's of the parents.
 
 ```{r}
-o1 <- multidog_to_g(ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-o2 <- multidog_to_g(ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+o1 <- multidog_to_g(ufit, ploidy = 4, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+o2 <- multidog_to_g(ufit, ploidy = 4, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
 ```
 
 If you *did* use the `f1pp` or `f1` models, use either the `off_gl` (to run tests using genotype log-likelihoods) or `off_g` (to run tests assuming genotypes are known) options.
 
 ```{r}
-o3 <- multidog_to_g(ufit2, type = "off_g")
-o4 <- multidog_to_g(ufit2, type = "off_gl")
-o5 <- multidog_to_g(ufit3, type = "off_g")
-o6 <- multidog_to_g(ufit3, type = "off_gl")
+o3 <- multidog_to_g(ufit2, ploidy = 4, type = "off_g")
+o4 <- multidog_to_g(ufit2, ploidy = 4, type = "off_gl")
+o5 <- multidog_to_g(ufit3, ploidy = 4, type = "off_g")
+o6 <- multidog_to_g(ufit3, ploidy = 4, type = "off_gl")
 ```
 
 We would recommend *always* using genotype log-likelihoods. But the option is there for known genotypes.
 
-Parallelization support is provided through the future package. You specify how to implement parallelization using `future::plan()`. Then you run `multi_lrt()`. Then you shut down the parallelization with `future::plan()`. The most common plan is `future::multisession()`, where you specify the number of parallel processes with the `workers` argument. You can get the maximum number of workers via `future::availableCores()`
+Parallelization support is provided through the future package. You specify how to implement parallelization using `future::plan()`. Then you run `seg_multi()`. Then you shut down the parallelization with `future::plan()`. The most common plan is `future::multisession()`, where you specify the number of parallel processes with the `workers` argument. You can get the maximum number of workers via `future::availableCores()`
 
 ```{r}
 future::availableCores()
 ```
 
 So a typically workload looks something like this:
-```{r}
+```{r, echo = TRUE, eval = FALSE}
 future::plan(future::multisession(workers = 2))
-mout <- multi_lrt(g = o2$g, p1 = o2$p1, p2 = o2$p2)
+mout1 <- seg_multi(
+  g = o2$g, 
+  p1 = o2$p1,
+  p2 = o2$p2, 
+  p1_ploidy = 4, 
+  p2_ploidy = 4,
+  ret_out = TRUE)
 future::plan(future::sequential())
 ```
 
-The output is a data frame. The most important parts of this are the `snp` and `p_value` columns. As a reminder, please ignore the `alpha`, `xi1`, and `xi2` estimates. Those are noisy. Please don't use them for real work.
-```{r}
-mout[c("snp", "p_value")]
+```{r, echo = FALSE, eval = TRUE}
+future::plan(future::sequential())
+mout1 <- seg_multi(
+  g = o2$g, 
+  p1 = o2$p1,
+  p2 = o2$p2, 
+  p1_ploidy = 4, 
+  p2_ploidy = 4,
+  ret_out = TRUE)
 ```
 
-It looks like SNPs *12_31029646* and *2_20070837* are in possible segregation distortion. Let's look at the posterior mode genotypes of SNP 2_20070837:
+The output is a data frame. The most important parts of this are the `snp` and `p_value` columns.
+```{r}
+mout1[c("snp", "p_value")]
+```
+
+
+It looks like only SNP *12_31029646* is in possible segregation distortion. Let's compare the expected frequencies (from the `q0` column) against the observed modes.
+```{r}
+round(mout1$q0[mout1$snp == "12_31029646"][[1]], digits = 4)
+o1$g["12_31029646", ] / sum(o1$g["12_31029646", ])
+```
+So SNP *12_31029646* likely got flagged because there are too many individuals with a genotype of 2, and not enough with a genotype of 0.
+
+If we would have run `outlier = FALSE`, then SNP *2_20070837* would also have been flagged for possible segregation distortion
+```{r, echo = TRUE, eval = FALSE}
+future::plan(future::multisession(workers = 2))
+mout2 <- seg_multi(
+  g = o2$g,
+  p1 = o2$p1, 
+  p2 = o2$p2, 
+  p1_ploidy = 4, 
+  p2_ploidy = 4,
+  outlier = FALSE)
+future::plan(future::sequential())
+```
+```{r, echo = FALSE, eval = TRUE}
+future::plan(future::sequential())
+mout2 <- seg_multi(
+  g = o2$g,
+  p1 = o2$p1, 
+  p2 = o2$p2, 
+  p1_ploidy = 4, 
+  p2_ploidy = 4,
+  outlier = FALSE)
+```
+```{r}
+mout2[, c("snp", "p_value")]
+```
+
+Let's look at the posterior mode genotypes of SNP 2_20070837:
 ```{r}
 o1$g["2_20070837", ]
 o1$p1["2_20070837"]
 o1$p2["2_20070837"]
 ```
-So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2.
+So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2. Including `outlier = TRUE` previously made it so that we would ignore this discrepancy (up to a point). You can get the posterior probability that an individual is an outlier if you set `ret_out = TRUE` (which I previously did).
 
-For SNP 12_31029646, let's compare the expected frequencies against the observed modes.
-```{r}
-offspring_gf_2(alpha = 0.1249, xi1 = 1/3, p1 = 2, p2 = 0)
-o1$g["12_31029646", ] / sum(o1$g["12_31029646", ])
-o1$p1["12_31029646"]
-o1$p2["12_31029646"]
+```{r, fig.alt="Scatterplot of SNP index (x-axis) by outlier probability (y-axis)."}
+graphics::plot(
+  mout1$outprob[mout1$snp == "2_20070837"][[1]], 
+  ylim = c(0, 1),
+  ylab = "Outlier Probability")
 ```
-So SNP 12_31029646 likely got flagged because there are too many individuals with a genotype of 2, and not enough with a genotype of 0.
 
+# `multi_lrt()`
+
+The older function `multi_lrt()`, only provides support for tetraploids. You can still use it instead of `seg_multi()` for tetraploids. 
+```{r, echo = TRUE, eval = FALSE}
+future::plan(future::multisession(workers = 2))
+mout3 <- multi_lrt(
+  g = o2$g,
+  p1 = o2$p1, 
+  p2 = o2$p2
+)
+future::plan(future::sequential())
+```
+```{r, echo = FALSE, eval = TRUE}
+future::plan(future::sequential())
+mout3 <- multi_lrt(
+  g = o2$g,
+  p1 = o2$p1, 
+  p2 = o2$p2
+)
+```
+It's a little faster, but it cannot account for outliers, so it will mostly be the same as setting `outlier = FALSE`. 
+```{r, fig.alt="Scatterplot of p-values from seg_lrt() (x-axis) by multi_lrt() (y-axis)."}
+plot(
+  mout2$p_value,
+  mout3$p_value,
+  xlab = "seg_multi(outlier = FALSE)", 
+  ylab = "multi_lrt()")
+abline(0, 1, lty = 2, col = 2)
+```
+The one discrepancy above is caused by the new way we calculate the degrees of freedom:
+```{r}
+i <- which.max(abs(mout2$p_value - mout3$p_value))
+mout2$df[[i]]
+mout3$df[[i]]
+```
+The two approaches should give almost equivalent results most of the time, but the new way is a little better.

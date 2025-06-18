@@ -21,7 +21,7 @@ type = "polymapR", we return what they use via their heuristics.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">segtest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,9 +32,11 @@ type = "polymapR", we return what they use via their heuristics.'></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Introduction to segtest</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro_1.html">Introduction to segtest Version 1.0</a></li>
+    <li><a class="dropdown-item" href="../articles/intro_2.html">Introduction to segtest Version 2.0</a></li>
     <li><a class="dropdown-item" href="../articles/parallel.html">Parallel Testing</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/dcgerard/segtest/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -98,11 +100,13 @@ polymapR needs to be installed for <code>type = "polymapR"</code>.</p></dd>
 <dd><p>The p-value of the test.</p></dd>
 
 <dt>bestfit</dt>
-<dd><p>The best fit model, using the same notation as in
-<code><a href="https://rdrr.io/pkg/polymapR/man/checkF1.html" class="external-link">checkF1</a>()</code>.</p></dd>
+<dd><p>The genotype frequencies of the best fit model.</p></dd>
 
 <dt>frq_invalid</dt>
 <dd><p>The frequency of invalid genotypes.</p></dd>
+
+<dt>p_invalid</dt>
+<dd><p>The p-value of the invalid proportion.</p></dd>
 
 
 </dl></div>
@@ -125,7 +129,7 @@ polymapR needs to be installed for <code>type = "polymapR"</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.007290358</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $best_fit</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "11_0"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5.000000e-01 5.000000e-01 4.440892e-17 4.440892e-17 4.440892e-17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $frq_invalid</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
@@ -133,7 +137,19 @@ polymapR needs to be installed for <code>type = "polymapR"</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $p_invalid</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">polymapr_test</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, g1 <span class="op">=</span> <span class="va">g1</span>, g2 <span class="op">=</span> <span class="va">g2</span>, type <span class="op">=</span> <span class="st">"polymapR"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0073</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $bestfit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5 0.5 0.0 0.0 0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $frq_invalid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $p_invalid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -147,7 +163,7 @@ polymapR needs to be installed for <code>type = "polymapR"</code>.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

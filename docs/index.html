@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tests for Segregation Distortion in Polyploids">
-<meta name="description" content="Provides a suite of tests for segregation distortion in F1 polyploid populations (for now, just tetraploids). This is under different assumptions of meiosis. Details of these methods are described in Gerard et al. (2025) &lt;doi:10.1007/s00122-025-04816-z&gt;. This material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.">
-<meta property="og:description" content="Provides a suite of tests for segregation distortion in F1 polyploid populations (for now, just tetraploids). This is under different assumptions of meiosis. Details of these methods are described in Gerard et al. (2025) &lt;doi:10.1007/s00122-025-04816-z&gt;. This material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.">
+<meta name="description" content="Provides tests for segregation distortion in F1 polyploid populations under different assumptions of meiosis. These tests can account for double reduction, partial preferential pairing, and genotype uncertainty through the use of genotype likelihoods. Parallelization support is provided. Details of these methods are described in Gerard et al. (2025) &lt;doi:10.1007/s00122-025-04816-z&gt;. Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.">
+<meta property="og:description" content="Provides tests for segregation distortion in F1 polyploid populations under different assumptions of meiosis. These tests can account for double reduction, partial preferential pairing, and genotype uncertainty through the use of genotype likelihoods. Parallelization support is provided. Details of these methods are described in Gerard et al. (2025) &lt;doi:10.1007/s00122-025-04816-z&gt;. Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">segtest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,10 +35,12 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/intro.html">Introduction to segtest</a></li>
+<li><a class="dropdown-item" href="articles/intro_1.html">Introduction to segtest Version 1.0</a></li>
+    <li><a class="dropdown-item" href="articles/intro_2.html">Introduction to segtest Version 2.0</a></li>
     <li><a class="dropdown-item" href="articles/parallel.html">Parallel Testing</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -57,36 +59,52 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>This is a light version of the original package, <a href="https://github.com/dcgerard/menbayes" class="external-link"><code>menbayes</code></a>, that only contains the likelihood ratio approaches. This is for easier maintenance and install. See the <a href="https://github.com/dcgerard/menbayes" class="external-link"><code>menbayes</code></a> package for the Bayesian tests.</p>
-<p>Provides a suite of tests for segregation distortion in F1 polyploid populations (for now, just tetraploids). This is under different assumptions of meiosis. The main functions are:</p>
+<p>Provides a suite of tests for segregation distortion for F1 populations of polyploids under various models of meiosis. You can use these tests for autopolyploids that exhibit full polysomic inheritance, allopolyploids that exhibit full disomic inheritance, or segmental allopolyploids that exhibit partial preferential pairing. Double reduction is (optionally) fully accounted for in tetraploids, and (optionally) partially accounted for (only at simplex loci) for higher ploidies. Some maximum proportion of outliers can be specified, and so these methods can accommodate moderate levels of double reduction at non-simplex loci. Offspring genotypes can either be known, or genotype uncertainty can be represented through genotype likelihoods. Parent data may or may not be provided, at your option. Parents can have different (even) ploidies, at your option.</p>
+<p>This package only contains likelihood ratio and chi-squared tests. See the <a href="https://github.com/dcgerard/menbayes" class="external-link"><code>menbayes</code></a> package for Bayesian tests for tetraploids.</p>
+<p>The main functions are:</p>
 <ul>
 <li>
-<code><a href="reference/multi_lrt.html">multi_lrt()</a></code>: Run any of the likelihood ratio tests for segregation distortion in parallel across many SNPs.</li>
+<code><a href="reference/seg_multi.html">seg_multi()</a></code>: Run the likelihood ratio test for segregation distortion in parallel at many loci.</li>
 <li>
-<code>multidog_to_g</code>: Format the genotyping output from <code><a href="https://rdrr.io/pkg/updog/man/multidog.html" class="external-link">updog::multidog()</a></code> to be compatible withe input of <code><a href="reference/multi_lrt.html">multi_lrt()</a></code>.</li>
+<code>multidog_to_g</code>: Format the genotyping output from <code><a href="https://rdrr.io/pkg/updog/man/multidog.html" class="external-link">updog::multidog()</a></code> to be compatible withe input of <code><a href="reference/seg_multi.html">seg_multi()</a></code>.</li>
 <li>
-<code><a href="reference/lrt_men_g4.html">lrt_men_g4()</a></code>: Likelihood ratio test for segregation distortion using known genotypes.</li>
+<code><a href="reference/seg_lrt.html">seg_lrt()</a></code>: Test for segregation distortion for any even ploidy.</li>
 <li>
-<code><a href="reference/lrt_men_gl4.html">lrt_men_gl4()</a></code>: Likelihood ratio test for segregation distortion using genotype likelihoods.</li>
+<code><a href="reference/gamfreq.html">gamfreq()</a></code>: Gamete frequencies.</li>
 <li>
-<code><a href="reference/offspring_gf_2.html">offspring_gf_2()</a></code>: Offspring genotype frequencies under the two parameter model of meiosis.</li>
+<code><a href="reference/gf_freq.html">gf_freq()</a></code>: Genotype frequencies of an F1 population of polyploids.</li>
 <li>
-<code><a href="reference/offspring_gf_3.html">offspring_gf_3()</a></code>: Offspring genotype frequencies under the three parameter model of meiosis.</li>
+<code><a href="reference/drbounds.html">drbounds()</a></code>: Upper bounds on the double reduction rate(s) based on two different extreme models of meiosis.</li>
+<li>
+<code><a href="reference/simgl.html">simgl()</a></code>: Simulate genotype log-likelihoods given a vector of genotype counts.</li>
+</ul>
+<p>Older functions that are only applicable to tetraploids are:</p>
+<ul>
+<li>
+<code><a href="reference/multi_lrt.html">multi_lrt()</a></code>: Run any of the tetraploid likelihood ratio tests for segregation distortion in parallel across many SNPs.</li>
+<li>
+<code><a href="reference/lrt_men_g4.html">lrt_men_g4()</a></code>: Tetraploid likelihood ratio test for segregation distortion using known genotypes.</li>
+<li>
+<code><a href="reference/lrt_men_gl4.html">lrt_men_gl4()</a></code>: Tetraploid likelihood ratio test for segregation distortion using genotype likelihoods.</li>
+<li>
+<code><a href="reference/offspring_gf_2.html">offspring_gf_2()</a></code>: Tetraploid offspring genotype frequencies under the two parameter model of meiosis.</li>
+<li>
+<code><a href="reference/offspring_gf_3.html">offspring_gf_3()</a></code>: Tetraploid offspring genotype frequencies under the three parameter model of meiosis.</li>
 <li>
 <code><a href="reference/simf1g.html">simf1g()</a></code>: Simulate genotypes from an F1 population of tetraploids.</li>
 <li>
 <code><a href="reference/simf1gl.html">simf1gl()</a></code>: Simulate genotype likelihoods from an F1 population of tetraploids.</li>
 </ul>
-<p>We also provide some functions from competing methods, which we do not recommend using:</p>
+<p>We also provide some functions from “competing” methods:</p>
 <ul>
 <li>
 <code><a href="reference/polymapr_test.html">polymapr_test()</a></code>: Test from <code>polymapR</code>.</li>
 <li>
-<code><a href="reference/chisq_g4.html">chisq_g4()</a></code>: Chi-squared test (not accounting for double reduction and preferential pairing) when genotypes are known.</li>
+<code><a href="reference/chisq_g.html">chisq_g4()</a></code>: Chi-squared test (not accounting for double reduction and preferential pairing) when genotypes are known.</li>
 <li>
-<code><a href="reference/chisq_gl4.html">chisq_gl4()</a></code>: Chi-squared test (not accounting for double reduction and preferential pairing) using genotype likelihoods.</li>
+<code><a href="reference/chisq_gl.html">chisq_gl4()</a></code>: Chi-squared test (not accounting for double reduction and preferential pairing) using genotype likelihoods.</li>
 </ul>
-<p>Details of these methods may be found in Gerard et al. (2025).</p>
+<p>Details of these methods may be found in Gerard et al. (2025a) and Gerard et al. (2025b).</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -106,12 +124,13 @@
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Gerard D, Thakkar M, &amp; Ferrão LFV (2025). “Tests for segregation distortion in tetraploid F1 populations.” <em>Theoretical and Applied Genetics</em>, <em>138</em>(30), p. 1–13. <a href="https://doi.org/10.1007/s00122-025-04816-z" class="external-link">doi:10.1007/s00122-025-04816-z</a>.</p>
+<p>Gerard D, Thakkar M, &amp; Ferrão LFV (2025a). “Tests for segregation distortion in tetraploid F1 populations.” <em>Theoretical and Applied Genetics</em>, <em>138</em>(30), p. 1–13. <a href="https://doi.org/10.1007/s00122-025-04816-z" class="external-link">doi:10.1007/s00122-025-04816-z</a>.</p>
+<p>Gerard D, Ambrosano GB, Pereira GdS, &amp; Garcia AAF (2025b). “Tests for segregation distortion in higher ploidy F1 populations.” <em>Unpublished Manuscript</em>.</p>
 </div>
 <div class="section level2">
 <h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
 </h2>
-<p>This material is based upon work supported by the National Science Foundation under Grant No. 2132247.</p>
+<p>Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -148,9 +167,9 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>David Gerard <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9450-5023" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Mira Thakkar <br><small class="roles"> Author </small>  </li>
-<li>NSF DBI 2132247 <br><small class="roles"> Funder </small>  </li>
+<li>David Gerard <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9450-5023" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Mira Thakkar <br><small class="roles"> Author </small>   </li>
+<li>NSF DBI 2132247 <br><small class="roles"> Funder </small>   </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -175,7 +194,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

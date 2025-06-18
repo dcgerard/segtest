@@ -6,12 +6,12 @@
 \alias{segtest-package}
 \title{segtest: Tests for Segregation Distortion in Polyploids}
 \description{
-Provides a suite of tests for segregation distortion in F1 polyploid populations (for now, just tetraploids). This is under different assumptions of meiosis. Details of these methods are described in Gerard et al. (2025) \doi{10.1007/s00122-025-04816-z}. This material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.
+Provides tests for segregation distortion in F1 polyploid populations under different assumptions of meiosis. These tests can account for double reduction, partial preferential pairing, and genotype uncertainty through the use of genotype likelihoods. Parallelization support is provided. Details of these methods are described in Gerard et al. (2025) \doi{10.1007/s00122-025-04816-z}. Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/dcgerard/segtest}
+  \item \url{https://dcgerard.github.io/segtest/}
   \item Report bugs at \url{https://github.com/dcgerard/segtest/issues}
 }
 
@@ -26,6 +26,7 @@ Authors:
 
 Other contributors:
 \itemize{
+  \item Guilherme da Silva Pereira \email{g.pereira@ufv.br} (\href{https://orcid.org/0000-0002-7106-8630}{ORCID}) [contributor]
   \item NSF DBI 2132247 (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247) [funder]
 }
 

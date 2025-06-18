@@ -13,7 +13,12 @@
 #' with nextElem to iterate over one index of an array.
 #'
 #' @examples
-#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' g <- iterators::iter(glist$g, by = 3)
 #' head(iterators::nextElem(g))
 #' head(iterators::nextElem(g))
@@ -48,7 +53,12 @@ iter.array <- function(obj, by = 1, recycle = FALSE, ...) {
 #' @seealso [iter.array()]
 #'
 #' @examples
-#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' g <- iterators::iter(glist$g, by = 3)
 #' head(iterators::nextElem(g))
 #' head(iterators::nextElem(g))
@@ -85,22 +95,19 @@ nextElem.arrayiter <- function(obj, ...) {
 }
 
 
-#' Converts multidog output to a format usable for multi_lrt()
+#' Converts multidog output to a format usable for seg_multi() and multi_lrt()
 #'
 #' @param mout The output of \code{\link[updog]{multidog}()}.
+#' @param ploidy The ploidy.
 #' @param type
 #' \describe{
-#'   \item{\code{"off_gl"}}{Genotype likelihoods of offspring but not parents. This is the typical choice if you used the "f1" or "f1pp" options when genotyping.}
-#'   \item{\code{"all_gl"}}{Genotype likelihoods of offspring and parents. This is only done if you did \emph{not} use the "f1" or "f1pp" options when genotyping. If this is the case, then you need to specify which individuals are the parents.}
-#'   \item{\code{"off_g"}}{Genotypes, assuming that they are known. You used the "f1" or "f1pp" option when genotyping.}
-#'   \item{\code{"all_g"}}{Genotypes, assuming that they are known. You did \emph{not} use the "f1" or "f1pp" option when genotyping. If this is the case, then you need to specify which individuals are the parents}.
+#'   \item{\code{"off_gl"}}{Genotype likelihoods of offspring but not parents. This is the typical choice if you used the "f1", "f1pp", "s1", or "s1pp" options when genotyping.}
+#'   \item{\code{"all_gl"}}{Genotype likelihoods of offspring and parents. This is only done if you did \emph{not} use the "f1", "f1pp", "s1", or "s1pp" options when genotyping. If this is the case, then you need to specify which individuals are the parents.}
+#'   \item{\code{"off_g"}}{Genotypes, assuming that they are known. You used the "f1", "f1pp", "s1", or "s1pp" option when genotyping.}
+#'   \item{\code{"all_g"}}{Genotypes, assuming that they are known. You did \emph{not} use the "f1", "f1pp", "s1", or "s1pp" option when genotyping. If this is the case, then you need to specify which individuals are the parents.}
 #' }
-#' @param p1 The first parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
-#' @param p2 The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
-#' @param ploidy The ploidy. Note that most methods in this package
-#'     (including those in \code{\link{multi_lrt}()}) assume that the ploidy
-#'     is 4. But we allow for arbitrary ploidy in this function since it
-#'     might be useful in the future.
+#' @param p1 The first (or only) parent name if using \code{type = "all_gl"} or \code{type = "all_g"}.
+#' @param p2 The second parent name if using \code{type = "all_gl"} or \code{type = "all_g"}. Omit if you used the "s1" or "s1pp" models when genotyping.
 #'
 #' @return A list with the following elements
 #' \describe{
@@ -119,27 +126,42 @@ nextElem.arrayiter <- function(obj, ...) {
 #'              (\code{type = "off_gl"}, \code{type = "all_g"} or \code{type = "off_g"}).
 #'              Or a matrix of genotype (natural) log-likelihoods where the
 #'              rows index the loci and the columns index the genotypes
-#'              (\code{type = "all_gl"}).}
+#'              (\code{type = "all_gl"}).
+#'              This will be \code{NULL} if you (i) used \code{"s1"} or
+#'              \code{"s1pp"} models in updog and used either
+#'              \code{type = "off_g"} or \code{type = "off_gl"} or
+#'              (ii) used \code{type = "all_g"} or \code{type = "all_gl"}
+#'              and only specified \code{p1} but not \code{p2}.}
 #' }
 #'
 #' @author David Gerard
 #'
 #' @examples
-#' multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
-#' multidog_to_g(mout = ufit2, type = "off_g")
-#' multidog_to_g(mout = ufit2, type = "off_gl")
-#' multidog_to_g(mout = ufit3, type = "off_g")
-#' multidog_to_g(mout = ufit3, type = "off_gl")
+#' multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_g",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
+#' multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
+#' multidog_to_g(mout = ufit2, ploidy = 4, type = "off_g")
+#' multidog_to_g(mout = ufit2, ploidy = 4, type = "off_gl")
+#' multidog_to_g(mout = ufit3, ploidy = 4, type = "off_g")
+#' multidog_to_g(mout = ufit3, ploidy = 4, type = "off_gl")
 #'
 #'
 #' @export
 multidog_to_g <- function(
     mout,
-    type = c("off_gl", "all_gl", "all_g", "off_g"),
+    ploidy,
+    type = c("off_gl", "all_gl", "off_g", "all_g"),
     p1 = NULL,
-    p2 = NULL,
-    ploidy = 4) {
+    p2 = NULL) {
   type <- match.arg(type)
 
   if (type == "off_gl") {
@@ -149,16 +171,28 @@ multidog_to_g <- function(
     } else if (!is.null(mout$snpdf$ell1) && !is.null(mout$snpdf$ell2)) {
       p1_geno <- mout$snpdf$ell1
       p2_geno <- mout$snpdf$ell2
+    } else if (!is.null(mout$snpdf$pgeno)) {
+      p1_geno <- mout$snpdf$pgeno
+      p2_geno <- NULL
+    } else if (!is.null(mout$snpdf$ell1)) {
+      p1_geno <- mout$snpdf$ell1
+      p2_geno <- NULL
     } else {
-      stop("mout was not fit using either the 'f1' or the 'f1pp' models")
+      stop("mout was not fit using either the 'f1', 'f1pp', 's1', or 's1pp' models")
     }
     g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
     stopifnot(mout$snpdf$snp == dimnames(g)[[1]])
   } else if (type == "all_gl") {
-    stopifnot(!is.null(p1), !is.null(p2))
+    stopifnot(!is.null(p1))
     g <- updog::format_multidog(mout, varname = paste0("logL_", 0:ploidy))
     p1_geno <- g[, p1, ]
-    p2_geno <- g[, p2, ]
+    if (is.null(p2)) {
+      p2_geno <- NULL
+    } else if (p1 != p2) {
+      p2_geno <- g[, p2, ]
+    } else {
+      p2_geno <- NULL
+    }
     g <- g[, !(dimnames(g)[[2]] %in% c(p1, p2)), ]
   } else if (type == "off_g") {
     if (!is.null(mout$snpdf$p1geno) && !is.null(mout$snpdf$p2geno)) {
@@ -167,18 +201,30 @@ multidog_to_g <- function(
     } else if (!is.null(mout$snpdf$ell1) && !is.null(mout$snpdf$ell2)) {
       p1_geno <- mout$snpdf$ell1
       p2_geno <- mout$snpdf$ell2
+    } else if (!is.null(mout$snpdf$pgeno)) {
+      p1_geno <- mout$snpdf$pgeno
+      p2_geno <- NULL
+    } else if (!is.null(mout$snpdf$ell1)) {
+      p1_geno <- mout$snpdf$ell1
+      p2_geno <- NULL
     } else {
-      stop("mout was not fit using either the 'f1' or the 'f1pp' models")
+      stop("mout was not fit using either the 'f1', 'f1pp', 's1', or 's1pp' models")
     }
     gmat <- updog::format_multidog(mout, varname = "geno")
     g <- t(apply(X = gmat, MARGIN = 1, FUN = gvec_to_gcount, ploidy = ploidy))
     colnames(g) <- 0:ploidy
     stopifnot(mout$snpdf$snp == rownames(g))
   } else if (type == "all_g") {
-    stopifnot(!is.null(p1), !is.null(p2))
+    stopifnot(!is.null(p1))
     gmat <- updog::format_multidog(mout, varname = "geno")
     p1_geno <- gmat[, p1, drop = TRUE]
-    p2_geno <- gmat[, p2, drop = TRUE]
+    if (is.null(p2)) {
+      p2_geno <- NULL
+    } else if (p1 != p2) {
+      p2_geno <- gmat[, p2, drop = TRUE]
+    } else {
+      p2_geno <- NULL
+    }
     gmat <- gmat[, !(colnames(gmat) %in% c(p1, p2)), drop = FALSE]
     g <- t(apply(X = gmat, MARGIN = 1, FUN = gvec_to_gcount, ploidy = ploidy))
     colnames(g) <- 0:ploidy
@@ -190,11 +236,9 @@ multidog_to_g <- function(
 #' Parallelized likelihood ratio test for segregation distortion.
 #'
 #' Uses the \code{future} package to implement parallelization support for
-#' the likelihood ratio tests for segregation distortion. Right now, this is
-#' only supported for tetraploids (allo, auto, or segmental). This function
-#' is only somewhat tested (the single-locus LRT functions in the "See Also"
-#' section are very well tested). So please send any bugs you notice to
-#' \url{https://github.com/dcgerard/segtest/issues}.
+#' the likelihood ratio tests for segregation distortion. This function
+#' only works for tetraploids, and cannot account for outliers. For
+#' higher ploidies and more functionalitiy, see \code{\link{seg_multi}()}.
 #'
 #' @section Parallel Computation:
 #'
@@ -248,14 +292,24 @@ multidog_to_g <- function(
 #' @examples
 #' \donttest{
 #' ## Assuming genotypes are known (typically a bad idea)
-#' glist <- multidog_to_g(mout = ufit, type = "all_g", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_g",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' p1_1 <- glist$p1
 #' p2_1 <- glist$p2
 #' g_1 <- glist$g
 #' multi_lrt(g = g_1, p1 = p1_1, p2 = p2_1)
 #'
 #' ## Using genotype likelihoods (typically a good idea)
-#' glist <- multidog_to_g(mout = ufit, type = "all_gl", p1 = "indigocrisp", p2 = "sweetcrisp")
+#' glist <- multidog_to_g(
+#'   mout = ufit,
+#'   ploidy = 4,
+#'   type = "all_gl",
+#'   p1 = "indigocrisp",
+#'   p2 = "sweetcrisp")
 #' p1_2 <- glist$p1
 #' p2_2 <- glist$p2
 #' g_2 <- glist$g
@@ -268,9 +322,9 @@ multidog_to_g <- function(
 #' multi_lrt(g = g_2, p1 = NULL, p2 = NULL)
 #'
 #' ## Parallel computing is supported through the future package
-#' future::plan(future::multisession, workers = 2)
-#' multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
-#' future::plan(future::sequential)
+#' # future::plan(future::multisession, workers = 2)
+#' # multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
+#' # future::plan(future::sequential)
 #' }
 #'
 #' @seealso
