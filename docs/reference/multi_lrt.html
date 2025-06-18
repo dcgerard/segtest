@@ -296,12 +296,10 @@ You then run <code>multi_lrt()</code>, then shut down the workers with
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9   6_30619745</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10   6_4350249</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co">## Parallel computing is supported through the future package</span></span></span>
-<span class="r-in"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">multi_lrt</span><span class="op">(</span>g <span class="op">=</span> <span class="va">g_2</span>, p1 <span class="op">=</span> <span class="va">p1_2</span>, p2 <span class="op">=</span> <span class="va">p2_2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># future::plan(future::multisession, workers = 2)</span></span></span>
+<span class="r-in"><span><span class="co"># multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)</span></span></span>
+<span class="r-in"><span><span class="co"># future::plan(future::sequential)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

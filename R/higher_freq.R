@@ -2031,13 +2031,19 @@ ll_ao <- function(par, q, x) {
 #' p2_2 <- glist$p2
 #' g_2 <- glist$g
 #'
-#' future::plan(future::multisession, workers = 2)
-#' s3 <- seg_multi(g = g_2, p1_ploidy = 4, p2_ploidy = 4, p1 = p1_2, p2 = p2_2, ret_out = TRUE)
-#' future::plan(future::sequential)
-#' s3[, c("snp", "p_value")]
+#' # future::plan(future::multisession, workers = 2)
+#' # s3 <- seg_multi(
+#' #   g = g_2,
+#' #   p1_ploidy = 4,
+#' #   p2_ploidy = 4,
+#' #   p1 = p1_2,
+#' #   p2 = p2_2,
+#' #   ret_out = TRUE)
+#' # future::plan(future::sequential)
+#' # s3[, c("snp", "p_value")]
 #'
 #' ## Outlier probabilities are returned if `ret_out = TRUE`
-#' graphics::plot(s3$outprob[[6]], ylim = c(0, 1))
+#' # graphics::plot(s3$outprob[[6]], ylim = c(0, 1))
 #' }
 #'
 #' @export
