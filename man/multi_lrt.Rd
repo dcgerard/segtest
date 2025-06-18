@@ -125,10 +125,12 @@ multi_lrt(g = g_2, p1 = p1_1, p2 = p2_1)
 ## Offspring genotype likelihoods and no information on parent genotypes
 multi_lrt(g = g_2, p1 = NULL, p2 = NULL)
 
+\dontrun{
 ## Parallel computing is supported through the future package
 future::plan(future::multisession, workers = 2)
 multi_lrt(g = g_2, p1 = p1_2, p2 = p2_2)
 future::plan(future::sequential)
+}
 }
 
 }

@@ -90,7 +90,7 @@ test_that("Get uniform distribution under null with multi_lrt()", {
     names(p2) <- snpname
   }
 
-  future::plan(future::multisession(workers = 6))
+  future::plan(future::multisession(workers = 2))
   mout <- multi_lrt(g = g, p1 = p1, p2 = p2, pp = pp, dr = dr, alpha = alpha, xi1 = xi1, xi2 = xi2)
   future::plan(future::sequential())
 

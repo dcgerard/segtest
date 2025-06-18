@@ -296,36 +296,12 @@ You then run <code>multi_lrt()</code>, then shut down the workers with
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9   6_30619745</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10   6_4350249</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co">## Parallel computing is supported through the future package</span></span></span>
 <span class="r-in"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">multi_lrt</span><span class="op">(</span>g <span class="op">=</span> <span class="va">g_2</span>, p1 <span class="op">=</span> <span class="va">p1_2</span>, p2 <span class="op">=</span> <span class="va">p2_2</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: foreach</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: rngtools</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: foreach</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: rngtools</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        statistic     p_value df        alpha       xi1       xi2 p1 p2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   3.167045e+00 0.205250847  2 0.000000e+00        NA 0.4166706  1  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   1.641337e+00 0.200142085  1 5.536457e-08        NA        NA  1  0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   5.595326e+00 0.018008460  1 6.835264e-02 0.2847729        NA  2  0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  -1.398643e-07 1.000000000  1 1.666667e-01        NA        NA  4  4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   1.579334e+00 0.453995964  2 2.055024e-02        NA        NA  1  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   1.356856e+01 0.001131421  2 2.056601e-02        NA 0.3854284  0  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   2.878633e+00 0.410718596  3 9.343533e-02 0.6564491        NA  2  3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   1.554209e+00 0.212515165  1 8.213272e-02 0.3932409        NA  2  0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   2.500730e-01 0.617023681  1 5.536457e-08        NA        NA  0  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  8.630885e-01 0.649505305  2 8.077581e-09        NA        NA  1  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            snp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   1_44673475</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  11_28836119</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  12_31029646</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   12_8487773</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    2_1426329</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   2_20070837</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7   2_40108108</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   4_37820371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   6_30619745</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10   6_4350249</span>
 <span class="r-in"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
