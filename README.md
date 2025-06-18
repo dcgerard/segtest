@@ -38,7 +38,7 @@ The main functions are:
 - `seg_multi()`: Run the likelihood ratio test for segregation
   distortion in parallel at many loci.
 - `multidog_to_g`: Format the genotyping output from `updog::multidog()`
-  to be compatible withe input of `seg_multi()`.
+  to be compatible with the input of `seg_multi()`.
 - `seg_lrt()`: Test for segregation distortion for any even ploidy.
 - `gamfreq()`: Gamete frequencies.
 - `gf_freq()`: Genotype frequencies of an F1 population of polyploids.
@@ -87,8 +87,8 @@ You can install the development version of segtest from
 [GitHub](https://github.com/dcgerard/segtest) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("dcgerard/segtest")
+# install.packages("pak")
+pak::pak("github::dcgerard/segtest")
 ```
 
 ## Code of Conduct

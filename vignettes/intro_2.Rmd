@@ -19,14 +19,14 @@ set.seed(1)
 library(segtest)
 ```
 
-Segtest provides a suite of tests for segregation distortion for F1 populations of polyploids under various models of meiosis. You can use these tests for autopolyploids that exhibit full polysomic inheritance, allopolyploids that exhibit full disomic inheritance, or segmental allopolyploids that exhibit partial preferential pairing. Double reduction is (optionally) fully accounted for in tetraploids, and (optionally) partially accounted for (only at simplex loci) for higher ploidies. Some maximum proportion of outliers can be specified, and so these methods can accommodate moderate levels of double reduction at non-simplex loci. Offspring genotypes can either be known, or genotype uncertainty can be represented through genotype likelihoods. Parent data may or may not be provided, at your option. Parents can have different (even) ploidies, at your option.
+The `segtest` package offers a suite of tools for testing segregation distortion in F1 polyploid populations across diverse meiotic models. These methods support autopolyploids (full polysomic inheritance), allopolyploids (full disomic inheritance), and segmental allopolyploids (partial preferential pairing). Double reduction is optionally modeled fully in tetraploids and partially (at simplex loci only) in higher ploidies. A user-specified maximum proportion of outliers allows the method to accommodate moderate double reduction at non-simplex loci. Offspring genotypes may be known or modeled using genotype likelihoods to account for genotype uncertainty. Parent data may or may not be provided, at your option. Parents can have different (even) ploidies, at your option.
 
-Additional functions include those that generate gamete and genotype frequencies under different models of meiosis, functions that simulate genotype (log) likelihoods, and competing tests for segregation distortion.
+Additional functions include those that generate gamete and genotype frequencies under different models of meiosis, functions that simulate genotype (log) likelihoods, and "competing" tests for segregation distortion.
 
 The main functions are:
 
 - `seg_multi()`: Run the likelihood ratio test for segregation distortion in parallel at many loci.
-- `multidog_to_g`: Format the genotyping output from `updog::multidog()` to be compatible withe input of `seg_multi()`.
+- `multidog_to_g`: Format the genotyping output from `updog::multidog()` to be compatible with the input of `seg_multi()`.
 - `seg_lrt()`: Test for segregation distortion for any even ploidy.
 - `gamfreq()`: Gamete frequencies.
 - `gf_freq()`: Genotype frequencies of an F1 population of polyploids.
@@ -36,9 +36,9 @@ The main functions are:
 
 # Gamete genotype frequencies
 
-`gamfreq()` will generate gamete frequencies under different models of meiosis. `gf_freq()` will generate genotype frequencies under the same models by convolving the output from `gamfreq()`. We focus here on `gamfreq()` since `gf_freq()` has the same models, but specified for each parent.
+`gamfreq()` will generate gamete frequencies under different models of meiosis. `gf_freq()` will generate genotype frequencies under the same models by convolving the output from `gamfreq()`. We focus on `gamfreq()`, as `gf_freq()` uses the same models but applied separately to each parent.
 
-For autopolyploids, specify `type = "polysomic"` and, optionally, the amount of double reduction via `alpha`. `alpha` is a vector of length `floor(ploidy / 4)` where element `i` is the probability a gamete has genotype `i`. The upper bounds for `alpha` can be found via `drbounds()`. E.g., for a parental octoploid with genotype 4 with no and moderate levels of double reduction:
+For autopolyploids, specify `type = "polysomic"` and, optionally, the amount of double reduction via `alpha`. `alpha` is a vector of length `floor(ploidy / 4)` where element `i` is the probability a gamete has `i` pairs of identical by double reduction alleles. The upper bounds for `alpha` can be found via `drbounds()`. E.g., for a parental octoploid with genotype 4 with no and moderate levels of double reduction:
 ```{r}
 drbounds(ploidy = 8) ## DR bounds
 gamfreq(g = 4, ploidy = 8, type = "polysomic") ## no DR
@@ -95,7 +95,7 @@ gf <- gf_freq(
 plot(gf, type = "h", xlab = "Genotype", ylab = "Frequency")
 ```
 
-To simulate genotype counts, just use `r`multinom()` from the `stats` package. Let's simulate data from 10 individuals.
+To simulate genotype counts, just use `multinom()` from the `stats` package. Let's simulate data from 10 individuals.
 ```{r}
 x <- c(rmultinom(n = 1, size = 10, prob = gf))
 x
@@ -120,7 +120,7 @@ sout2$p_value
 
 My recommendation is to always use the genotype log-likelihoods. But `seg_lrt()` allows for known genotypes, if that situation works best for you.
 
-The default (`model = "seg"`) is to assume your organism is a segmental allopolyploids, and to account for possible double reduction at simplex loci. But you should absolutely use other models if you have more information on your organism:
+The default (`model = "seg"`) is to assume your organism is a segmental allopolyploid, and to account for possible double reduction at simplex loci. But you should absolutely use other models if you have more information on your organism:
 
 - `"seg"`: General segmental allopolyploid with possible double reduction at simplex loci.
 - `"allo_pp"`: Segmental allopolyploid with complete bivalent pairing (no double reduction).
@@ -131,10 +131,10 @@ The default (`model = "seg"`) is to assume your organism is a segmental allopoly
 
 We allow for some non-valid genotypes via the `ob` argument. This is the upper bound on the proportion of outliers. By default, this is set to 0.03. You can set this to `0` (or set `outlier = FALSE`) if you want any outliers to indicate segregation distortion.
 
-Make sure that the log-likelihoods are base e. If they are base 10, you'll get the wrong p-value:
+Make sure that the log-likelihoods are base $e$. If they are base 10, you'll get the wrong $p$-value:
 ```{r}
 gl10 <- gl / log(10)
 seg_lrt(x = gl10, p1_ploidy = 6, p2_ploidy = 6, p1 = 2, p2 = 4)$p_value
 ```
 
-Don't mess with the technical arguments (`ntry`, `opt`, `optg`, `df_tol`). These have to do with the optimization and how to approximate the degrees of freedom of the test. Except possibly `ntry`. You could increase that if you are seeing weird results. But then let me know, because I haven't seen any bad behavior with `ntry = 3`.
+Don't mess with the technical arguments (`ntry`, `opt`, `optg`, `df_tol`). These have to do with the optimization and how to approximate the degrees of freedom of the test. Except possibly `ntry`. You could increase that if you are seeing weird results. But then let me know, because I haven't seen any bad behavior with `ntry = 3` (the default).

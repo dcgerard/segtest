@@ -87,14 +87,14 @@ mout1[c("snp", "p_value")]
 ```
 
 
-It looks like only SNP *12_31029646* is in possible segregation distortion. Let's compare the expected frequencies (from the `q0` column) against the observed modes.
+It looks like only SNP `12_31029646` is in possible segregation distortion. Let's compare the expected frequencies (from the `q0` column) against the observed modes.
 ```{r}
 round(mout1$q0[mout1$snp == "12_31029646"][[1]], digits = 4)
 o1$g["12_31029646", ] / sum(o1$g["12_31029646", ])
 ```
-So SNP *12_31029646* likely got flagged because there are too many individuals with a genotype of 2, and not enough with a genotype of 0.
+So SNP `12_31029646` likely got flagged because there are too many individuals with a genotype of 2, and not enough with a genotype of 0.
 
-If we would have run `outlier = FALSE`, then SNP *2_20070837* would also have been flagged for possible segregation distortion
+If we would have run `outlier = FALSE`, then SNP `2_20070837` would also have been flagged for possible segregation distortion
 ```{r, echo = TRUE, eval = FALSE}
 future::plan(future::multisession(workers = 2))
 mout2 <- seg_multi(
@@ -120,13 +120,13 @@ mout2 <- seg_multi(
 mout2[, c("snp", "p_value")]
 ```
 
-Let's look at the posterior mode genotypes of SNP 2_20070837:
+Let's look at the posterior mode genotypes of SNP `2_20070837`:
 ```{r}
 o1$g["2_20070837", ]
 o1$p1["2_20070837"]
 o1$p2["2_20070837"]
 ```
-So SNP 2_20070837 likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2. Including `outlier = TRUE` previously made it so that we would ignore this discrepancy (up to a point). You can get the posterior probability that an individual is an outlier if you set `ret_out = TRUE` (which I previously did).
+So SNP `2_20070837` likely got flagged because of two individuals that are very likely a genotype of 3, which is impossible if the parents have genotypes 0 and 2. Including `outlier = TRUE` previously made it so that we would ignore this discrepancy (up to a point). You can get the posterior probability that an individual is an outlier if you set `ret_out = TRUE` (which I previously did).
 
 ```{r, fig.alt="Scatterplot of SNP index (x-axis) by outlier probability (y-axis)."}
 graphics::plot(
@@ -164,6 +164,7 @@ plot(
   ylab = "multi_lrt()")
 abline(0, 1, lty = 2, col = 2)
 ```
+
 The one discrepancy above is caused by the new way we calculate the degrees of freedom:
 ```{r}
 i <- which.max(abs(mout2$p_value - mout3$p_value))
