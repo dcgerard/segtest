@@ -58,7 +58,7 @@ future::availableCores()
 ```
 
 So a typically workload looks something like this:
-```{r}
+```{r, echo = TRUE, eval = FALSE}
 future::plan(future::multisession(workers = 2))
 mout1 <- seg_multi(
   g = o2$g, 
@@ -68,6 +68,17 @@ mout1 <- seg_multi(
   p2_ploidy = 4,
   ret_out = TRUE)
 future::plan(future::sequential())
+```
+
+```{r, echo = FALSE, eval = TRUE}
+future::plan(future::sequential())
+mout1 <- seg_multi(
+  g = o2$g, 
+  p1 = o2$p1,
+  p2 = o2$p2, 
+  p1_ploidy = 4, 
+  p2_ploidy = 4,
+  ret_out = TRUE)
 ```
 
 The output is a data frame. The most important parts of this are the `snp` and `p_value` columns.
@@ -84,7 +95,7 @@ o1$g["12_31029646", ] / sum(o1$g["12_31029646", ])
 So SNP *12_31029646* likely got flagged because there are too many individuals with a genotype of 2, and not enough with a genotype of 0.
 
 If we would have run `outlier = FALSE`, then SNP *2_20070837* would also have been flagged for possible segregation distortion
-```{r}
+```{r, echo = TRUE, eval = FALSE}
 future::plan(future::multisession(workers = 2))
 mout2 <- seg_multi(
   g = o2$g,
@@ -94,6 +105,16 @@ mout2 <- seg_multi(
   p2_ploidy = 4,
   outlier = FALSE)
 future::plan(future::sequential())
+```
+```{r, echo = FALSE, eval = TRUE}
+future::plan(future::sequential())
+mout2 <- seg_multi(
+  g = o2$g,
+  p1 = o2$p1, 
+  p2 = o2$p2, 
+  p1_ploidy = 4, 
+  p2_ploidy = 4,
+  outlier = FALSE)
 ```
 ```{r}
 mout2[, c("snp", "p_value")]
@@ -117,7 +138,7 @@ graphics::plot(
 # `multi_lrt()`
 
 The older function `multi_lrt()`, only provides support for tetraploids. You can still use it instead of `seg_multi()` for tetraploids. 
-```{r}
+```{r, echo = TRUE, eval = FALSE}
 future::plan(future::multisession(workers = 2))
 mout3 <- multi_lrt(
   g = o2$g,
@@ -125,6 +146,14 @@ mout3 <- multi_lrt(
   p2 = o2$p2
 )
 future::plan(future::sequential())
+```
+```{r, echo = FALSE, eval = TRUE}
+future::plan(future::sequential())
+mout3 <- multi_lrt(
+  g = o2$g,
+  p1 = o2$p1, 
+  p2 = o2$p2
+)
 ```
 It's a little faster, but it cannot account for outliers, so it will mostly be the same as setting `outlier = FALSE`. 
 ```{r, fig.alt="Scatterplot of p-values from seg_lrt() (x-axis) by multi_lrt() (y-axis)."}

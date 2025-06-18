@@ -134,14 +134,12 @@ argument. You can get the maximum number of workers via
 <span>  p1_ploidy <span class="op">=</span> <span class="fl">4</span>, </span>
 <span>  p2_ploidy <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  ret_out <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: rngtools</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Loading required package: foreach</span></span>
+<span><span class="co">#&gt; Loading required package: rngtools</span></span></code></pre>
 <p>The output is a data frame. The most important parts of this are the
 <code>snp</code> and <code>p_value</code> columns.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mout1</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"snp"</span>, <span class="st">"p_value"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;            snp    p_value</span></span>
 <span><span class="co">#&gt; 1   1_44673475 0.20525001</span></span>
@@ -157,7 +155,7 @@ argument. You can get the maximum number of workers via
 <p>It looks like only SNP <em>12_31029646</em> is in possible
 segregation distortion. Let’s compare the expected frequencies (from the
 <code>q0</code> column) against the observed modes.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mout1</span><span class="op">$</span><span class="va">q0</span><span class="op">[</span><span class="va">mout1</span><span class="op">$</span><span class="va">snp</span> <span class="op">==</span> <span class="st">"12_31029646"</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.2008 0.5985 0.2008 0.0000 0.0000</span></span>
 <span><span class="va">o1</span><span class="op">$</span><span class="va">g</span><span class="op">[</span><span class="st">"12_31029646"</span>, <span class="op">]</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">o1</span><span class="op">$</span><span class="va">g</span><span class="op">[</span><span class="st">"12_31029646"</span>, <span class="op">]</span><span class="op">)</span></span>
@@ -169,7 +167,7 @@ many individuals with a genotype of 2, and not enough with a genotype of
 <p>If we would have run <code>outlier = FALSE</code>, then SNP
 <em>2_20070837</em> would also have been flagged for possible
 segregation distortion</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span><span class="op">(</span>workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mout2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/seg_multi.html">seg_multi</a></span><span class="op">(</span></span>
 <span>  g <span class="op">=</span> <span class="va">o2</span><span class="op">$</span><span class="va">g</span>,</span>
@@ -178,12 +176,8 @@ segregation distortion</p>
 <span>  p1_ploidy <span class="op">=</span> <span class="fl">4</span>, </span>
 <span>  p2_ploidy <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  outlier <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: rngtools</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mout2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"snp"</span>, <span class="st">"p_value"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;            snp     p_value</span></span>
 <span><span class="co">#&gt; 1   1_44673475 0.205250155</span></span>
@@ -197,7 +191,7 @@ segregation distortion</p>
 <span><span class="co">#&gt; 9   6_30619745 0.617007947</span></span>
 <span><span class="co">#&gt; 10   6_4350249 0.649501842</span></span></code></pre></div>
 <p>Let’s look at the posterior mode genotypes of SNP 2_20070837:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">o1</span><span class="op">$</span><span class="va">g</span><span class="op">[</span><span class="st">"2_20070837"</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;   0   1   2   3   4 </span></span>
 <span><span class="co">#&gt;  40 166  32   2   0</span></span>
@@ -213,12 +207,12 @@ genotypes 0 and 2. Including <code>outlier = TRUE</code> previously made
 it so that we would ignore this discrepancy (up to a point). You can get
 the posterior probability that an individual is an outlier if you set
 <code>ret_out = TRUE</code> (which I previously did).</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graphics</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mout1</span><span class="op">$</span><span class="va">outprob</span><span class="op">[</span><span class="va">mout1</span><span class="op">$</span><span class="va">snp</span> <span class="op">==</span> <span class="st">"2_20070837"</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Outlier Probability"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="parallel_files/figure-html/unnamed-chunk-11-1.png" alt="Scatterplot of SNP index (x-axis) by outlier probability (y-axis)." width="700"></p>
+<p><img src="parallel_files/figure-html/unnamed-chunk-13-1.png" alt="Scatterplot of SNP index (x-axis) by outlier probability (y-axis)." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="multi_lrt">
@@ -227,31 +221,27 @@ the posterior probability that an individual is an outlier if you set
 <p>The older function <code><a href="../reference/multi_lrt.html">multi_lrt()</a></code>, only provides support
 for tetraploids. You can still use it instead of
 <code><a href="../reference/seg_multi.html">seg_multi()</a></code> for tetraploids.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span><span class="op">(</span>workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mout3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multi_lrt.html">multi_lrt</a></span><span class="op">(</span></span>
 <span>  g <span class="op">=</span> <span class="va">o2</span><span class="op">$</span><span class="va">g</span>,</span>
 <span>  p1 <span class="op">=</span> <span class="va">o2</span><span class="op">$</span><span class="va">p1</span>, </span>
 <span>  p2 <span class="op">=</span> <span class="va">o2</span><span class="op">$</span><span class="va">p2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: rngtools</span></span>
-<span><span class="co">#&gt; Loading required package: foreach</span></span>
-<span><span class="co">#&gt; Loading required package: rngtools</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>It’s a little faster, but it cannot account for outliers, so it will
 mostly be the same as setting <code>outlier = FALSE</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">mout2</span><span class="op">$</span><span class="va">p_value</span>,</span>
 <span>  <span class="va">mout3</span><span class="op">$</span><span class="va">p_value</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"seg_multi(outlier = FALSE)"</span>, </span>
 <span>  ylab <span class="op">=</span> <span class="st">"multi_lrt()"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="parallel_files/figure-html/unnamed-chunk-13-1.png" alt="Scatterplot of p-values from seg_lrt() (x-axis) by multi_lrt() (y-axis)." width="700">
+<p><img src="parallel_files/figure-html/unnamed-chunk-16-1.png" alt="Scatterplot of p-values from seg_lrt() (x-axis) by multi_lrt() (y-axis)." width="700">
 The one discrepancy above is caused by the new way we calculate the
 degrees of freedom:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">mout2</span><span class="op">$</span><span class="va">p_value</span> <span class="op">-</span> <span class="va">mout3</span><span class="op">$</span><span class="va">p_value</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mout2</span><span class="op">$</span><span class="va">df</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] 2</span></span>
