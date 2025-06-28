@@ -79,7 +79,7 @@ Please note that the segtest project is released with a [Contributor Code of Con
 
 Gerard D, Thakkar M, & Ferrão LFV (2025a). "Tests for segregation distortion in tetraploid F1 populations." _Theoretical and Applied Genetics_, *138*(30), p. 1--13. [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
 
-Gerard D, Ambrosano GB, Pereira GdS, & Garcia AAF (2025b). "Tests for segregation distortion in higher ploidy F1 populations." *Unpublished Manuscript*.
+Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025b). "Tests for segregation distortion in higher ploidy F1 populations." _bioRxiv_, p. 1--20. [bioRxiv:2025.06.23.661114](https://doi.org/10.1101/2025.06.23.661114)
 
 ## Acknowledgments
 

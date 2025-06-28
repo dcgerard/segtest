@@ -6,7 +6,7 @@
 \alias{segtest-package}
 \title{segtest: Tests for Segregation Distortion in Polyploids}
 \description{
-Provides tests for segregation distortion in F1 polyploid populations under different assumptions of meiosis. These tests can account for double reduction, partial preferential pairing, and genotype uncertainty through the use of genotype likelihoods. Parallelization support is provided. Details of these methods are described in Gerard et al. (2025) \doi{10.1007/s00122-025-04816-z}. Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.
+Provides tests for segregation distortion in F1 polyploid populations under different assumptions of meiosis. These tests can account for double reduction, partial preferential pairing, and genotype uncertainty through the use of genotype likelihoods. Parallelization support is provided. Details of these methods are described in Gerard et al. (2025a) \doi{10.1007/s00122-025-04816-z} and Gerard et al. (2025b) \doi{10.1101/2025.06.23.661114}. Part of this material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.
 }
 \seealso{
 Useful links:
