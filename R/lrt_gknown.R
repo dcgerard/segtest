@@ -360,7 +360,10 @@ onbound <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) 
 #'
 #' @author David Gerard
 #'
-#' @references Susko, E. (2013). Likelihood ratio tests with boundary constraints using data-dependent degrees of freedom. Biometrika, 100(4), 1019-1023.
+#' @references
+#' \itemize{
+#'   \item{Susko, E. (2013). Likelihood ratio tests with boundary constraints using data-dependent degrees of freedom. \emph{Biometrika}, 100(4), 1019-1023. \doi{https://doi.org/10.1093/biomet/ast032}}
+#' }
 #'
 #' @noRd
 get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {

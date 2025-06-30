@@ -88,9 +88,9 @@ convolve_2 <- function(p1, p2, nudge = sqrt(.Machine$double.eps)) {
 #'
 #' @references
 #' \itemize{
-#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372.}
-#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
-#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78.}
+#'   \item{Haldane, J. B. S. (1930). Theoretical genetics of autopolyploids. \emph{Journal of genetics}, 22, 359-372. \doi{10.1007/BF02984197}}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
+#'   \item{Mather, K. (1935). Reductional and equational separation of the chromosomes in bivalents and multivalents. \emph{Journal of genetics}, 30, 53-78. \doi{10.1007/BF02982205}}
 #' }
 #'
 #' @examples
@@ -156,7 +156,7 @@ drbounds <- function (ploidy, model = c("ces", "prcs")) {
 #'
 #' @references
 #' \itemize{
-#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
 #' }
 #'
 #' @export
@@ -174,7 +174,7 @@ beta_bounds <- function(ploidy, model = c("ces", "prcs")) {
 #'
 #' @references
 #' \itemize {
-#'  \item{Betancourt, M. J. (2010). Cruising the simplex: Hamiltonian Monte Carlo and the Dirichlet distribution. arXiv preprint arXiv:1010.3436.}
+#'  \item{Betancourt, M. J. (2010). Cruising the simplex: Hamiltonian Monte Carlo and the Dirichlet distribution. \emph{arXiv}. \doi{10.48550/arXiv.1010.3436}}
 #'  \item{\url{https://mc-stan.org/docs/2_19/reference-manual/simplex-transform-section.html}}
 #' }
 #'
@@ -201,7 +201,7 @@ simplex_to_real <- function (q) {
 #'
 #' @references
 #' \itemize {
-#'  \item{Betancourt, M. J. (2010). Cruising the simplex: Hamiltonian Monte Carlo and the Dirichlet distribution. arXiv preprint arXiv:1010.3436.}
+#'  \item{Betancourt, M. J. (2010). Cruising the simplex: Hamiltonian Monte Carlo and the Dirichlet distribution. \emph{arXiv}. \doi{10.48550/arXiv.1010.3436}}
 #'  \item{\url{https://mc-stan.org/docs/2_19/reference-manual/simplex-transform-section.html}}
 #' }
 #'
@@ -252,8 +252,8 @@ real_to_simplex <- function (y) {
 #'
 #' @references
 #' \itemize{
-#' \item{Fisher, R. A., & Mather, K. (1943). The inheritance of style length in Lythrum salicaria. Annals of Eugenics, 12(1), 1-23.}
-#' \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. G3: Genes, Genomes, Genetics, 9(5), 1693-1706.}
+#' \item{Fisher, R. A., & Mather, K. (1943). The inheritance of style length in Lythrum salicaria. Annals of Eugenics, 12(1), 1-23. \doi{10.1111/j.1469-1809.1943.tb02307.x}}
+#' \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. G3: Genes, Genomes, Genetics, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
 #' }
 #'
 #' @noRd
@@ -535,9 +535,9 @@ gamfreq_seg <- function(gamma, g, ploidy, alpha) {
 #'
 #' @references
 #' \itemize{
-#'   \item{Gerard, D. (2023). Double reduction estimation and equilibrium tests in natural autopolyploid populations. \emph{Biometrics}, 79(3), 2143-2156.}
-#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. \emph{Genetics}, 210(3), 789-807.}
-#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
+#'   \item{Gerard, D. (2023). Double reduction estimation and equilibrium tests in natural autopolyploid populations. \emph{Biometrics}, 79(3), 2143-2156. \doi{10.1111/biom.13722}}
+#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. \emph{Genetics}, 210(3), 789-807. \doi{10.1534/genetics.118.301468}}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
 #' }
 #'
 #' @author David Gerard
@@ -1259,6 +1259,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #' either be known, or genotype uncertainty can be represented through
 #' genotype likelihoods. Parent data may or may not be provided, at your
 #' option. Parents can have different (even) ploidies, at your option.
+#' Details of the methods may be found in Gerard et al. (2025).
 #'
 #' @section Null Model:
 #' The gamete frequencies under the null model can be calculated via
@@ -1398,14 +1399,15 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'
 #' @references
 #' \itemize{
-#'   \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
-#'   \item{da Silva Santos, C. H., Goncalves, M. S., & Hernandez-Figueroa, H. E. (2010). Designing novel photonic devices by bio-inspired computing. IEEE Photonics Technology Letters, 22(15), 1177-1179.}
-#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
+#'   \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. \emph{SIAM Journal on scientific computing}, 16(5), 1190-1208. \doi{10.1137/0916069}}
+#'   \item{da Silva Santos, C. H., Goncalves, M. S., & Hernandez-Figueroa, H. E. (2010). Designing novel photonic devices by bio-inspired computing. \emph{IEEE Photonics Technology Letters}, 22(15), 1177-1179. \doi{10.1109/LPT.2010.2051222}}
+#'   \item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{bioRxiv}, p. 1-20. \doi{10.1101/2025.06.23.661114}}
+#'   \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
 #'   \item{Johnson S (2008). The NLopt nonlinear-optimization package. \url{https://github.com/stevengj/nlopt}.}
-#'   \item{Kaelo, P., & Ali, M. M. (2006). Some variants of the controlled random search algorithm for global optimization. Journal of optimization theory and applications, 130, 253-264.}
-#'   \item{Kucherenko, S., & Sytsko, Y. (2005). Application of deterministic low-discrepancy sequences in global optimization. Computational Optimization and Applications, 30, 297-318.}
+#'   \item{Kaelo, P., & Ali, M. M. (2006). Some variants of the controlled random search algorithm for global optimization. \emph{Journal of optimization theory and applications}, 130, 253-264. \doi{10.1007/s10957-006-9101-0}}
+#'   \item{Kucherenko, S., & Sytsko, Y. (2005). Application of deterministic low-discrepancy sequences in global optimization. \emph{Computational Optimization and Applications}, 30, 297-318. \doi{10.1007/s10589-005-4615-1}}
 #'   \item{Powell, M. J. D. (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
-#'   \item{Runarsson, T. P., & Yao, X. (2005). Search biases in constrained evolutionary optimization. IEEE Transactions on Systems, Man, and Cybernetics, Part C (Applications and Reviews), 35(2), 233-243.}
+#'   \item{Runarsson, T. P., & Yao, X. (2005). Search biases in constrained evolutionary optimization. \emph{IEEE Transactions on Systems, Man, and Cybernetics, Part C (Applications and Reviews)}, 35(2), 233-243. \doi{https://doi.org/10.1109/TSMCC.2004.841906}}
 #' }
 #'
 #' @examples
@@ -1918,7 +1920,7 @@ ll_ao <- function(par, q, x) {
 #' Uses the future package to implement parallelization support for
 #' the likelihood ratio tests for segregation distortion. Details of
 #' this test are provided in the \code{\link{seg_lrt}()} function's
-#' documentation.
+#' documentation. See Gerard et al. (2025) for details of the methods.
 #'
 #' @inheritSection seg_lrt Null Model
 #'
@@ -2044,6 +2046,11 @@ ll_ao <- function(par, q, x) {
 #'
 #' ## Outlier probabilities are returned if `ret_out = TRUE`
 #' # graphics::plot(s3$outprob[[6]], ylim = c(0, 1))
+#' }
+#'
+#' @references
+#' \itemize{
+#'   \item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{bioRxiv}, p. 1-20. \doi{10.1101/2025.06.23.661114}}
 #' }
 #'
 #' @export

@@ -75,7 +75,7 @@ A data frame with the following elements:
 Uses the \code{future} package to implement parallelization support for
 the likelihood ratio tests for segregation distortion. This function
 only works for tetraploids, and cannot account for outliers. For
-higher ploidies and more functionalitiy, see \code{\link{seg_multi}()}.
+higher ploidies and more functionality, see \code{\link{seg_multi}()}.
 }
 \section{Parallel Computation}{
 

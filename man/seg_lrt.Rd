@@ -141,6 +141,7 @@ levels of double reduction at non-simplex loci. Offspring genotypes can
 either be known, or genotype uncertainty can be represented through
 genotype likelihoods. Parent data may or may not be provided, at your
 option. Parents can have different (even) ploidies, at your option.
+Details of the methods may be found in Gerard et al. (2025).
 }
 \section{Null Model}{
 
@@ -212,14 +213,15 @@ seg_lrt(x = gl, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$
 }
 \references{
 \itemize{
-\item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. SIAM Journal on scientific computing, 16(5), 1190-1208.}
-\item{da Silva Santos, C. H., Goncalves, M. S., & Hernandez-Figueroa, H. E. (2010). Designing novel photonic devices by bio-inspired computing. IEEE Photonics Technology Letters, 22(15), 1177-1179.}
-\item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706.}
+\item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. \emph{SIAM Journal on scientific computing}, 16(5), 1190-1208. \doi{10.1137/0916069}}
+\item{da Silva Santos, C. H., Goncalves, M. S., & Hernandez-Figueroa, H. E. (2010). Designing novel photonic devices by bio-inspired computing. \emph{IEEE Photonics Technology Letters}, 22(15), 1177-1179. \doi{10.1109/LPT.2010.2051222}}
+\item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{bioRxiv}, p. 1-20. \doi{10.1101/2025.06.23.661114}}
+\item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
 \item{Johnson S (2008). The NLopt nonlinear-optimization package. \url{https://github.com/stevengj/nlopt}.}
-\item{Kaelo, P., & Ali, M. M. (2006). Some variants of the controlled random search algorithm for global optimization. Journal of optimization theory and applications, 130, 253-264.}
-\item{Kucherenko, S., & Sytsko, Y. (2005). Application of deterministic low-discrepancy sequences in global optimization. Computational Optimization and Applications, 30, 297-318.}
+\item{Kaelo, P., & Ali, M. M. (2006). Some variants of the controlled random search algorithm for global optimization. \emph{Journal of optimization theory and applications}, 130, 253-264. \doi{10.1007/s10957-006-9101-0}}
+\item{Kucherenko, S., & Sytsko, Y. (2005). Application of deterministic low-discrepancy sequences in global optimization. \emph{Computational Optimization and Applications}, 30, 297-318. \doi{10.1007/s10589-005-4615-1}}
 \item{Powell, M. J. D. (2009), The BOBYQA algorithm for bound constrained optimization without derivatives, Report No. DAMTP 2009/NA06, Centre for Mathematical Sciences, University of Cambridge, UK.}
-\item{Runarsson, T. P., & Yao, X. (2005). Search biases in constrained evolutionary optimization. IEEE Transactions on Systems, Man, and Cybernetics, Part C (Applications and Reviews), 35(2), 233-243.}
+\item{Runarsson, T. P., & Yao, X. (2005). Search biases in constrained evolutionary optimization. \emph{IEEE Transactions on Systems, Man, and Cybernetics, Part C (Applications and Reviews)}, 35(2), 233-243. \doi{https://doi.org/10.1109/TSMCC.2004.841906}}
 }
 }
 \author{

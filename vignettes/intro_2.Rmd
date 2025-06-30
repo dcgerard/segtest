@@ -19,7 +19,7 @@ set.seed(1)
 library(segtest)
 ```
 
-The `segtest` package offers a suite of tools for testing segregation distortion in F1 polyploid populations across diverse meiotic models. These methods support autopolyploids (full polysomic inheritance), allopolyploids (full disomic inheritance), and segmental allopolyploids (partial preferential pairing). Double reduction is optionally modeled fully in tetraploids and partially (at simplex loci only) in higher ploidies. A user-specified maximum proportion of outliers allows the method to accommodate moderate double reduction at non-simplex loci. Offspring genotypes may be known or modeled using genotype likelihoods to account for genotype uncertainty. Parent data may or may not be provided, at your option. Parents can have different (even) ploidies, at your option.
+The `segtest` package offers a suite of tools for testing segregation distortion in F1 polyploid populations across diverse meiotic models. These methods support autopolyploids (full polysomic inheritance), allopolyploids (full disomic inheritance), and segmental allopolyploids (partial preferential pairing). Double reduction is optionally modeled fully in tetraploids and partially (at simplex loci only) in higher ploidies. A user-specified maximum proportion of outliers allows the method to accommodate moderate double reduction at non-simplex loci. Offspring genotypes may be known or modeled using genotype likelihoods to account for genotype uncertainty. Parent data may or may not be provided, at your option. Parents can have different (even) ploidies, at your option. Details of the methods may be found in Gerard et al. (2025a) and Gerard et al. (2025b).
 
 Additional functions include those that generate gamete and genotype frequencies under different models of meiosis, functions that simulate genotype (log) likelihoods, and "competing" tests for segregation distortion.
 
@@ -138,3 +138,9 @@ seg_lrt(x = gl10, p1_ploidy = 6, p2_ploidy = 6, p1 = 2, p2 = 4)$p_value
 ```
 
 Don't mess with the technical arguments (`ntry`, `opt`, `optg`, `df_tol`). These have to do with the optimization and how to approximate the degrees of freedom of the test. Except possibly `ntry`. You could increase that if you are seeing weird results. But then let me know, because I haven't seen any bad behavior with `ntry = 3` (the default).
+
+## References
+
+Gerard D, Thakkar M, & Ferrão LFV (2025a). "Tests for segregation distortion in tetraploid F1 populations." _Theoretical and Applied Genetics_, *138*(30), p. 1--13. [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
+
+Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025b). "Tests for segregation distortion in higher ploidy F1 populations." _bioRxiv_, p. 1--20. [bioRxiv:2025.06.23.661114](https://doi.org/10.1101/2025.06.23.661114)

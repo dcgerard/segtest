@@ -101,7 +101,7 @@ like \code{\link[base]{saveRDS}()}
 Uses the future package to implement parallelization support for
 the likelihood ratio tests for segregation distortion. Details of
 this test are provided in the \code{\link{seg_lrt}()} function's
-documentation.
+documentation. See Gerard et al. (2025) for details of the methods.
 }
 \section{Parallel Computation}{
 
@@ -221,6 +221,11 @@ g_2 <- glist$g
 # graphics::plot(s3$outprob[[6]], ylim = c(0, 1))
 }
 
+}
+\references{
+\itemize{
+\item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{bioRxiv}, p. 1-20. \doi{10.1101/2025.06.23.661114}}
+}
 }
 \seealso{
 \itemize{

@@ -41,7 +41,7 @@
 #'
 #' @references
 #' \itemize{
-#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. Genetics, 210(3), 789-807.}
+#'   \item{Gerard, D., Ferrão, L. F. V., Garcia, A. A. F., & Stephens, M. (2018). Genotyping polyploids from messy sequencing data. Genetics, 210(3), 789-807. \doi{10.1534/genetics.118.301468}}
 #' }
 #'
 #' @author David Gerard

@@ -20,7 +20,7 @@ library(segtest)
 
 This is the introduction to Version 1.0 of segtest. This version was only applicable to tetraploids. Version 2.0 is applicable to any even ploidy level.
 
-The `segtest` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). Details of these methods may be found in Gerard et al. (2025). The main functions are:
+The `segtest` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). Details of these methods may be found in Gerard et al. (2025a). Methods for higher ploidies may be found in Gerard et al. (2025b). The main functions are:
 
 - `multi_lrt()`: Run any of the likelihood ratio tests for segregation distortion in parallel across many SNPs.
 - `multidog_to_g`: Format the genotyping output from `updog::multidog()` to be compatible withe input of `multi_lrt()`.
@@ -126,4 +126,8 @@ lout$p_value
 
 # References
 
-Gerard D, Thakkar M, & Ferrão LFV (2025). "Tests for segregation distortion in tetraploid F1 populations." _Theoretical and Applied Genetics_, *138*(30), p. 1--13. [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
+## References
+
+Gerard D, Thakkar M, & Ferrão LFV (2025a). "Tests for segregation distortion in tetraploid F1 populations." _Theoretical and Applied Genetics_, *138*(30), p. 1--13. [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
+
+Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025b). "Tests for segregation distortion in higher ploidy F1 populations." _bioRxiv_, p. 1--20. [bioRxiv:2025.06.23.661114](https://doi.org/10.1101/2025.06.23.661114)
