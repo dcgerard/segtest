@@ -193,7 +193,7 @@ You probably do not want to touch this.</p></dd>
 
 <dt id="arg-df-tol">df_tol<a class="anchor" aria-label="anchor" href="#arg-df-tol"></a></dt>
 <dd><p>Threshold for the rank of the Jacobian for the degrees of
-freedom calculation. This accounts for underidentifiability in the
+freedom calculation. This accounts for weak identifiability in the
 null model. You probably do not want to touch this.</p></dd>
 
 
@@ -319,7 +319,7 @@ or <code>model = "auto_dr"</code>.</p>
 
 
 <p>Do NOT interpret the estimated parameters in the <code>null$gam</code> list.
-These parameters are underidentified (I had to do some fancy
+These parameters are weakly identified (I had to do some fancy
 spectral methods to account for this in the null distribution
 of the tests). Even though they are technically identified, you would
 need a massive data set to be able to estimate them accurately.</p>

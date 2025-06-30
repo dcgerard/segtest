@@ -68,7 +68,7 @@ for details.}
 You probably do not want to touch this.}
 
 \item{df_tol}{Threshold for the rank of the Jacobian for the degrees of
-freedom calculation. This accounts for underidentifiability in the
+freedom calculation. This accounts for weak identifiability in the
 null model. You probably do not want to touch this.}
 }
 \value{
@@ -164,7 +164,7 @@ or \code{model = "auto_dr"}.
 \section{Unidentified Parameters}{
 
 Do NOT interpret the estimated parameters in the \code{null$gam} list.
-These parameters are underidentified (I had to do some fancy
+These parameters are weakly identified (I had to do some fancy
 spectral methods to account for this in the null distribution
 of the tests). Even though they are technically identified, you would
 need a massive data set to be able to estimate them accurately.

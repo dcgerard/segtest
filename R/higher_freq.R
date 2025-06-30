@@ -1298,7 +1298,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'
 #' @section Unidentified Parameters:
 #' Do NOT interpret the estimated parameters in the \code{null$gam} list.
-#' These parameters are underidentified (I had to do some fancy
+#' These parameters are weakly identified (I had to do some fancy
 #' spectral methods to account for this in the null distribution
 #' of the tests). Even though they are technically identified, you would
 #' need a massive data set to be able to estimate them accurately.
@@ -1344,7 +1344,7 @@ ll_gl <- function(par, rule, x, neg = FALSE) {
 #'     \item{\code{"NLOPT_GN_ISRES"}}{ISRES (Improved Stochastic Ranking Evolution Strategy). Runarsson and Yao (2005)}
 #'   }
 #' @param df_tol Threshold for the rank of the Jacobian for the degrees of
-#'    freedom calculation. This accounts for underidentifiability in the
+#'    freedom calculation. This accounts for weak identifiability in the
 #'    null model. You probably do not want to touch this.
 #' @param chisq A logical. When using known genotypes, this flags to use
 #'    the chi-squared test or the Likelihood Ratio Test. Default is \code{FALSE}
