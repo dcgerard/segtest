@@ -1,6 +1,6 @@
 Package: segtest
 Title: Tests for Segregation Distortion in Polyploids
-Version: 2.0.0
+Version: 2.0.1
 Authors@R: 
     c(person(given = "David", 
              family = "Gerard",
@@ -26,7 +26,7 @@ Description: Provides tests for segregation distortion in F1
     and genotype uncertainty through the use of genotype likelihoods. 
     Parallelization support is provided. Details of these methods are 
     described in Gerard et al. (2025a) <doi:10.1007/s00122-025-04816-z>
-    and Gerard et al. (2025b) <doi:10.1101/2025.06.23.661114>.
+    and Gerard et al. (2025b) <doi:10.1093/g3journal/jkaf212>.
     Part of this material is based upon work supported by the
     National Science Foundation under Grant No. 2132247.  The
     opinions, findings, and conclusions or recommendations expressed

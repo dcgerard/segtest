@@ -1,3 +1,7 @@
+# segtest 2.0.1
+
+* Update citation to G3.
+
 # segtest 2.0.0
 
 * `seg_lrt()`: Tests for segregation distortion for arbitrary (even) ploidy F1 populations.
