@@ -106,9 +106,9 @@ Genetics*, *138*(30), p. 1–13.
 [doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
 
 Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025b). “Tests
-for segregation distortion in higher ploidy F1 populations.” *bioRxiv*,
-p. 1–20.
-[bioRxiv:2025.06.23.661114](https://doi.org/10.1101/2025.06.23.661114)
+for segregation distortion in higher ploidy F1 populations.” *G3: Genes
+\| Genomes \| Genetics*, p. jkaf212.
+[doi:10.1093/g3journal/jkaf212](https://doi.org/10.1093/g3journal/jkaf212).
 
 ## Acknowledgments
 

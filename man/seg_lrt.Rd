@@ -215,7 +215,7 @@ seg_lrt(x = gl, p1_ploidy = p1_ploidy, p2_ploidy = p2_ploidy, p1 = p1, p2 = p2)$
 \itemize{
 \item{Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization. \emph{SIAM Journal on scientific computing}, 16(5), 1190-1208. \doi{10.1137/0916069}}
 \item{da Silva Santos, C. H., Goncalves, M. S., & Hernandez-Figueroa, H. E. (2010). Designing novel photonic devices by bio-inspired computing. \emph{IEEE Photonics Technology Letters}, 22(15), 1177-1179. \doi{10.1109/LPT.2010.2051222}}
-\item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{bioRxiv}, p. 1-20. \doi{10.1101/2025.06.23.661114}}
+\item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{G3: Genes | Genomes | Genetics}, p. jkaf212.. \doi{10.1093/g3journal/jkaf212}}
 \item{Huang, K., Wang, T., Dunn, D. W., Zhang, P., Cao, X., Liu, R., & Li, B. (2019). Genotypic frequencies at equilibrium for polysomic inheritance under double-reduction. \emph{G3: Genes, Genomes, Genetics}, 9(5), 1693-1706. \doi{10.1534/g3.119.400132}}
 \item{Johnson S (2008). The NLopt nonlinear-optimization package. \url{https://github.com/stevengj/nlopt}.}
 \item{Kaelo, P., & Ali, M. M. (2006). Some variants of the controlled random search algorithm for global optimization. \emph{Journal of optimization theory and applications}, 130, 253-264. \doi{10.1007/s10957-006-9101-0}}

@@ -224,7 +224,7 @@ g_2 <- glist$g
 }
 \references{
 \itemize{
-\item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{bioRxiv}, p. 1-20. \doi{10.1101/2025.06.23.661114}}
+\item{Gerard, D, Ambrosano, GB, Pereira, GdS, & Garcia, AAF (2025). Tests for segregation distortion in higher ploidy F1 populations. \emph{G3: Genes | Genomes | Genetics}, p. jkaf212.. \doi{10.1093/g3journal/jkaf212}}
 }
 }
 \seealso{
