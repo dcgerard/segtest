@@ -43,8 +43,8 @@ c(
                          comment = c(ORCID = "0000-0003-0634-3277"))
                   ),
     journal   = "G3: Genes | Genomes | Genetics",
-    volume    = "",
-    number    = "",
+    volume    = "15",
+    number    = "11",
     pages     = "jkaf212",
     year      = "2025",
     doi       = "10.1093/g3journal/jkaf212",

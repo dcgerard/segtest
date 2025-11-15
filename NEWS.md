@@ -1,3 +1,7 @@
+# segtest 2.0.2
+
+* Update volume and issue numbers for G3 paper.
+
 # segtest 2.0.1
 
 * Update citation to G3.
